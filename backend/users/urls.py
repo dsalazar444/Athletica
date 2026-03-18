@@ -6,5 +6,4 @@ urlpatterns = [
     path('api/register/', register),
     path('api/login/', login),# login
     path('api/token/refresh/', TokenRefreshView.as_view()),   # refresh
-    path('api/profile/', profile),
 ]

@@ -41,7 +41,7 @@ def login(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # authenticate usa USERNAME_FIELD — como pusiste email, funciona directo
+    # authenticate usa USERNAME_FIELD email, funciona directo
     user = authenticate(request, username=email, password=password)
 
     if user is None:
@@ -59,8 +59,3 @@ def login(request):
         'refresh': str(refresh),
     }, status=status.HTTP_200_OK)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def profile(request):
-    serializer = UserSerializer(request.user)
-    return Response(serializer.data)
