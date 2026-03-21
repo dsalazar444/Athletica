@@ -1,19 +1,70 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from .models import User, AthleteProfile, CoachProfile, Goal, WeightLog
 
+
+class GoalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Goal
+        fields = [
+            'id', 'goal_type', 'description',
+            'target_value', 'current_value',
+            'start_date', 'deadline', 'is_active',
+        ]
+        read_only_fields = ['start_date']
+
+
+class WeightLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WeightLog
+        fields = ['id', 'weight', 'body_fat', 'date']
+        read_only_fields = ['date']
+
+
+class AthleteProfileSerializer(serializers.ModelSerializer):
+    goals = GoalSerializer(many=True, read_only=True)
+    weight = WeightLogSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = AthleteProfile
+        fields = ['id', 'height', 'age', 'gender', 'activity_level', 'goals', 'weight']
+
+
+class CoachProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CoachProfile
+        fields = ['id', 'gym_name', 'business_address']
+        
+
+class UserSerializer(serializers.ModelSerializer):
+    athlete_profile = AthleteProfileSerializer(read_only=True)
+    coach_profile   = CoachProfileSerializer(read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            'id', 'username', 'email', 'role',
+            'athlete_profile', 'coach_profile',
+        ]
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
     password2 = serializers.CharField(write_only=True)
 
+    athlete_profile = AthleteProfileSerializer(required=False)
+    coach_profile   = CoachProfileSerializer(required=False)
+
     class Meta:
-        model = None  # se asigna abajo
+        model = get_user_model()
         fields = [
-            'id', 'email', 'username', 'first_name', 'last_name',
-            'gender', 'age', 'weight', 'height',
-            'password', 'password2',
+            'username',
+            'email',
+            'password',
+            'password2',
+            'role',
+            'athlete_profile',
+            'coach_profile'
         ]
-        extra_kwargs = {'id': {'read_only': True}}
 
     def validate_email(self, value):
         User = get_user_model()
@@ -22,20 +73,48 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
-        if data['password'] != data['password2']:
+        if data.get('password') != data.get('password2'):
             raise serializers.ValidationError("Las contraseñas no coinciden.")
         return data
 
+    # Crear usuario y el perfil
     def create(self, validated_data):
-        validated_data.pop('password2')
         User = get_user_model()
-        return User.objects.create_user(**validated_data)
+
+        athlete_data = validated_data.pop('athlete_profile', None)
+        coach_data   = validated_data.pop('coach_profile', None)
+
+        validated_data.pop('password2')
+
+        # crear usuario
+        user = User.objects.create_user(**validated_data)
+
+        # crear perfil según rol
+        if user.role == 'athlete' and athlete_data:
+            goals_data = athlete_data.pop('goals', [])
+            weight_logs_data = athlete_data.pop('weight_logs', [])
+
+            athlete = AthleteProfile.objects.create(
+                user=user,
+                **athlete_data
+            )
+
+            #crear objetivos
+            for goal in goals_data:
+                Goal.objects.create(
+                    athlete=athlete,
+                    **goal
+                )
+
+            #crear registros de peso
+            for weight in weight_logs_data:
+                WeightLog.objects.create(
+                    athlete=athlete,
+                    **weight
+                )
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = None
-        fields = [
-            'id', 'email', 'username', 'first_name', 'last_name',
-            'gender', 'age', 'weight', 'height',
-        ]
+        if user.role == 'coach' and coach_data:
+            CoachProfile.objects.create(user=user, **coach_data)
+
+        return user
