@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -79,15 +80,14 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'users_db',
-        'USER': 'users_django',
-        'PASSWORD': 'password123',
-        'HOST': 'db',      # <- el nombre del servicio en docker-compose
-        'PORT': '5432',    # <- el puerto interno del contenedor
+        'NAME': os.environ.get('DB_NAME', 'users_db'),
+        'USER': os.environ.get('DB_USER', 'users_django'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'password123'),
+        'HOST': os.environ.get('DB_HOST', 'db'),  # <- el nombre del servicio en docker-compose
+        'PORT': os.environ.get('DB_PORT', '5432'), # <- el puerto interno del contenedor
     }
 }
 
