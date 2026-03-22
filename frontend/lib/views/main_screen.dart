@@ -28,40 +28,39 @@ class _MainScreenState extends State<MainScreen> {
         index: _currentIndex,
         children: _screens,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) {
           setState(() {
             _currentIndex = index;
           });
         },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textHint,
-        items: const [
-          BottomNavigationBarItem(
+        backgroundColor: AppColors.surface,
+        indicatorColor: AppColors.primary.withOpacity(0.15),
+        destinations: const [
+          NavigationDestination(
             icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
+            selectedIcon: Icon(Icons.home, color: AppColors.primary),
             label: 'Inicio',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.fitness_center_outlined),
-            activeIcon: Icon(Icons.fitness_center),
+            selectedIcon: Icon(Icons.fitness_center, color: AppColors.primary),
             label: 'Rutinas',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.restaurant_outlined),
-            activeIcon: Icon(Icons.restaurant),
+            selectedIcon: Icon(Icons.restaurant, color: AppColors.primary),
             label: 'Comida',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.people_outline),
-            activeIcon: Icon(Icons.people),
+            selectedIcon: Icon(Icons.people, color: AppColors.primary),
             label: 'Comunidad',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
+            selectedIcon: Icon(Icons.person, color: AppColors.primary),
             label: 'Perfil',
           ),
         ],

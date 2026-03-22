@@ -45,37 +45,49 @@ class RoutineDetailScreen extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        gradient: LinearGradient(
+          colors: [AppColors.textPrimary, const Color(0xFF333333)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: AppRadius.card,
-        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.xxl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            children: [
+              _buildTag(routine.category, Colors.white.withOpacity(0.2), Colors.white),
+              const SizedBox(width: AppSpacing.sm),
+              _buildTag(routine.difficulty, Colors.white.withOpacity(0.2), Colors.white),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
           Text(
             routine.title,
             style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              fontSize: 26,
+              fontWeight: FontWeight.w800,
+              color: AppColors.surface,
+              letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: AppSpacing.sm),
-          Row(
-            children: [
-              _buildTag(routine.category),
-              const SizedBox(width: AppSpacing.sm),
-              _buildTag(routine.difficulty),
-            ],
-          ),
           if (routine.description.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.sm),
             Text(
               routine.description,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary,
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.white.withOpacity(0.8),
+                height: 1.4,
               ),
             ),
           ],
@@ -84,16 +96,16 @@ class RoutineDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTag(String text) {
+  Widget _buildTag(String text, Color bgColor, Color textColor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.tagBackground,
+        color: bgColor,
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
         text.toUpperCase(),
-        style: AppTextStyles.tagLabel,
+        style: AppTextStyles.tagLabel.copyWith(color: textColor),
       ),
     );
   }

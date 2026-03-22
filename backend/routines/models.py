@@ -91,4 +91,3 @@ class RoutineExercise(models.Model):
 
     def __str__(self):
         return f'{self.routine.title} - {self.exercise.name} (#{self.order})'
-    
