@@ -21,4 +21,5 @@ class ExerciseViewModel {
         .where((exercise) => exercise.name.toLowerCase().contains(query.toLowerCase()))
         .toList();
   }
+  
 }

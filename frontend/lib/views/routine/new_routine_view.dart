@@ -9,7 +9,8 @@ import '../../theme/app_text_styles.dart';
 import '../../views/form_widgets/form_field_label_widget.dart';
 import '../../views/form_widgets/styled_text_field_widget.dart';
 import '../../views/form_widgets/syled_dropdown_widget.dart';
-
+import '../../view_models/routine/new_routine_view_model.dart';
+import '../../repositories/routine/routine_repository.dart';
 // ─────────────────────────────────────────────
 //  NEW ROUTINE SCREEN
 // ─────────────────────────────────────────────
@@ -33,11 +34,22 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
         id: 1,
         name: 'Press de Banca',
         description: 'Ejercicio de pecho con barra',
-        muscles: [1,2],
+        muscles: [1],
+        imageUrl: null,
       ),
       order: 1,
     ),
   ];
+
+  late final RoutineViewModel _routineViewModel;
+
+  @override
+  void initState() {
+    super.initState();
+    _routineViewModel = RoutineViewModel(
+      routineRepository: RoutineRepository(baseUrl: 'http://localhost:8000/api'),
+    );
+  }
 
   @override
   void dispose() {
@@ -47,14 +59,13 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
   }
 
   Future<void> _openExerciseSelector() async {
-
     // Muestra a user modal para que selecciones ejercicio, puede ser exercise o null
     // await pausa la ejecución hasta que cierre modal
     final ExerciseModel? result = await showModalBottomSheet<ExerciseModel>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const ExerciseSelectorSheet(), 
+      builder: (_) => const ExerciseSelectorSheet(),
     );
 
     // si hay result, verifica que no se quiera añadir un ejercicio que ya estaba, si no, lo agrega
@@ -87,10 +98,32 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
     });
   }
 
-  // esto debe ir en view model
-  void _handleSave() {
-    // to do: implement save routine logic
-    Navigator.of(context).pop();
+  Future<void> _handleSave() async {
+    try {
+      await _routineViewModel.saveRoutine(
+        title: _titleController.text,
+        description: _descriptionController.text,
+        category: _selectedCategory.name,
+        difficulty: _selectedDifficulty.name,
+        selectedExercises: _selectedExercises,
+      );
+      if (!mounted) return;
+
+      // Si todo sale bien, mostrar un mensaje o navegar
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Rutina guardada con éxito')),
+      );
+
+      // Espera 1 segundo antes de cerrar la pantalla
+      await Future.delayed(const Duration(seconds: 1));
+      if (mounted) Navigator.of(context).pop();
+      
+    } catch (e) {
+      // Maneja el error (por ejemplo, muestra un mensaje)
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
   }
 
   @override

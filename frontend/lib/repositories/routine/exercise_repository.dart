@@ -4,18 +4,19 @@ import '../../models/routine/exercise_model.dart';
 
 class ExerciseRepository {
   final Map<int, String?> _imageCache = {};
+  final String baseUrl = 'http://localhost:8000/api';
 
   final uri = Uri.https("wger.de", "/api/v2/exerciseinfo/", {
-    "limit": "20",
+    "limit": "10",
     "language": "2",
     "offset": "0",
   });
 
   Future<List<ExerciseModel>> getExercises({
-    int limit = 20,
+    int limit = 10,
     int offset = 0,
   }) async {
-    print('Entrando a getExerciseImages con:');
+    print('Entrando a getExercise con:');
 
     final uri = Uri.https("wger.de", "/api/v2/exerciseinfo/", {
       "limit": "$limit",
@@ -24,6 +25,7 @@ class ExerciseRepository {
     });
 
     final response = await http.get(uri);
+    print('obtuve respuesta de api');
 
     if (response.statusCode != 200) throw Exception("Error al cargar ejercicios");
 
@@ -36,14 +38,23 @@ class ExerciseRepository {
     return results.map((e) => ExerciseModel.fromJson(e)).toList();
   }
 
-  Future<Map<int, String?>> getExerciseImages(List<int> exerciseIds) async {
-    final results = await Future.wait(
-      exerciseIds.map((id) async => MapEntry(id, await getExerciseImage(id))),
-    );
-    return Map.fromEntries(results);
+   Future<Map<int, String?>> getExerciseImages(List<int> exerciseIds) async {
+    print('Entrando a getExerciseImages con:');
+    final Map<int, String?> result = {};
+    for (final id in exerciseIds) {
+      try {
+        result[id] = await getExerciseImage(id);
+      } catch (e) {
+        print('Error al obtener imagen para ejercicio $id: $e');
+        result[id] = null;
+      }
+    }
+    print('termine todas las imagenes');
+    return result;
   }
   
   Future<String?> getExerciseImage(int id) async {
+    print('Entrando a getExerciseImage con id ${id}');
 
     if (_imageCache.containsKey(id)) {
       return _imageCache[id];
@@ -55,6 +66,8 @@ class ExerciseRepository {
     });
 
     final response = await http.get(uri);
+
+    print('termine imagen');
 
     if (response.statusCode == 200) {
 

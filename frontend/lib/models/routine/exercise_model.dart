@@ -31,9 +31,9 @@ class ExerciseModel {
       id: json['id'],
       name: translation?['name'] ?? 'Sin nombre',
       description: translation?['description'] ?? '',
-      muscles: (json['muscles'] as List)
-          .map((m) => m is int ? m : m['id'] as int)
-          .toList(),
+      muscles: (json['muscles'] != null)
+          ? (json['muscles'] as List).map((m) => m is int ? m : m['id'] as int).toList()
+          : [],
     );
     //ejemplo de retorno de objeto en llamada api:
     // {
@@ -44,6 +44,14 @@ class ExerciseModel {
     // }
   }
 
+  // convierte objeto de gui a json
+  Map<String, dynamic> toJson() => {
+    'external_id': id,
+    'name': name,
+    'description': description,
+    'muscle': primaryMuscleName,
+    'imageUrl': imageUrl,
+  };
   /// Mapa de IDs de músculos a nombres en español
   static const Map<int, String> muscleNames = {
     1: 'Pecho',
