@@ -3,10 +3,12 @@ import 'package:http/http.dart' as http;
 
 import '../../models/routine/exercise_model.dart';
 import '../../models/routine/routine_model.dart';
+import '../../core/services/translation_service.dart';
 
 /// Repositorio responsable de las operaciones CRUD de rutinas y la asociación de ejercicios.
 class RoutineRepository {
   final String baseUrl;
+  final TranslationService _translationService = TranslationService();
 
   RoutineRepository({required this.baseUrl});
 
@@ -85,17 +87,40 @@ class RoutineRepository {
     final response = await http.get(Uri.parse('$baseUrl/routines/'));
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
-      return data.map((e) => RoutineModel.fromJson(e)).toList();
+      final routines = data.map((e) => RoutineModel.fromJson(e)).toList();
+      
+      // Traducir ejercicios si es necesario (para datos ya guardados en inglés)
+      for (var routine in routines) {
+        await _translateExercises(routine.exercises.map((re) => re.exercise).toList());
+      }
+      
+      return routines;
     } else {
       throw Exception('Fallo al recuperar la lista de rutinas.');
     }
+  }
+
+  /// Helper para traducir una lista de ejercicios.
+  Future<void> _translateExercises(List<ExerciseModel> exercises) async {
+    await Future.wait(exercises.map((ex) async {
+      if (ex.needsTranslation) {
+        final translatedDesc = await _translationService.translateToSpanish(ex.description);
+        ex.description = translatedDesc;
+        ex.needsTranslation = false;
+      }
+    }));
   }
 
   /// Obtiene los detalles de una rutina específica por su [routineId].
   Future<RoutineModel> fetchRoutineDetail(int routineId) async {
     final response = await http.get(Uri.parse('$baseUrl/routines/$routineId/'));
     if (response.statusCode == 200) {
-      return RoutineModel.fromJson(json.decode(response.body));
+      final routine = RoutineModel.fromJson(json.decode(response.body));
+      
+      // Traducir ejercicios si es necesario
+      await _translateExercises(routine.exercises.map((re) => re.exercise).toList());
+      
+      return routine;
     } else {
       throw Exception('Fallo al recuperar los detalles de la rutina.');
     }

@@ -5,13 +5,16 @@ class ExerciseModel {
   final int id;
 
   /// Nombre del ejercicio (ej. "Press de Banca").
-  final String name;
+  String name;
 
   /// Descripción detallada del movimiento y técnica.
-  final String description;
+  String description;
 
   /// Lista de IDs de los músculos trabajados (según el mapeo de Wger).
   final List<int> muscles;
+
+  /// Indica si los textos actuales son originales (ej. Inglés) y requieren traducción.
+  bool needsTranslation;
 
   /// URL de la imagen ilustrativa del ejercicio (se carga bajo demanda).
   String? imageUrl;
@@ -21,32 +24,52 @@ class ExerciseModel {
     required this.name,
     required this.description,
     required this.muscles,
+    this.needsTranslation = false,
     this.imageUrl,
   });
 
   /// Crea un [ExerciseModel] desde un mapa JSON de Wger.
-  /// Prioriza las traducciones al español (language: 2) si están disponibles.
   factory ExerciseModel.fromJson(Map<String, dynamic> json) {
-    final translations = json['translations'] as List?;
-    Map<String, dynamic>? translation;
+    // Si la API ya devolvió un ejercicio traducido directamente.
+    String rawName = json['name'] ?? 'Sin nombre';
+    String rawDescription = json['description'] ?? '';
 
+    // Si hay una lista de traducciones, buscamos específicamente la de español (id: 2).
+    final translations = json['translations'] as List?;
+    bool isOfficialSpanish = false;
     if (translations != null && translations.isNotEmpty) {
-      translation = translations.firstWhere(
-        (t) => t['language'] == 2,
-        orElse: () => translations[0],
+      final translation = translations.firstWhere(
+        (t) => t['language'] == 2 || t['language_code'] == 'es',
+        orElse: () => null,
       );
+      if (translation != null) {
+        rawDescription = translation['description'] ?? rawDescription;
+        isOfficialSpanish = true;
+      }
     }
 
-    // Nota: El campo imageUrl no siempre viene en la primera llamada de lista,
-    // se suele completar posteriormente mediante ExerciseRepository.combineExercisesWithImages.
     return ExerciseModel(
       id: json['id'],
-      name: json['name'] ?? translation?['name'] ?? 'Sin nombre',
-      description: json['description'] ?? translation?['description'] ?? '',
+      name: _stripHtml(rawName),
+      description: _stripHtml(rawDescription),
       muscles: (json['muscles'] != null)
           ? (json['muscles'] as List).map((m) => m is int ? m : m['id'] as int).toList()
           : [],
+      needsTranslation: !isOfficialSpanish,
     );
+  }
+
+  /// Elimina etiquetas HTML y decodifica entidades comunes de un string.
+  static String _stripHtml(String text) {
+    return text
+        .replaceAll(RegExp(r'<[^>]*>'), '') // Elimina etiquetas <p>, <li>, etc.
+        .replaceAll('&nbsp;', ' ')
+        .replaceAll('&amp;', '&')
+        .replaceAll('&lt;', '<')
+        .replaceAll('&gt;', '>')
+        .replaceAll('&quot;', '"')
+        .replaceAll('&#39;', "'")
+        .trim();
   }
 
   /// Convierte el modelo a JSON para su persistencia en el backend local.
