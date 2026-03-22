@@ -29,8 +29,8 @@ class ExerciseModel {
     // No retornamos urlImage desde formjson (acá) porque la llamada de getExercise, que es con la que se crean los ExerciseModel, en repository no trae las imagenes, toca hacer otra llamada, y cuando ya las traen, ahi si se le asigna la imageUrl a cada ExerciseModel, en combineExercise...
     return ExerciseModel(
       id: json['id'],
-      name: translation?['name'] ?? 'Sin nombre',
-      description: translation?['description'] ?? '',
+      name: json['name'] ?? translation?['name'] ?? 'Sin nombre',
+      description: json['description'] ?? translation?['description'] ?? '',
       muscles: (json['muscles'] != null)
           ? (json['muscles'] as List).map((m) => m is int ? m : m['id'] as int).toList()
           : [],

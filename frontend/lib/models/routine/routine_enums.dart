@@ -4,7 +4,7 @@ enum CategoryType { hybrid, strength, cardio, flexibility }
 
 enum MuscleGroup { chest, back, shoulders, arms, legs, abdominal, lowerBack }
 
-// Converts DifficultyLevel enum to a user-friendly string
+// Convierte la enumeración DifficultyLevel en una cadena user-friendly
 String difficultyLevelToString(DifficultyLevel level) {
 	switch (level) {
 		case DifficultyLevel.beginner:
@@ -16,7 +16,7 @@ String difficultyLevelToString(DifficultyLevel level) {
 	}
 }
 
-// Converts CategoryType enum to a user-friendly string
+// Convierte la enumeración CategoryType en una cadena user-friendly
 String categoryTypeToString(CategoryType category) {
 	switch (category) {
 		case CategoryType.hybrid:
@@ -30,7 +30,7 @@ String categoryTypeToString(CategoryType category) {
 	}
 }
 
-// Converts MuscleGroup enum to a user-friendly string
+// Convierte la enumeración MuscleGroup en una cadena user-friendly
 String muscleGroupToString(MuscleGroup group) {
 	switch (group) {
 		case MuscleGroup.chest:

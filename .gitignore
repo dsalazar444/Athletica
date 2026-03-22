@@ -43,3 +43,12 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Específicos para carpeta frontend
+frontend/build/
+frontend/.dart_tool/
+frontend/linux/flutter/
+frontend/windows/flutter/
+frontend/macos/Flutter/Generated*
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies

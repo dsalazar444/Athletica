@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'theme/app_colors.dart';
-import 'views/routine/new_routine_view.dart';
-
+import 'views/main_screen.dart';
 void main() {
   runApp(const WorkoutApp());
 }
@@ -18,7 +17,7 @@ class WorkoutApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
         scaffoldBackgroundColor: AppColors.background,
       ),
-      home: const NewRoutineScreen(),
+      home: const MainScreen(),
     );
   }
 }
