@@ -12,6 +12,23 @@ class AppTextStyles {
     letterSpacing: -0.3,
   );
 
+  static const TextStyle h2 = TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
+    color: AppColors.textPrimary,
+  );
+
+  static const TextStyle h3 = TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+    color: AppColors.textPrimary,
+  );
+
+  static const TextStyle bodyText1 = TextStyle(
+    fontSize: 14,
+    color: AppColors.textPrimary,
+  );
+
   static const TextStyle sectionTitle = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w600,

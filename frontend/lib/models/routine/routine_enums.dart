@@ -1,10 +1,13 @@
+/// Definición de los niveles de dificultad disponibles para las rutinas.
 enum DifficultyLevel { beginner, intermediate, advanced }
  
+/// Tipos de categorías en las que se puede clasificar un entrenamiento.
 enum CategoryType { hybrid, strength, cardio, flexibility }
 
+/// Grupos musculares principales para el filtrado de ejercicios.
 enum MuscleGroup { chest, back, shoulders, arms, legs, abdominal, lowerBack }
 
-// Converts DifficultyLevel enum to a user-friendly string
+/// Convierte el valor del enum [DifficultyLevel] en un nombre legible en español.
 String difficultyLevelToString(DifficultyLevel level) {
 	switch (level) {
 		case DifficultyLevel.beginner:
@@ -16,7 +19,7 @@ String difficultyLevelToString(DifficultyLevel level) {
 	}
 }
 
-// Converts CategoryType enum to a user-friendly string
+/// Convierte el valor del enum [CategoryType] en un nombre legible en español para la UI.
 String categoryTypeToString(CategoryType category) {
 	switch (category) {
 		case CategoryType.hybrid:
@@ -30,7 +33,7 @@ String categoryTypeToString(CategoryType category) {
 	}
 }
 
-// Converts MuscleGroup enum to a user-friendly string
+/// Convierte el valor del enum [MuscleGroup] en el nombre del músculo correspondiente en español.
 String muscleGroupToString(MuscleGroup group) {
 	switch (group) {
 		case MuscleGroup.chest:
