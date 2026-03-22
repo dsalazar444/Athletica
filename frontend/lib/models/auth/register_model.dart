@@ -2,7 +2,7 @@ enum UserRole { athlete, coach }
  
 enum UserGoal { fuerza, resistencia, salud, estetica }
  
-enum Experience { bajo, medio, alto }
+enum Experience { low, medium, high }
  
 class RegisterModel {
   UserRole? role;
@@ -93,14 +93,14 @@ class RegisterModel {
 
   String _mapExperience() {
     switch (experience) {
-      case Experience.bajo:
-        return "baja";
-      case Experience.medio:
-        return "media";
-      case Experience.alto:
-        return "alta";
+      case Experience.low:
+        return "low";
+      case Experience.medium:
+        return "medium";
+      case Experience.high:
+        return "high";
       default:
-        return "media";
+        return "medium";
     }
   }
 }

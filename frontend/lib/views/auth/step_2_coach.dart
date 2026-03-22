@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
 
 class Step2Coach extends StatefulWidget {
-  final Function(String specialty, String yearsExperience) onNext;
+  final Future<void> Function(String specialty, String yearsExperience) onNext;
 
   const Step2Coach({super.key, required this.onNext});
 
@@ -54,11 +54,11 @@ class _Step2CoachState extends State<Step2Coach> {
           width: double.infinity,
           child: ElevatedButton(
             onPressed: isValid
-                ? () => widget.onNext(
-                      specialtyController.text,
-                      yearsController.text,
-                    )
-                : null,
+            ? () async => await widget.onNext(
+                  specialtyController.text,
+                  yearsController.text,
+                )
+            : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               padding: const EdgeInsets.symmetric(vertical: 16),

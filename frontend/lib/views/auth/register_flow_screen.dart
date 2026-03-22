@@ -34,7 +34,7 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
       body: Column(
         children: [
 
-          
+          // HEADER
           Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(20, 60, 20, 30),
@@ -42,7 +42,6 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 const Text(
                   "Athletica",
                   style: TextStyle(
@@ -51,9 +50,7 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-
                 const SizedBox(height: 5),
-
                 const Text(
                   "Configura tu perfil",
                   style: TextStyle(
@@ -61,7 +58,6 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                     fontSize: 14,
                   ),
                 ),
-
                 const SizedBox(height: 20),
 
                 // PROGRESS BAR
@@ -96,7 +92,6 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                   top: Radius.circular(30),
                 ),
               ),
-
               child:
 
               // STEP 0 → ROL
@@ -124,16 +119,22 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
               : vm.step == 2
                   ? (vm.data.role == UserRole.coach
                       ? Step2Coach(
-                          onNext: (specialty, years) {
+                          onNext: (specialty, years) async {
                             vm.data.specialty = specialty;
                             vm.data.yearsExperience = int.parse(years);
-                            print('=== REGISTRO COMPLETO ===');
-                            print('JSON para API: ${vm.data.toApiJson()}');
-                            nextStep();
-                          },
+
+                            final success = await vm.register();
+                            if (success) {
+                              nextStep();
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(vm.errorMessage ?? 'Error desconocido')),
+                              );
+                            }   // 👈 cierre del if/else
+                          },    // 👈 cierre del onNext
                         )
                       : Step2Personal(
-                          onNext: (name, age, weight, height, gender,) {
+                          onNext: (name, age, weight, height, gender) {
                             vm.data.name = name;
                             vm.data.age = int.parse(age);
                             vm.data.weight = double.parse(weight);
@@ -143,7 +144,7 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                           },
                         ))
 
-              // STEP 3 → GOALS (solo atleta llega aquí)
+              // STEP 3 → GOALS
               : vm.step == 3
                   ? Step3Goals(
                       onNext: (goal) {
@@ -152,20 +153,26 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                       },
                     )
 
-              //STEP 4 → EXPERIENCE (solo atleta llega aquí)
+              // STEP 4 → EXPERIENCE
               : vm.step == 4
                   ? Step4Experience(
-                      onNext: (exp) {
+                      onNext: (exp) async {
                         vm.data.experience = exp;
-                        print('=== REGISTRO COMPLETO ===');
-                        print('JSON para API: ${vm.data.toApiJson()}');
-                        nextStep();
+
+                        final success = await vm.register();
+                        if (success) {
+                          nextStep();
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(vm.errorMessage ?? 'Error desconocido')),
+                          );
+                        }   // 👈 cierre del if/else, sin nextStep() suelto
                       },
                     )
 
-              //FINAL
+              // FINAL
               : const Center(
-                  child: Text("Registro completado"),
+                  child: Text("Registro completado 🎉"),
                 ),
             ),
           ),
