@@ -139,10 +139,11 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.routineExercise.exercise.name, style: AppTextStyles.h2),
+          Text(widget.routineExercise.exercise.name, style: AppTextStyles.h2, overflow: TextOverflow.ellipsis),
           Text(
             '${widget.routineExercise.exercise.primaryMuscleName} • Registra tu progreso',
             style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

@@ -225,20 +225,22 @@ class RoutineDetailScreen extends StatelessWidget {
                         Text(
                           routineExercise.exercise.name,
                           style: AppTextStyles.exerciseName.copyWith(fontSize: 16),
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
                         Row(
                           children: [
                             const Icon(Icons.fitness_center, size: 14, color: AppColors.textHint),
                             const SizedBox(width: 4),
-                            Text(
-                              routineExercise.exercise.primaryMuscleName,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textSecondary,
+                              Text(
+                                routineExercise.exercise.primaryMuscleName,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textSecondary,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
                           ],
                         ),
                       ],
@@ -246,15 +248,15 @@ class RoutineDetailScreen extends StatelessWidget {
                   ),
                   // Botón para eliminar el ejercicio de esta rutina.
                   IconButton(
-                    icon: const Icon(Icons.delete_outline, color: AppColors.error),
+                    constraints: const BoxConstraints(),
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.delete_outline, color: AppColors.error, size: 22),
                     onPressed: () {
                       _showDeleteConfirmation(context, viewModel, routineExercise);
                     },
                   ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 12.0),
-                    child: Icon(Icons.chevron_right, color: AppColors.textHint),
-                  ),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.chevron_right, color: AppColors.textHint, size: 20),
                 ],
               ),
             ),

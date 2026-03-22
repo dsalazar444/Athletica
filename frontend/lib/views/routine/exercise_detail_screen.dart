@@ -106,10 +106,11 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.routineExercise.exercise.name, style: AppTextStyles.h2),
+              Text(widget.routineExercise.exercise.name, style: AppTextStyles.h2, overflow: TextOverflow.ellipsis),
               Text(
                 widget.routineExercise.exercise.primaryMuscleName,
                 style: AppTextStyles.bodyText1.copyWith(color: AppColors.textSecondary),
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -135,7 +136,10 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Mejor Marca', style: AppTextStyles.sectionTitle),
+              const Expanded(
+                child: Text('Mejor Marca', style: AppTextStyles.sectionTitle, overflow: TextOverflow.ellipsis),
+              ),
+              const SizedBox(width: 8),
               ElevatedButton.icon(
                 onPressed: () {
                   // Abre la pantalla de seguimiento para añadir un nuevo registro hoy.
@@ -150,10 +154,11 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                   ).then((_) => vm.init()); // Recarga los datos al regresar.
                 },
                 icon: const Icon(Icons.add, size: 18),
-                label: const Text('Log'),
+                label: const Text('Registrar'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   elevation: 0,
                 ),
@@ -258,13 +263,16 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(DateFormat('EEEE, d MMMM').format(date), style: const TextStyle(fontWeight: FontWeight.bold)),
-                          Text('$setsCount series completadas • $reps reps', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                        ],
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(DateFormat('EEEE, d MMMM').format(date), style: const TextStyle(fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
+                            Text('$setsCount series completadas • $reps reps', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary), overflow: TextOverflow.ellipsis),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       Text('${weight}kg', style: AppTextStyles.h3.copyWith(color: AppColors.primary)),
                     ],
                   ),

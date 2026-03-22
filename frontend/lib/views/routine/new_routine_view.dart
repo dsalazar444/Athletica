@@ -305,14 +305,23 @@ class _ExerciseListSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Ejercicios seleccionados (${exercises.length})',
-              style: AppTextStyles.sectionTitle,
+            Expanded(
+              child: Text(
+                'Ejercicios seleccionados (${exercises.length})',
+                style: AppTextStyles.sectionTitle,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
+            const SizedBox(width: 8),
             TextButton.icon(
               onPressed: onAddExercise,
               icon: const Icon(Icons.add, size: 18),
               label: const Text('Añadir', style: AppTextStyles.addExerciseLink),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
             ),
           ],
         ),
@@ -376,6 +385,7 @@ class _ExerciseListItem extends StatelessWidget {
             child: Text(
               selectedExercise.exercise.name,
               style: AppTextStyles.exerciseName.copyWith(fontSize: 15),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           IconButton(
