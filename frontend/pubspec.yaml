@@ -38,6 +38,12 @@ dependencies:
   # HTTP package for making API requests
   http: ^1.0.0
 
+  # State management
+  provider: ^6.0.0
+
+  # Internationalization for date formatting
+  intl: ^0.19.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
 
+/// Pantalla de inicio de la aplicación.
+/// Presenta un resumen de bienvenida y sirve como punto de entrada principal.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -23,6 +25,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  /// Construye el encabezado con degradado y mensaje de bienvenida.
   Widget _buildModernHeader() {
     return Container(
       width: double.infinity,
@@ -62,13 +65,14 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  /// Área reservada para futuras funcionalidades o estadísticas rápidas.
   Widget _buildContent() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Espacio libre o ilustración futura
+          // Espacio libre para widgets de resumen o ilustraciones futuras.
         ],
       ),
     );

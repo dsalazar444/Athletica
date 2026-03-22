@@ -6,9 +6,12 @@ import '../../theme/app_radius.dart';
 import '../../theme/app_text_styles.dart';
 import '../../view_models/routines_list_view_model.dart';
 import '../../models/routine/routine_enums.dart';
+import '../../core/config/api_config.dart';
 import 'new_routine_view.dart';
 import 'routine_detail_screen.dart';
 
+/// Pantalla que muestra el listado de rutinas del usuario.
+/// Permite visualizar un resumen de cada rutina, refrescar la lista y navegar a la creación de nuevas rutinas.
 class RoutinesListScreen extends StatefulWidget {
   const RoutinesListScreen({super.key});
 
@@ -22,16 +25,19 @@ class _RoutinesListScreenState extends State<RoutinesListScreen> {
   @override
   void initState() {
     super.initState();
+    // Inicialización del ViewModel con la configuración de API centralizada.
     _viewModel = RoutinesListViewModel(
-      routineRepository: RoutineRepository(baseUrl: 'http://localhost:8000/api'),
+      routineRepository: RoutineRepository(baseUrl: ApiConfig.baseUrl),
     );
+    // Carga inicial de datos desde el servidor.
     _viewModel.loadRoutines();
     
+    // Escuchamos cambios en el ViewModel para redibujar la pantalla.
     _viewModel.addListener(_onViewModelChange);
   }
 
   void _onViewModelChange() {
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
@@ -40,6 +46,7 @@ class _RoutinesListScreenState extends State<RoutinesListScreen> {
     super.dispose();
   }
 
+  /// Navega a la pantalla de creación de rutina y recarga la lista al volver si hubo cambios.
   Future<void> _navigateAndRefresh() async {
     await Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const NewRoutineScreen()),
@@ -72,6 +79,7 @@ class _RoutinesListScreenState extends State<RoutinesListScreen> {
     );
   }
 
+  /// Construye el título y subtítulo de la sección.
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.only(left: 24.0, right: 24.0, top: 32.0, bottom: 16.0),
@@ -107,6 +115,7 @@ class _RoutinesListScreenState extends State<RoutinesListScreen> {
     );
   }
 
+  /// Decide qué contenido mostrar según el estado del ViewModel (Carga, Error o Lista).
   Widget _buildContent() {
     if (_viewModel.isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -117,6 +126,8 @@ class _RoutinesListScreenState extends State<RoutinesListScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const Icon(Icons.error_outline, size: 48, color: Colors.red),
+            const SizedBox(height: 16),
             Text('Error: ${_viewModel.errorMessage}', style: const TextStyle(color: Colors.red)),
             const SizedBox(height: 16),
             ElevatedButton(
@@ -135,7 +146,7 @@ class _RoutinesListScreenState extends State<RoutinesListScreen> {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
       itemCount: _viewModel.routines.length,
       itemBuilder: (context, index) {
         final routine = _viewModel.routines[index];
@@ -145,6 +156,7 @@ class _RoutinesListScreenState extends State<RoutinesListScreen> {
   }
 }
 
+/// Widget interno para representar cada ítem de rutina en una tarjeta estilizada.
 class _RoutineCard extends StatelessWidget {
   final RoutineModel routine;
 
@@ -171,6 +183,7 @@ class _RoutineCard extends StatelessWidget {
         child: InkWell(
           borderRadius: AppRadius.card,
           onTap: () {
+            // Navegación al detalle profundo de la rutina seleccionada.
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => RoutineDetailScreen(routine: routine),
@@ -181,6 +194,7 @@ class _RoutineCard extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
+                // Icono decorativo de la rutina.
                 Container(
                   width: 50,
                   height: 50,
@@ -200,25 +214,19 @@ class _RoutineCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              routine.title,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
+                      // Título de la rutina.
+                      Text(
+                        routine.title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 8),
+                      // Chips informativos de categoría y dificultad.
                       Wrap(
                         spacing: 8,
                         runSpacing: 4,
@@ -228,6 +236,7 @@ class _RoutineCard extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 12),
+                      // Descripción corta (si existe).
                       if (routine.description.isNotEmpty) ...[
                         Text(
                           routine.description,
@@ -240,49 +249,14 @@ class _RoutineCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 12),
-                      ] else ...[
-                         const SizedBox(height: 4),
                       ],
+                      // Indicadores rápidos de tiempo estimado y número de ejercicios.
                       Wrap(
                         spacing: 8,
                         runSpacing: 4,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: AppColors.background,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.access_time, size: 14, color: AppColors.textSecondary),
-                                const SizedBox(width: 4),
-                                const Text(
-                                  '45 min',
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.textSecondary),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: AppColors.background,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.fitness_center, size: 14, color: AppColors.textSecondary),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${routine.exercises.length} ejers',
-                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.textSecondary),
-                                ),
-                              ],
-                            ),
-                          ),
+                          _buildIndicator(Icons.access_time, '45 min'),
+                          _buildIndicator(Icons.fitness_center, '${routine.exercises.length} ejers'),
                         ],
                       ),
                     ],
@@ -300,6 +274,7 @@ class _RoutineCard extends StatelessWidget {
     );
   }
 
+  /// Widget auxiliar para los chips pequeños (Categoría/Dificultad).
   Widget _buildMiniChip(String label, Color bgColor, Color textColor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -315,6 +290,28 @@ class _RoutineCard extends StatelessWidget {
           color: textColor,
           letterSpacing: 0.5,
         ),
+      ),
+    );
+  }
+
+  /// Widget auxiliar para los indicadores con icono (Tiempo/Ejercicios).
+  Widget _buildIndicator(IconData icon, String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: AppColors.textSecondary),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.textSecondary),
+          ),
+        ],
       ),
     );
   }
