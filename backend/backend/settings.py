@@ -41,8 +41,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'users',
+    'routines',
 ]
 
+# To indicate that we'll use our own User Model
 AUTH_USER_MODEL = 'users.User'
 
 MIDDLEWARE = [
@@ -79,15 +81,14 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('DB_NAME', 'users_db'),
         'USER': os.environ.get('DB_USER', 'users_django'),
         'PASSWORD': os.environ.get('DB_PASSWORD', 'password123'),
-        'HOST': os.environ.get('DB_HOST', 'db'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
+        'HOST': os.environ.get('DB_HOST', 'db'),  # <- el nombre del servicio en docker-compose
+        'PORT': os.environ.get('DB_PORT', '5432'), # <- el puerto interno del contenedor
     }
 }
 

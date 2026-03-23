@@ -22,11 +22,11 @@ class AuthRepository {
         refresh: response.data['refresh'],
       );
 
-      print("✅ RESPONSE:");
+      print("RESPONSE:");
       print(response.data);
     } on DioException catch (e) {
-      print("❌ STATUS: ${e.response?.statusCode}");
-      print("❌ ERROR: ${e.response?.data}");
+      print("STATUS: ${e.response?.statusCode}");
+      print("ERROR: ${e.response?.data}");
       throw e.response?.data;
     }
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
 import '../../view_models/auth/register_view_model.dart';
 import '../../models/auth/register_model.dart';
+import '../../core/api_client.dart';
 
 import 'step_1_role.dart';
 import 'step_2_account.dart';
@@ -130,8 +131,8 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text(vm.errorMessage ?? 'Error desconocido')),
                               );
-                            }   
-                          },    
+                            }
+                          },
                         )
                       : Step2Personal(
                           onNext: (name, age, weight, height, gender) {
@@ -166,13 +167,26 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(vm.errorMessage ?? 'Error desconocido')),
                           );
-                        }   // 👈 cierre del if/else, sin nextStep() suelto
+                        }
                       },
                     )
 
               // FINAL
-              : const Center(
-                  child: Text("Registro completado"),
+              : Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("Registro completado 🎉"),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final response = await ApiClient.dio.get('auth/me/');
+                          print(response.data);
+                        },
+                        child: const Text("Probar token"),
+                      ),
+                    ],
+                  ),
                 ),
             ),
           ),
