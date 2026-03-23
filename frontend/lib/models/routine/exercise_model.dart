@@ -1,17 +1,21 @@
-/// Modelo que representa un ejercicio obtenido de una API externa (Wger).
 /// Estos ejercicios se muestran en el catálogo al buscar para añadir a una rutina.
+import 'routine_enums.dart';
+
 class ExerciseModel {
   /// Identificador único del ejercicio en el sistema externo.
   final int id;
 
   /// Nombre del ejercicio (ej. "Press de Banca").
-  final String name;
+  String name;
 
   /// Descripción detallada del movimiento y técnica.
-  final String description;
+  String description;
 
   /// Lista de IDs de los músculos trabajados (según el mapeo de Wger).
   final List<int> muscles;
+
+  /// Indica si los textos actuales son originales (ej. Inglés) y requieren traducción.
+  bool needsTranslation;
 
   /// URL de la imagen ilustrativa del ejercicio (se carga bajo demanda).
   String? imageUrl;
@@ -21,32 +25,67 @@ class ExerciseModel {
     required this.name,
     required this.description,
     required this.muscles,
+    this.needsTranslation = false,
     this.imageUrl,
   });
 
   /// Crea un [ExerciseModel] desde un mapa JSON de Wger.
-  /// Prioriza las traducciones al español (language: 2) si están disponibles.
   factory ExerciseModel.fromJson(Map<String, dynamic> json) {
+    // Si la API ya devolvió un ejercicio traducido directamente.
+    String rawName = json['name'] ?? 'Sin nombre';
+    String rawDescription = json['description'] ?? '';
+    // Iteramos por las traducciones para obtener el nombre en inglés y la descripción en español.
     final translations = json['translations'] as List?;
-    Map<String, dynamic>? translation;
-
+    bool isOfficialSpanish = false;
+    
     if (translations != null && translations.isNotEmpty) {
-      translation = translations.firstWhere(
-        (t) => t['language'] == 2,
-        orElse: () => translations[0],
+      // 1. Buscamos la traducción al inglés para el NOMBRE (preferencia del usuario).
+      final enTranslation = translations.firstWhere(
+        (t) => t['language'] == 1 || t['language_code'] == 'en',
+        orElse: () => null,
       );
+      if (enTranslation != null) {
+        rawName = enTranslation['name'] ?? rawName;
+      }
+
+      // 2. Buscamos la traducción al español para la DESCRIPCIÓN.
+      final esTranslation = translations.firstWhere(
+        (t) => t['language'] == 2 || t['language_code'] == 'es',
+        orElse: () => null,
+      );
+      if (esTranslation != null) {
+        rawDescription = esTranslation['description'] ?? rawDescription;
+        isOfficialSpanish = true;
+      }
+      
+      // Si después de buscar no tenemos nombre (raro), usamos la primera traducción disponible.
+      if (rawName == 'Sin nombre' && translations.isNotEmpty) {
+        rawName = translations.first['name'] ?? rawName;
+      }
     }
 
-    // Nota: El campo imageUrl no siempre viene en la primera llamada de lista,
-    // se suele completar posteriormente mediante ExerciseRepository.combineExercisesWithImages.
     return ExerciseModel(
       id: json['id'],
-      name: json['name'] ?? translation?['name'] ?? 'Sin nombre',
-      description: json['description'] ?? translation?['description'] ?? '',
+      name: _stripHtml(rawName),
+      description: _stripHtml(rawDescription),
       muscles: (json['muscles'] != null)
           ? (json['muscles'] as List).map((m) => m is int ? m : m['id'] as int).toList()
           : [],
+      needsTranslation: !isOfficialSpanish,
     );
+  }
+
+  /// Elimina etiquetas HTML y decodifica entidades comunes de un string.
+  static String _stripHtml(String text) {
+    return text
+        .replaceAll(RegExp(r'<[^>]*>'), '') // Elimina etiquetas <p>, <li>, etc.
+        .replaceAll('&nbsp;', ' ')
+        .replaceAll('&amp;', '&')
+        .replaceAll('&lt;', '<')
+        .replaceAll('&gt;', '>')
+        .replaceAll('&quot;', '"')
+        .replaceAll('&#39;', "'")
+        .trim();
   }
 
   /// Convierte el modelo a JSON para su persistencia en el backend local.
@@ -83,5 +122,22 @@ class ExerciseModel {
   String get primaryMuscleName {
     if (muscles.isEmpty) return 'Sin grupo muscular';
     return muscleIdToString(muscles.first);
+  }
+
+  /// Retorna la categoría general (MuscleGroup) a la que pertenece el ejercicio.
+  MuscleGroup? get muscleCategory {
+    if (muscles.isEmpty) return null;
+    final id = muscles.first;
+    
+    // Mapeo de IDs de Wger a categorías de nuestra App.
+    if ([1, 26].contains(id)) return MuscleGroup.chest;
+    if ([2, 16, 17, 18, 19, 20].contains(id)) return MuscleGroup.back;
+    if ([3, 4, 30, 31].contains(id)) return MuscleGroup.shoulders;
+    if ([5, 6, 36, 37, 34, 35, 32, 33].contains(id)) return MuscleGroup.arms;
+    if ([7, 8, 9, 10, 11, 12, 13, 14, 15, 24, 25].contains(id)) return MuscleGroup.legs;
+    if ([21, 22, 23].contains(id)) return MuscleGroup.abdominal;
+    if ([27, 28, 29].contains(id)) return MuscleGroup.back; // Músculos de escápula/espalda
+    
+    return null;
   }
 }

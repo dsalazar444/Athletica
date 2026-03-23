@@ -37,8 +37,8 @@ class _ExerciseSelectorSheetState extends State<ExerciseSelectorSheet> {
     _loadExercises();
   }
 
-  /// Filtra los ejercicios basándose en el query ingresado y retorna la lista resultante.
-  List<ExerciseModel> get _filteredExercises => viewModel.filteredExercises(_searchQuery);
+  /// Filtra los ejercicios basándose en el query y la categoría seleccionada.
+  List<ExerciseModel> get _filteredExercises => viewModel.filteredExercises(_searchQuery, _selectedCategory);
 
   /// Carga el catálogo completo de ejercicios desde la API.
   Future<void> _loadExercises() async {
@@ -92,9 +92,26 @@ class _ExerciseSelectorSheetState extends State<ExerciseSelectorSheet> {
           ),
           const Divider(height: 1, color: AppColors.border),
           Expanded(
-            child: _ExerciseResultList(
-              exercises: _filteredExercises,
-              onExerciseSelected: (exercise) => Navigator.of(context).pop(exercise),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+                  child: Row(
+                    children: [
+                      Text(
+                        '${_filteredExercises.length} ejercicios encontrados',
+                        style: AppTextStyles.bodyText1.copyWith(color: AppColors.textSecondary, fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: _ExerciseResultList(
+                    exercises: _filteredExercises,
+                    onExerciseSelected: (exercise) => Navigator.of(context).pop(exercise),
+                  ),
+                ),
+              ],
             ),
           ),
           // Botón para crear ejercicios personalizados (aún no implementado).
@@ -203,10 +220,15 @@ class _CategoryFilterRow extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
-        itemCount: MuscleGroup.values.length,
+        itemCount: MuscleGroup.values.length + 1, // +1 para la opción "Todos"
         separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
         itemBuilder: (_, index) {
-          final category = muscleGroupToString(MuscleGroup.values[index]);
+          final String category;
+          if (index == 0) {
+            category = 'Todos';
+          } else {
+            category = muscleGroupToString(MuscleGroup.values[index - 1]);
+          }
           final isSelected = category == selectedCategory;
           return GestureDetector(
             onTap: () => onCategorySelected(category),

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../core/config/api_config.dart';
 import '../../models/routine/exercise_model.dart';
+import '../../core/services/translation_service.dart';
 
 /// Repositorio encargado de gestionar la obtención de ejercicios desde la API externa de Wger.
 /// Maneja el catálogo de ejercicios, la recuperación de imágenes y su almacenamiento en caché.
@@ -11,6 +12,9 @@ class ExerciseRepository {
 
   /// URL base configurada para las peticiones al backend.
   final String baseUrl = ApiConfig.baseUrl;
+
+  /// Servicio para traducciones automáticas.
+  final TranslationService _translationService = TranslationService();
 
   /// Obtiene una lista paginada de ejercicios desde Wger.
   /// Los ejercicios se solicitan específicamente en español ([language: 2]).
@@ -34,7 +38,19 @@ class ExerciseRepository {
     final List results = data['results'];
 
     // Convertimos la lista de resultados JSON en objetos ExerciseModel.
-    return results.map((e) => ExerciseModel.fromJson(e)).toList();
+    final exercises = results.map((e) => ExerciseModel.fromJson(e)).toList();
+
+    // Traducimos automáticamente la descripción si no tiene versión oficial en español.
+    await Future.wait(exercises.map((ex) async {
+      if (ex.needsTranslation) {
+        final translatedDesc = await _translationService.translateToSpanish(ex.description);
+        ex.description = translatedDesc;
+        // El nombre se mantiene en inglés por preferencia del usuario.
+        ex.needsTranslation = false;
+      }
+    }));
+
+    return exercises;
   }
 
   /// Recupera las imágenes para una lista de IDs de ejercicios de forma secuencial.
