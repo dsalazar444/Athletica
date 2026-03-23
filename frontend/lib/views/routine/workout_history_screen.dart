@@ -162,7 +162,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                         subtitle: Padding(
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
-                            DateFormat('EEEE, d MMM yyyy • h:mm a', 'es').format(session.date.toLocal()),
+                              DateFormat('EEEE, d MMM yyyy • HH:mm', 'es_ES').format(session.date.toLocal()),
                             style: const TextStyle(color: AppColors.textSecondary),
                           ),
                         ),
