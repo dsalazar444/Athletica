@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 from .models import AthleteProfile
 from .serializers import RegisterSerializer, UserSerializer, AthleteProfileSerializer
@@ -13,6 +14,11 @@ def test_serializer(request):
     athlete = AthleteProfile.objects.first()
     serializer = AthleteProfileSerializer(athlete)
     return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def protected_test(request):
+    return Response({"message": f"Hola {request.user.username}, estás autenticado ✅"})
 
 
 @api_view(['POST'])
