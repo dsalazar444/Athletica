@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../models/routine/workout_session_model.dart';
 import '../../models/routine/set_log_model.dart';
+import '../../models/routine/paginated_workout_history_model.dart';
 
 /// Repositorio encargado de gestionar la persistencia de las sesiones de entrenamiento.
 /// Maneja la creación de sesiones, el guardado de series (sets) y la obtención del historial.
@@ -104,5 +105,39 @@ class WorkoutRepository {
     } else {
       throw Exception('Error al obtener el historial de este ejercicio.');
     }
+  }
+
+  /// Obtiene el historial paginado de sesiones en un rango de fechas.
+  Future<PaginatedWorkoutHistoryModel> fetchWorkoutHistoryByDateRange({
+    required DateTime startDate,
+    required DateTime endDate,
+    int page = 1,
+    int pageSize = 10,
+  }) async {
+    final start = _formatDate(startDate);
+    final end = _formatDate(endDate);
+
+    final uri = Uri.parse('$baseUrl/sessions/history/').replace(
+      queryParameters: {
+        'start_date': start,
+        'end_date': end,
+        'page': '$page',
+        'page_size': '$pageSize',
+      },
+    );
+
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      return PaginatedWorkoutHistoryModel.fromJson(json.decode(response.body));
+    }
+
+    throw Exception('Error al obtener el historial de entrenamientos.');
+  }
+
+  String _formatDate(DateTime date) {
+    final month = date.month.toString().padLeft(2, '0');
+    final day = date.day.toString().padLeft(2, '0');
+    return '${date.year}-$month-$day';
   }
 }

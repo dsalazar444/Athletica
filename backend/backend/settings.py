@@ -82,14 +82,18 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+RUNNING_IN_DOCKER = os.path.exists('/.dockerenv')
+DEFAULT_DB_HOST = 'db' if RUNNING_IN_DOCKER else 'localhost'
+DEFAULT_DB_PORT = '5432' if RUNNING_IN_DOCKER else '5433'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('DB_NAME', 'users_db'),
         'USER': os.environ.get('DB_USER', 'users_django'),
         'PASSWORD': os.environ.get('DB_PASSWORD', 'password123'),
-        'HOST': os.environ.get('DB_HOST', 'db'),  # <- el nombre del servicio en docker-compose
-        'PORT': os.environ.get('DB_PORT', '5432'), # <- el puerto interno del contenedor
+        'HOST': os.environ.get('DB_HOST', DEFAULT_DB_HOST),
+        'PORT': os.environ.get('DB_PORT', DEFAULT_DB_PORT),
     }
 }
 

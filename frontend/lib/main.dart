@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'theme/app_colors.dart';
 import 'views/main_screen.dart';
 import 'views/auth/login_screen.dart';
@@ -6,7 +7,7 @@ import 'core/token_storage.dart';
  
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const WorkoutApp());
+  await initializeDateFormatting('es_ES', null);
 }
  
 class WorkoutApp extends StatelessWidget {
