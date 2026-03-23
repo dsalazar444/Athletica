@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'theme/app_colors.dart';
 import 'views/main_screen.dart';
-import 'views/auth/register_flow_screen.dart';
-
 void main() {
   runApp(const WorkoutApp());
 }
-
+ 
 class WorkoutApp extends StatelessWidget {
   const WorkoutApp({super.key});
-
+ 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -19,7 +17,7 @@ class WorkoutApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
         scaffoldBackgroundColor: AppColors.background,
       ),
-      home: const RegisterFlowScreen(),
+      home: const MainScreen(),
     );
   }
 }
