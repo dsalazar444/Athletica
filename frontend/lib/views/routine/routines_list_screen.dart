@@ -3,12 +3,11 @@ import '../../models/routine/routine_model.dart';
 import '../../repositories/routine/routine_repository.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_radius.dart';
-import '../../theme/app_text_styles.dart';
 import '../../view_models/routines_list_view_model.dart';
-import '../../models/routine/routine_enums.dart';
 import '../../core/config/api_config.dart';
 import 'new_routine_view.dart';
 import 'routine_detail_screen.dart';
+import 'workout_history_screen.dart';
 
 /// Pantalla que muestra el listado de rutinas del usuario.
 /// Permite visualizar un resumen de cada rutina, refrescar la lista y navegar a la creación de nuevas rutinas.
@@ -109,6 +108,21 @@ class _RoutinesListScreenState extends State<RoutinesListScreen> {
                 ),
               ],
             ),
+          ),
+          IconButton(
+            tooltip: 'Ver historial',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const WorkoutHistoryScreen(),
+                ),
+              );
+            },
+            style: IconButton.styleFrom(
+              backgroundColor: AppColors.surface,
+              side: const BorderSide(color: AppColors.border),
+            ),
+            icon: const Icon(Icons.history, color: AppColors.primary),
           ),
         ],
       ),
