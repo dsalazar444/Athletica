@@ -11,6 +11,8 @@ import 'step_2_coach.dart';
 import 'step_3_goals.dart';
 import 'step_4_experience.dart';
 
+// Pantalla principal del flujo de registro.
+// Coordina los pasos del formulario y muestra el contenido correspondiente a cada paso.
 class RegisterFlowScreen extends StatefulWidget {
   const RegisterFlowScreen({super.key});
 
@@ -22,6 +24,7 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
 
   final vm = RegisterViewModel();
 
+  // Avanza al siguiente paso y reconstruye la pantalla.
   void nextStep() {
     setState(() {
       vm.next();
@@ -35,7 +38,7 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
       body: Column(
         children: [
 
-          // HEADER
+          // Cabecera con el nombre de la app, subtitulo y barra de progreso.
           Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(20, 60, 20, 30),
@@ -44,7 +47,7 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  "Athletica",
+                  'Athletica',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 26,
@@ -53,7 +56,7 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                 ),
                 const SizedBox(height: 5),
                 const Text(
-                  "Configura tu perfil",
+                  'Configura tu perfil',
                   style: TextStyle(
                     color: Colors.white70,
                     fontSize: 14,
@@ -61,7 +64,8 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // PROGRESS BAR
+                // Barra de progreso — cada segmento representa un paso del flujo.
+                // Los pasos completados se muestran en blanco, los pendientes en blanco transparente.
                 Row(
                   children: List.generate(6, (index) {
                     return Expanded(
@@ -82,7 +86,7 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
             ),
           ),
 
-          // CONTENIDO
+          // Area de contenido — muestra el widget correspondiente al paso actual.
           Expanded(
             child: Container(
               width: double.infinity,
@@ -95,7 +99,7 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
               ),
               child:
 
-              // STEP 0 → ROL
+              // Paso 0 — seleccion de rol (atleta o coach).
               vm.step == 0
                   ? Step1Role(
                       onNext: (role) {
@@ -104,7 +108,7 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                       },
                     )
 
-              // STEP 1 → ACCOUNT
+              // Paso 1 — datos de la cuenta (usuario, email, contrasena).
               : vm.step == 1
                   ? Step2Account(
                       onNext: (username, email, password, password2) {
@@ -116,7 +120,8 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                       },
                     )
 
-              // STEP 2 → PERSONAL / COACH
+              // Paso 2 — datos personales del atleta o datos del coach.
+              // Muestra un formulario diferente segun el rol seleccionado.
               : vm.step == 2
                   ? (vm.data.role == UserRole.coach
                       ? Step2Coach(
@@ -124,6 +129,7 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                             vm.data.specialty = specialty;
                             vm.data.yearsExperience = int.parse(years);
 
+                            // El coach envia el registro en este paso — no tiene pasos adicionales.
                             final success = await vm.register();
                             if (success) {
                               nextStep();
@@ -145,7 +151,7 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                           },
                         ))
 
-              // STEP 3 → GOALS
+              // Paso 3 — seleccion de meta de entrenamiento (solo atleta).
               : vm.step == 3
                   ? Step3Goals(
                       onNext: (goal) {
@@ -154,11 +160,12 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                       },
                     )
 
-              // STEP 4 → EXPERIENCE
+              // Paso 4 — nivel de experiencia (solo atleta).
+              // Al completar este paso se envia el registro al backend.
               : vm.step == 4
                   ? Step4Experience(
                       onNext: (exp) async {
-                        vm.data.experience = exp;
+                        vm.data.activityLevel = exp;
 
                         final success = await vm.register();
                         if (success) {
@@ -171,19 +178,20 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                       },
                     )
 
-              // FINAL
+              // Paso final — confirmacion de registro completado.
+              // Incluye un boton temporal para verificar que el token funciona correctamente.
               : Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text("Registro completado 🎉"),
+                      const Text('Registro completado'),
                       const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () async {
                           final response = await ApiClient.dio.get('auth/me/');
                           print(response.data);
                         },
-                        child: const Text("Probar token"),
+                        child: const Text('Probar token'),
                       ),
                     ],
                   ),

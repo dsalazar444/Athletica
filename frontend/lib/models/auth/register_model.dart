@@ -2,10 +2,10 @@
 enum UserRole { athlete, coach }
 
 // Tipos de meta que puede seleccionar un atleta durante el registro.
-enum UserGoal { fuerza, resistencia, salud, estetica }
+enum UserGoal { fuerza, resistencia, salud, estetica, mantener }
 
-// Niveles de experiencia disponibles para el atleta.
-enum Experience { low, medium, high }
+// Niveles de actividad disponibles para el atleta.
+enum ActivityLevel { low, medium, high }
 
 // Modelo que almacena temporalmente los datos del formulario de registro.
 // Se construye paso a paso a traves del flujo de registro y se envia al backend al finalizar.
@@ -21,7 +21,7 @@ class RegisterModel {
   double? height;
   String? gender;
   UserGoal? goal;
-  Experience? experience;
+  ActivityLevel? activityLevel;
 
   // Campos exclusivos del perfil de coach.
   String? specialty;
@@ -39,7 +39,7 @@ class RegisterModel {
     this.height,
     this.gender,
     this.goal,
-    this.experience,
+    this.activityLevel,
     this.specialty,
     this.yearsExperience,
   });
@@ -61,7 +61,7 @@ class RegisterModel {
           'height': height != null ? height! / 100 : null,
           'age': age,
           'gender': gender,
-          'activity_level': _mapExperience(),
+          'activity_level': _mapActivityLevel(),
           'goals': [
             {
               'goal_type': _mapGoal(),
@@ -97,19 +97,21 @@ class RegisterModel {
         return 'wellness';
       case UserGoal.estetica:
         return 'lose_weight';
+      case UserGoal.mantener:
+        return 'maintain';
       default:
-        return 'health';
+        return 'wellness';
     }
   }
 
-  // Convierte el enum Experience al string que espera el backend.
-  String _mapExperience() {
-    switch (experience) {
-      case Experience.low:
+  // Convierte el enum ActivityLevel al string que espera el backend.
+  String _mapActivityLevel() {
+    switch (activityLevel) {
+      case ActivityLevel.low:
         return 'low';
-      case Experience.medium:
+      case ActivityLevel.medium:
         return 'medium';
-      case Experience.high:
+      case ActivityLevel.high:
         return 'high';
       default:
         return 'medium';

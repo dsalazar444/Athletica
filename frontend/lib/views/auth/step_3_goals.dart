@@ -3,7 +3,7 @@ import '../../theme/app_colors.dart';
 import '../../models/auth/register_model.dart';
 
 class Step3Goals extends StatefulWidget {
-  final Function(UserGoal) onNext; 
+  final Function(UserGoal) onNext;
 
   const Step3Goals({super.key, required this.onNext});
 
@@ -12,36 +12,30 @@ class Step3Goals extends StatefulWidget {
 }
 
 class _Step3GoalsState extends State<Step3Goals> {
-
-  UserGoal? selectedGoal; //
+  UserGoal? selectedGoal;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         const Text(
-          "¿Cuál es tu objetivo?",
+          '¿Cuál es tu objetivo?',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
         ),
-
         const SizedBox(height: 10),
-
-        const Text("Selecciona tu meta principal"),
-
+        const Text('Selecciona tu meta principal'),
         const SizedBox(height: 20),
 
-        _card("Fuerza", UserGoal.fuerza),
+        _card('Fuerza', UserGoal.fuerza),
         const SizedBox(height: 10),
-
-        _card("Resistencia", UserGoal.resistencia),
+        _card('Resistencia', UserGoal.resistencia),
         const SizedBox(height: 10),
-
-        _card("Salud", UserGoal.salud),
+        _card('Salud', UserGoal.salud),
         const SizedBox(height: 10),
-
-        _card("Estética", UserGoal.estetica),
+        _card('Estética', UserGoal.estetica),
+        const SizedBox(height: 10),
+        _card('Mantener peso', UserGoal.mantener),
 
         const Spacer(),
 
@@ -53,8 +47,12 @@ class _Step3GoalsState extends State<Step3Goals> {
                 : () => widget.onNext(selectedGoal!),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: const Text("Continuar"),
+            child: const Text('Continuar'),
           ),
         ),
       ],
@@ -63,7 +61,6 @@ class _Step3GoalsState extends State<Step3Goals> {
 
   Widget _card(String title, UserGoal value) {
     final isSelected = selectedGoal == value;
-
     return GestureDetector(
       onTap: () {
         setState(() {

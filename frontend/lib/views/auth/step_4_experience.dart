@@ -3,7 +3,7 @@ import '../../theme/app_colors.dart';
 import '../../models/auth/register_model.dart';
 
 class Step4Experience extends StatefulWidget {
-  final Future<void> Function(Experience) onNext;
+  final Future<void> Function(ActivityLevel) onNext;
   const Step4Experience({super.key, required this.onNext});
 
   @override
@@ -11,7 +11,7 @@ class Step4Experience extends StatefulWidget {
 }
 
 class _Step4ExperienceState extends State<Step4Experience> {
-  Experience? selectedLevel;
+  ActivityLevel? selectedLevel;
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +25,11 @@ class _Step4ExperienceState extends State<Step4Experience> {
         const SizedBox(height: 10),
         const Text("Selecciona tu nivel actual"),
         const SizedBox(height: 20),
-        _card("Principiante", Experience.low),
+        _card("Principiante", ActivityLevel.low),
         const SizedBox(height: 10),
-        _card("Intermedio", Experience.medium),
+        _card("Intermedio", ActivityLevel.medium),
         const SizedBox(height: 10),
-        _card("Avanzado", Experience.high),
+        _card("Avanzado", ActivityLevel.high),
         const Spacer(),
         SizedBox(
           width: double.infinity,
@@ -47,7 +47,7 @@ class _Step4ExperienceState extends State<Step4Experience> {
     );
   }
 
-  Widget _card(String title, Experience value) {
+  Widget _card(String title, ActivityLevel value) {
     final isSelected = selectedLevel == value;
     return GestureDetector(
       onTap: () {
