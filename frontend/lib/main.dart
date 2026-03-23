@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'theme/app_colors.dart';
 import 'views/main_screen.dart';
-void main() {
+import 'views/auth/login_screen.dart';
+import 'core/token_storage.dart';
+ 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const WorkoutApp());
 }
  
@@ -17,7 +21,37 @@ class WorkoutApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
         scaffoldBackgroundColor: AppColors.background,
       ),
-      home: const MainScreen(),
+      // Verifica si hay un token guardado para decidir que pantalla mostrar.
+      home: const AuthGate(),
     );
   }
 }
+ 
+// Widget que verifica si el usuario tiene sesion activa.
+// Si tiene token muestra la app principal, si no muestra el login.
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+ 
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String?>(
+      future: TokenStorage.getAccessToken(),
+      builder: (context, snapshot) {
+        // Mientras verifica el token muestra una pantalla de carga.
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+ 
+        // Si hay token va a la pantalla principal, si no al login.
+        if (snapshot.data != null) {
+          return const MainScreen();
+        } else {
+          return const LoginScreen();
+        }
+      },
+    );
+  }
+}
+ 
