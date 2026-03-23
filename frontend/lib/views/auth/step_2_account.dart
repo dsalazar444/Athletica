@@ -76,55 +76,51 @@ class _Step2AccountState extends State<Step2Account> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Crea tu cuenta',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: 10),
-        const Text(
-          'Ingresa tus datos de acceso',
-          style: TextStyle(color: Colors.grey),
-        ),
-        const SizedBox(height: 20),
-
-        _input('Username', username, usernameError),
-        const SizedBox(height: 15),
-
-        _input('Email', email, emailError),
-        const SizedBox(height: 15),
-
-        _input('Password', password, passwordError, isPassword: true),
-        const SizedBox(height: 15),
-
-        _input('Confirmar Password', password2, password2Error, isPassword: true),
-
-        const Spacer(),
-
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: isValid
-                ? () => widget.onNext(
-                      username.text,
-                      email.text,
-                      password.text,
-                      password2.text,
-                    )
-                : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text('Continuar'),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Crea tu cuenta',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
           ),
-        ),
-      ],
+          const SizedBox(height: 10),
+          const Text(
+            'Ingresa tus datos de acceso',
+            style: TextStyle(color: Colors.grey),
+          ),
+          const SizedBox(height: 20),
+          _input('Username', username, usernameError),
+          const SizedBox(height: 15),
+          _input('Email', email, emailError),
+          const SizedBox(height: 15),
+          _input('Password', password, passwordError, isPassword: true),
+          const SizedBox(height: 15),
+          _input('Confirmar Password', password2, password2Error, isPassword: true),
+          const SizedBox(height: 30),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: isValid
+                  ? () => widget.onNext(
+                        username.text,
+                        email.text,
+                        password.text,
+                        password2.text,
+                      )
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Continuar'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

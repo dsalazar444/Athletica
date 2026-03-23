@@ -18,10 +18,11 @@ class AuthRepository {
 
       final response = await _dio.post('auth/register/', data: json);
 
-      // Guarda el access token y el refresh token en el almacenamiento local.
+      // Guarda el access token, el refresh token y el nombre en el almacenamiento local.
       await TokenStorage.saveTokens(
         access: response.data['access'],
         refresh: response.data['refresh'],
+        name: response.data['user']['first_name'],
       );
 
       print('RESPONSE:');

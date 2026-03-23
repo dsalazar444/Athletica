@@ -1,13 +1,14 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import '../../models/routine/workout_session_model.dart';
 import '../../models/routine/set_log_model.dart';
 import '../../models/routine/paginated_workout_history_model.dart';
+import '../../core/api_client.dart';
 
 /// Repositorio encargado de gestionar la persistencia de las sesiones de entrenamiento.
 /// Maneja la creación de sesiones, el guardado de series (sets) y la obtención del historial.
 class WorkoutRepository {
   final String baseUrl;
+  final Dio _dio = ApiClient.dio;
 
   WorkoutRepository({required this.baseUrl});
 
@@ -20,90 +21,83 @@ class WorkoutRepository {
       body['date'] = date.toIso8601String();
     }
     
-    final response = await http.post(
-      Uri.parse('$baseUrl/sessions/'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(body),
-    );
-
-    if (response.statusCode == 201 || response.statusCode == 200) {
-      return WorkoutSessionModel.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Error al iniciar o recuperar la sesión de entrenamiento.');
+    try {
+      final response = await _dio.post('sessions/', data: body);
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return WorkoutSessionModel.fromJson(response.data);
+      }
+      throw Exception('Error al iniciar sesión: Código ${response.statusCode}');
+    } on DioException catch (e) {
+      throw Exception('Error al iniciar o recuperar la sesión: ${e.message}');
     }
   }
 
   /// Registra una nueva serie (set) en el backend.
   Future<SetLogModel> saveSet(SetLogModel setLog) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/sets/'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(setLog.toJson()),
-    );
-
-    if (response.statusCode == 201) {
-      return SetLogModel.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Error al guardar la serie de ejercicio.');
+    try {
+      final response = await _dio.post('sets/', data: setLog.toJson());
+      if (response.statusCode == 201) {
+        return SetLogModel.fromJson(response.data);
+      }
+      throw Exception('Error al guardar serie: Código ${response.statusCode}');
+    } on DioException catch (e) {
+      throw Exception('Error al guardar la serie de ejercicio: ${e.message}');
     }
   }
 
   /// Actualiza una serie (set) existente en el backend.
   Future<SetLogModel> updateSet(SetLogModel setLog) async {
-    final response = await http.put(
-      Uri.parse('$baseUrl/sets/${setLog.id}/'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(setLog.toJson()),
-    );
-
-    if (response.statusCode == 200) {
-      return SetLogModel.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Error al actualizar la serie de ejercicio.');
+    try {
+      final response = await _dio.put('sets/${setLog.id}/', data: setLog.toJson());
+      if (response.statusCode == 200) {
+        return SetLogModel.fromJson(response.data);
+      }
+      throw Exception('Error al actualizar serie: Código ${response.statusCode}');
+    } on DioException catch (e) {
+      throw Exception('Error al actualizar la serie: ${e.message}');
     }
   }
 
   /// Elimina una serie (set) permanentemente según su [setId].
   Future<void> deleteSet(int setId) async {
-    final response = await http.delete(
-      Uri.parse('$baseUrl/sets/$setId/'),
-    );
-
-    if (response.statusCode != 204) {
-      throw Exception('Error al eliminar la serie de la base de datos.');
+    try {
+      final response = await _dio.delete('sets/$setId/');
+      if (response.statusCode != 204) {
+        throw Exception('Error al eliminar serie: Código ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      throw Exception('Error al eliminar la serie de la base de datos: ${e.message}');
     }
   }
 
   /// Obtiene las series del último entrenamiento realizado para un ejercicio específico.
   /// Útil para pre-llenar sugerencias de peso y repeticiones.
   Future<List<SetLogModel>> fetchLastExerciseLogs(int exerciseId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/exercises/$exerciseId/last/'),
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      return data.map((e) => SetLogModel.fromJson(e)).toList();
-    } else if (response.statusCode == 404) {
-      // Retorna lista vacía si no hay entrenamientos previos registrados.
+    try {
+      final response = await _dio.get('exercises/$exerciseId/last/');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        return data.map((e) => SetLogModel.fromJson(e)).toList();
+      }
       return [];
-    } else {
-      throw Exception('Error al obtener el último registro para las sugerencias.');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) return [];
+      throw Exception('Error al obtener sugerencias: ${e.message}');
     }
   }
 
   /// Obtiene el historial completo de entrenamientos realizados para un ejercicio específico.
   /// Retorna una lista de mapas con las fechas y las series realizadas.
   Future<List<Map<String, dynamic>>> fetchExerciseHistory(int exerciseId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/exercises/$exerciseId/history/'),
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      return data.cast<Map<String, dynamic>>();
-    } else {
-      throw Exception('Error al obtener el historial de este ejercicio.');
+    try {
+      final response = await _dio.get('exercises/$exerciseId/history/');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        return data.cast<Map<String, dynamic>>();
+      }
+      throw Exception('Error al obtener historial: Código ${response.statusCode}');
+    } on DioException catch (e) {
+      throw Exception('Error al obtener el historial de este ejercicio: ${e.message}');
     }
   }
 
@@ -117,22 +111,21 @@ class WorkoutRepository {
     final start = _formatDate(startDate);
     final end = _formatDate(endDate);
 
-    final uri = Uri.parse('$baseUrl/sessions/history/').replace(
-      queryParameters: {
+    try {
+      final response = await _dio.get('sessions/history/', queryParameters: {
         'start_date': start,
         'end_date': end,
-        'page': '$page',
-        'page_size': '$pageSize',
-      },
-    );
+        'page': page,
+        'page_size': pageSize,
+      });
 
-    final response = await http.get(uri);
-
-    if (response.statusCode == 200) {
-      return PaginatedWorkoutHistoryModel.fromJson(json.decode(response.body));
+      if (response.statusCode == 200) {
+        return PaginatedWorkoutHistoryModel.fromJson(response.data);
+      }
+      throw Exception('Error al obtener historial: Código ${response.statusCode}');
+    } on DioException catch (e) {
+      throw Exception('Error al obtener el historial de entrenamientos: ${e.message}');
     }
-
-    throw Exception('Error al obtener el historial de entrenamientos.');
   }
 
   String _formatDate(DateTime date) {

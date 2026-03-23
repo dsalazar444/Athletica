@@ -53,6 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
     await TokenStorage.saveTokens(
       access: response.data['access'],
       refresh: response.data['refresh'],
+      name: response.data['first_name'],
     );
 
     if (mounted) {

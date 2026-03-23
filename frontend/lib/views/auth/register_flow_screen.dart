@@ -181,19 +181,52 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
               // Paso final — confirmacion de registro completado.
               // Incluye un boton temporal para verificar que el token funciona correctamente.
               : Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('Registro completado'),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () async {
-                          final response = await ApiClient.dio.get('auth/me/');
-                          print(response.data);
-                        },
-                        child: const Text('Probar token'),
-                      ),
-                    ],
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.check_circle_outline,
+                          color: AppColors.primary,
+                          size: 80,
+                        ),
+                        const SizedBox(height: 20),
+                        const Text(
+                          '¡Registro completado!',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          'Tu cuenta ha sido creada con éxito. Ya puedes empezar a entrenar.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        const SizedBox(height: 40),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // Redirige al inicio (MainScreen)
+                              Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              'Ir al Inicio',
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
             ),

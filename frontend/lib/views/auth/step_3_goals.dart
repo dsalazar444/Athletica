@@ -16,46 +16,45 @@ class _Step3GoalsState extends State<Step3Goals> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          '¿Cuál es tu objetivo?',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: 10),
-        const Text('Selecciona tu meta principal'),
-        const SizedBox(height: 20),
-
-        _card('Fuerza', UserGoal.fuerza),
-        const SizedBox(height: 10),
-        _card('Resistencia', UserGoal.resistencia),
-        const SizedBox(height: 10),
-        _card('Salud', UserGoal.salud),
-        const SizedBox(height: 10),
-        _card('Estética', UserGoal.estetica),
-        const SizedBox(height: 10),
-        _card('Mantener peso', UserGoal.mantener),
-
-        const Spacer(),
-
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: selectedGoal == null
-                ? null
-                : () => widget.onNext(selectedGoal!),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text('Continuar'),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '¿Cuál es tu objetivo?',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
           ),
-        ),
-      ],
+          const SizedBox(height: 10),
+          const Text('Selecciona tu meta principal'),
+          const SizedBox(height: 20),
+          _card('Fuerza', UserGoal.fuerza),
+          const SizedBox(height: 10),
+          _card('Resistencia', UserGoal.resistencia),
+          const SizedBox(height: 10),
+          _card('Salud', UserGoal.salud),
+          const SizedBox(height: 10),
+          _card('Estética', UserGoal.estetica),
+          const SizedBox(height: 10),
+          _card('Mantener peso', UserGoal.mantener),
+          const SizedBox(height: 30),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: selectedGoal == null
+                  ? null
+                  : () => widget.onNext(selectedGoal!),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Continuar'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

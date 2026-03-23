@@ -26,50 +26,45 @@ class _Step2CoachState extends State<Step2Coach> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Datos del entrenador",
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-        ),
-
-        const SizedBox(height: 10),
-
-        const Text(
-          "Cuéntanos sobre tu experiencia",
-          style: TextStyle(color: Colors.grey),
-        ),
-
-        const SizedBox(height: 20),
-
-        _input("Especialidad", specialtyController),
-        const SizedBox(height: 15),
-
-        _input("Años de experiencia", yearsController, isNumber: true),
-
-        const Spacer(),
-
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: isValid
-            ? () async => await widget.onNext(
-                  specialtyController.text,
-                  yearsController.text,
-                )
-            : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text("Continuar"),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Datos del entrenador",
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
           ),
-        ),
-      ],
+          const SizedBox(height: 10),
+          const Text(
+            "Cuéntanos sobre tu experiencia",
+            style: TextStyle(color: Colors.grey),
+          ),
+          const SizedBox(height: 20),
+          _input("Especialidad", specialtyController),
+          const SizedBox(height: 15),
+          _input("Años de experiencia", yearsController, isNumber: true),
+          const SizedBox(height: 30),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: isValid
+              ? () async => await widget.onNext(
+                    specialtyController.text,
+                    yearsController.text,
+                  )
+              : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text("Continuar"),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

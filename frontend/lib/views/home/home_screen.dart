@@ -1,10 +1,33 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
+import '../../core/token_storage.dart';
 
 /// Pantalla de inicio de la aplicación.
 /// Presenta un resumen de bienvenida y sirve como punto de entrada principal.
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String _userName = 'Usuario';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    final name = await TokenStorage.getUserName();
+    if (name != null) {
+      setState(() {
+        _userName = name;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,19 +64,21 @@ class HomeScreen extends StatelessWidget {
           bottomRight: Radius.circular(30),
         ),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '¡Hola Usuario!',
-            style: TextStyle(
+            '¡Hola $_userName!',
+            style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: 8),
-          Text(
+          const SizedBox(height: 8),
+          const Text(
             '¿List@ para empezar tu día de entrenamiento?',
             style: TextStyle(
               fontSize: 16,
@@ -67,8 +92,8 @@ class HomeScreen extends StatelessWidget {
 
   /// Área reservada para futuras funcionalidades o estadísticas rápidas.
   Widget _buildContent() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
