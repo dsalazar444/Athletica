@@ -130,8 +130,8 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text(vm.errorMessage ?? 'Error desconocido')),
                               );
-                            }   // 👈 cierre del if/else
-                          },    // 👈 cierre del onNext
+                            }   
+                          },    
                         )
                       : Step2Personal(
                           onNext: (name, age, weight, height, gender) {
@@ -172,7 +172,7 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
 
               // FINAL
               : const Center(
-                  child: Text("Registro completado 🎉"),
+                  child: Text("Registro completado"),
                 ),
             ),
           ),

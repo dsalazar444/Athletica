@@ -3,7 +3,7 @@ import '../../theme/app_colors.dart';
 import '../../models/auth/register_model.dart';
 
 class Step3Goals extends StatefulWidget {
-  final Function(UserGoal) onNext; // ✅ enum
+  final Function(UserGoal) onNext; 
 
   const Step3Goals({super.key, required this.onNext});
 
@@ -13,7 +13,7 @@ class Step3Goals extends StatefulWidget {
 
 class _Step3GoalsState extends State<Step3Goals> {
 
-  UserGoal? selectedGoal; // ✅ enum
+  UserGoal? selectedGoal; //
 
   @override
   Widget build(BuildContext context) {

@@ -56,7 +56,6 @@ class _Step1RoleState extends State<Step1Role> {
 
         const Spacer(),
 
-        // 🔘 BOTÓN
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
@@ -86,7 +85,7 @@ class _Step1RoleState extends State<Step1Role> {
   Widget _card({
     required String title,
     required String subtitle,
-    required UserRole value, // ✅ enum
+    required UserRole value, //
   }) {
     final isSelected = selectedRole == value;
 
