@@ -12,7 +12,7 @@ urlpatterns = [
     path('api/auth/register/', RegisterView, name='register'),
  
     # Login — devuelve los tokens JWT (access y refresh) para el usuario autenticado.
-    path('auth/login/', TokenObtainPairView.as_view(), name='login'),
+    path('api/auth/login/', TokenObtainPairView.as_view(), name='login'),
  
     # Refresca el access token usando el refresh token cuando el primero expira.
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
