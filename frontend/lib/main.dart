@@ -8,6 +8,7 @@ import 'core/token_storage.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('es_ES', null);
+  runApp(const WorkoutApp());
 }
  
 class WorkoutApp extends StatelessWidget {
