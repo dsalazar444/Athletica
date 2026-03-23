@@ -1,6 +1,8 @@
 from django.utils import timezone
+from django.utils.dateparse import parse_date
 from users.models import User
 from rest_framework import status, generics
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -10,7 +12,11 @@ from .serializers.serializer_routine import (
     RoutineDetailSerializer,
 )
 from .serializers.serializers_exercise import ExerciseSerializer
-from .serializers.serializer_workout import WorkoutSessionSerializer, SetLogSerializer
+from .serializers.serializer_workout import (
+    WorkoutSessionSerializer,
+    SetLogSerializer,
+    WorkoutHistorySerializer,
+)
 
 
 # Endpoint para buscar ejercicios por nombre y crear ejercicios
@@ -163,6 +169,67 @@ class WorkoutSessionListCreateView(APIView):
         sessions = WorkoutSession.objects.all().order_by("-date")
         serializer = WorkoutSessionSerializer(sessions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class WorkoutHistoryByDateRangeView(APIView):
+    """
+    GET /api/sessions/history/?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&page=1&page_size=10
+    → historial de entrenamientos del usuario en un rango de fechas.
+    """
+
+    class Pagination(PageNumberPagination):
+        page_size = 10
+        page_size_query_param = "page_size"
+        max_page_size = 50
+
+    def get(self, request):
+        start_date_param = request.query_params.get("start_date")
+        end_date_param = request.query_params.get("end_date")
+
+        if not start_date_param or not end_date_param:
+            return Response(
+                {"detail": "Los parámetros start_date y end_date son obligatorios."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        start_date = parse_date(start_date_param)
+        end_date = parse_date(end_date_param)
+
+        if not start_date or not end_date:
+            return Response(
+                {
+                    "detail": "Formato de fecha inválido. Usa YYYY-MM-DD en start_date y end_date."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if start_date > end_date:
+            return Response(
+                {"detail": "start_date no puede ser mayor que end_date."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            user = User.objects.get(username="daniela")
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "Usuario de contexto no encontrado."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        sessions = (
+            WorkoutSession.objects.filter(
+                user=user,
+                date__date__range=(start_date, end_date),
+            )
+            .select_related("routine")
+            .order_by("date")
+        )
+
+        paginator = self.Pagination()
+        page = paginator.paginate_queryset(sessions, request, view=self)
+        serializer = WorkoutHistorySerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 class SetLogCreateView(APIView):

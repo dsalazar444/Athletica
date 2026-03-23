@@ -20,3 +20,11 @@ class WorkoutSessionSerializer(serializers.ModelSerializer):
         # This should later be replaced by the authenticated request.user.
         user = User.objects.get(username='daniela')
         return WorkoutSession.objects.create(user=user, **validated_data)
+
+
+class WorkoutHistorySerializer(serializers.ModelSerializer):
+    routine_title = serializers.CharField(source='routine.title', read_only=True)
+
+    class Meta:
+        model = WorkoutSession
+        fields = ['id', 'routine', 'routine_title', 'date']
