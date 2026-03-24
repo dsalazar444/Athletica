@@ -6,6 +6,8 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .models import AthleteProfile
 from .serializers import RegisterSerializer, UserSerializer, AthleteProfileSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 
 # Vista temporal para probar el serializer del perfil de atleta durante el desarrollo.
@@ -47,3 +49,17 @@ def RegisterView(request):
 
     # Devuelve los errores de validacion si los datos son incorrectos.
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        try:
+            athlete = AthleteProfile.objects.get(user=self.user)
+            data['athlete_id'] = athlete.id
+        except AthleteProfile.DoesNotExist:
+            data['athlete_id'] = None
+        return data
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer

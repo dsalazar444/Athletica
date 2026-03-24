@@ -53,7 +53,8 @@ class _LoginScreenState extends State<LoginScreen> {
     await TokenStorage.saveTokens(
       access: response.data['access'],
       refresh: response.data['refresh'],
-    );
+      athleteId: response.data['athlete_id'],
+);
 
     if (mounted) {
       Navigator.pushReplacement(
