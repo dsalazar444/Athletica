@@ -1,10 +1,11 @@
 from django.utils import timezone
 from django.utils.dateparse import parse_date
-from users.models import User
+# from users.models import User
 from rest_framework import status, generics
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Routine, Exercise, WorkoutSession, SetLog
 from .serializers.serializer_routine import (
@@ -52,15 +53,17 @@ class ExerciseListCreateView(APIView):
 
 
 class RoutineListCreateView(APIView):
+    permission_classes = [IsAuthenticated]
     """
     GET  /api/routines/     → lista todas las rutinas
     POST /api/routines/     → crea una rutina nueva con sus ejercicios
     """
 
     def get(self, request):
-        routines = Routine.objects.prefetch_related(
+        user = request.user
+        routines = Routine.objects.filter(created_by=user).prefetch_related(
             "routine_exercises__exercise"
-        ).all()  # obtenemos todas las rutinas y precarga sus ejercicios
+        ).all()  # obtenemos todas las rutinas del usuario y precarga sus ejercicios
         serializer = RoutineDetailSerializer(
             routines, many=True
         )  # convierte la lista de rutinas (y sus ejercicios) a formato JSON usando el serializer RoutineDetailSerializer.
@@ -68,7 +71,7 @@ class RoutineListCreateView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        serializer = RoutineCreateSerializer(data=request.data)
+        serializer = RoutineCreateSerializer(data=request.data, context={'request': request})
 
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -142,10 +145,11 @@ class WorkoutSessionListCreateView(APIView):
     """
 
     def post(self, request):
-        serializer = WorkoutSessionSerializer(data=request.data)
+        serializer = WorkoutSessionSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             # Intentamos reutilizar sesión si es el mismo usuario, rutina y el MISMO DÍA.
-            user = User.objects.get(username="daniela")
+            user = request.user
+            # user = User.objects.get(username="daniela")
             routine = serializer.validated_data["routine"]
             requested_date = serializer.validated_data.get("date", timezone.now())
 
@@ -166,7 +170,8 @@ class WorkoutSessionListCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
-        sessions = WorkoutSession.objects.all().order_by("-date")
+        user = request.user
+        sessions = WorkoutSession.objects.filter(user=user).order_by("-date")
         serializer = WorkoutSessionSerializer(sessions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -209,13 +214,14 @@ class WorkoutHistoryByDateRangeView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        try:
-            user = User.objects.get(username="daniela")
-        except User.DoesNotExist:
-            return Response(
-                {"detail": "Usuario de contexto no encontrado."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+        user = request.user
+        # try:
+        #     user = User.objects.get(username="daniela")
+        # except User.DoesNotExist:
+        #     return Response(
+        #         {"detail": "Usuario de contexto no encontrado."},
+        #         status=status.HTTP_404_NOT_FOUND,
+        #     )
 
         sessions = (
             WorkoutSession.objects.filter(

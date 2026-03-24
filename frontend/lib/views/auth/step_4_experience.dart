@@ -15,35 +15,44 @@ class _Step4ExperienceState extends State<Step4Experience> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Nivel de experiencia",
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: 10),
-        const Text("Selecciona tu nivel actual"),
-        const SizedBox(height: 20),
-        _card("Principiante", ActivityLevel.low),
-        const SizedBox(height: 10),
-        _card("Intermedio", ActivityLevel.medium),
-        const SizedBox(height: 10),
-        _card("Avanzado", ActivityLevel.high),
-        const Spacer(),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: selectedLevel == null
-                ? null
-                : () async => await widget.onNext(selectedLevel!), 
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-            ),
-            child: const Text("Finalizar"),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Nivel de experiencia",
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
           ),
-        ),
-      ],
+          const SizedBox(height: 10),
+          const Text("Selecciona tu nivel actual"),
+          const SizedBox(height: 20),
+          _card("Principiante", ActivityLevel.low),
+          const SizedBox(height: 10),
+          _card("Intermedio", ActivityLevel.medium),
+          const SizedBox(height: 10),
+          _card("Avanzado", ActivityLevel.high),
+          const SizedBox(height: 30),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: selectedLevel == null
+                  ? null
+                  : () async => await widget.onNext(selectedLevel!), 
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                "Finalizar",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

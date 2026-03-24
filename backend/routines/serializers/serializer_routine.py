@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from routines.models import Routine, Exercise, RoutineExercise
-from users.models import User
+# from users.models import User
 from routines.serializers.serializers_exercise import ExerciseSerializer
 
 # exercise_id: Debe ser el id de un Exercise existente.
@@ -42,9 +42,8 @@ class RoutineCreateSerializer(serializers.ModelSerializer):
     def validate(self, data):
         """Valida que el usuario autenticado no tenga otra rutina con el mismo título."""
         request = self.context.get('request')
-        # user = getattr(request, 'user', None)
-
-        user = User.objects.get(username='daniela')
+        user = getattr(request, 'user', None)
+        # user = User.objects.get(username='daniela')
         title = data.get('title')
         if user and title:
             qs = Routine.objects.filter(title=title, created_by=user)
@@ -65,8 +64,11 @@ class RoutineCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         exercises_data = validated_data.pop('exercises')
-        #user = self.context['request'].user
-        user = User.objects.get(username='daniela')
+        request = self.context.get('request')
+        user = getattr(request, 'user', None)
+        
+        if not user:
+            raise serializers.ValidationError("Authentication required to create a routine.")
         
         # Crea la rutina primero
         routine = Routine.objects.create(created_by=user, **validated_data)

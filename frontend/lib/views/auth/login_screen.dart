@@ -54,7 +54,8 @@ class _LoginScreenState extends State<LoginScreen> {
       access: response.data['access'],
       refresh: response.data['refresh'],
       athleteId: response.data['athlete_id'],
-);
+      name: response.data['first_name'],
+    );
 
     if (mounted) {
       Navigator.pushReplacement(

@@ -17,68 +17,59 @@ class _Step1RoleState extends State<Step1Role> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-
-        const Text(
-          "¿Cuál es tu rol?",
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-
-        const SizedBox(height: 10),
-
-        const Text(
-          "Selecciona cómo usarás la aplicación",
-          style: TextStyle(color: Colors.grey),
-        ),
-
-        const SizedBox(height: 20),
-
-        // USUARIO
-        _card(
-          title: "Atleta",
-          subtitle: "Entrena y registra tu progreso",
-          value: UserRole.athlete,
-        ),
-
-        const SizedBox(height: 15),
-
-        // ENTRENADOR
-        _card(
-          title: "Entrenador",
-          subtitle: "Gestiona grupos de atletas",
-          value: UserRole.coach,
-        ),
-
-        const Spacer(),
-
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: selectedRole == null
-                ? null
-                : () => widget.onNext(selectedRole!),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "¿Cuál es tu rol?",
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
             ),
-            child: const Text(
-              "Continuar",
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            "Selecciona cómo usarás la aplicación",
+            style: TextStyle(color: Colors.grey),
+          ),
+          const SizedBox(height: 20),
+          _card(
+            title: "Atleta",
+            subtitle: "Entrena y registra tu progreso",
+            value: UserRole.athlete,
+          ),
+          const SizedBox(height: 15),
+          _card(
+            title: "Entrenador",
+            subtitle: "Gestiona grupos de atletas",
+            value: UserRole.coach,
+          ),
+          const SizedBox(height: 30),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: selectedRole == null
+                  ? null
+                  : () => widget.onNext(selectedRole!),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                "Continuar",
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from routines.models import WorkoutSession, SetLog, Exercise, Routine
-from users.models import User
+# from users.models import User
 
 class SetLogSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,9 +16,12 @@ class WorkoutSessionSerializer(serializers.ModelSerializer):
         read_only_fields = ['user']
 
     def create(self, validated_data):
-        # Using the same hardcoded user 'daniela' as in RoutineCreateSerializer for now.
-        # This should later be replaced by the authenticated request.user.
-        user = User.objects.get(username='daniela')
+        request = self.context.get('request')
+        user = getattr(request, 'user', None)
+        
+        if not user:
+            raise serializers.ValidationError("Authentication required to start a session.")
+
         return WorkoutSession.objects.create(user=user, **validated_data)
 
 

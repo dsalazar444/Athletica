@@ -50,6 +50,7 @@ class RegisterModel {
     return {
       'username': username,
       'email': email,
+      'first_name': name,
       'password': password,
       'password2': password2,
       'role': role == UserRole.athlete ? 'athlete' : 'coach',
