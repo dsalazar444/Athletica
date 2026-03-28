@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home/home_screen.dart';
 import 'routine/routines_list_screen.dart';
-import 'auth/register_flow_screen.dart';
+import 'profile/profile_screen.dart';
 import 'nutrition/nutrition_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../core/token_storage.dart';
@@ -35,7 +35,7 @@ class _MainScreenState extends State<MainScreen> {
         ? NutritionScreen(athleteId: _athleteId!)
         : const Center(child: CircularProgressIndicator()),
     const Center(child: Text('Comunidad')),
-    const RegisterFlowScreen(),
+    const ProfileScreen(),
   ];
 
   @override

@@ -10,6 +10,7 @@
 .history
 .svn/
 .swiftpm/
+.vscode/
 migrate_working_dir/
 
 # IntelliJ related
@@ -52,3 +53,43 @@ frontend/windows/flutter/
 frontend/macos/Flutter/Generated*
 frontend/.flutter-plugins
 frontend/.flutter-plugins-dependencies
+frontend/flutter_export_environment.sh
+frontend/android/.gradle/
+frontend/android/local.properties
+frontend/android/key.properties
+frontend/ios/Pods/
+frontend/ios/Podfile.lock
+
+# Python / Django (backend)
+__pycache__/
+*.pyo
+*.pyd
+*.sqlite3
+venv/
+env/
+.venv/
+*.egg-info/
+dist/
+.pytest_cache/
+
+# Variables de entorno (secrets)
+.env
+.env.*
+!.env.example
+
+# Docker
+docker-compose.override.yml
+
+# Secrets / Keys
+*.pem
+*.key
+*.p12
+*.jks
+secrets/
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Logs
+logs/

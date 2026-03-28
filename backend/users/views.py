@@ -4,7 +4,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 from .models import AthleteProfile
-from .serializers import RegisterSerializer, UserSerializer, AthleteProfileSerializer, MyTokenObtainPairSerializer
+from .serializers import RegisterSerializer, UserSerializer, MyTokenObtainPairSerializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -36,6 +36,8 @@ def RegisterView(request):
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
+        # Agrega el nombre real del usuario para mostrarlo en el saludo
+        data['first_name'] = self.user.first_name or self.user.username
         try:
             athlete = AthleteProfile.objects.get(user=self.user)
             data['athlete_id'] = athlete.id

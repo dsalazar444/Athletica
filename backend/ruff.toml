@@ -1,0 +1,27 @@
+# Ruff — Linter y formateador para Python
+# Docs: https://docs.astral.sh/ruff/configuration/
+
+line-length = 100
+target-version = "py312"
+
+[lint]
+# E = errores de estilo (pycodestyle)
+# F = errores lógicos (pyflakes): imports sin usar, variables no definidas, etc.
+# W = warnings
+# I = orden de imports (isort)
+# DJ = reglas específicas de Django
+select = ["E", "F", "W", "I", "DJ"]
+
+# Ignora "línea demasiado larga" porque line-length ya lo controla
+ignore = ["E501"]
+
+[lint.per-file-ignores]
+# Las migraciones son generadas automáticamente, no las lintamos estrictamente
+"*/migrations/*.py" = ["E501", "F401", "F811"]
+# Settings puede tener imports y asignaciones especiales
+"backend/settings.py" = ["F401", "F811"]
+
+[format]
+# Usa comillas dobles (estilo Django/Black)
+quote-style = "double"
+indent-style = "space"
