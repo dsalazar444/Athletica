@@ -4,35 +4,44 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0002_alter_user_email_athleteprofile_coachprofile_goal_and_more'),
+        ("users", "0002_alter_user_email_athleteprofile_coachprofile_goal_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='athleteprofile',
-            name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="athleteprofile",
+            name="id",
+            field=models.AutoField(
+                auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+            ),
         ),
         migrations.AlterField(
-            model_name='coachprofile',
-            name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="coachprofile",
+            name="id",
+            field=models.AutoField(
+                auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+            ),
         ),
         migrations.AlterField(
-            model_name='goal',
-            name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="goal",
+            name="id",
+            field=models.AutoField(
+                auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+            ),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="user",
+            name="id",
+            field=models.AutoField(
+                auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+            ),
         ),
         migrations.AlterField(
-            model_name='weightlog',
-            name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="weightlog",
+            name="id",
+            field=models.AutoField(
+                auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+            ),
         ),
     ]

@@ -5,25 +5,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('routines', '0002_workoutsession_setlog'),
+        ("routines", "0002_workoutsession_setlog"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='exercise',
-            name='description',
+            model_name="exercise",
+            name="description",
             field=models.TextField(),
         ),
         migrations.AlterField(
-            model_name='exercise',
-            name='image_url',
+            model_name="exercise",
+            name="image_url",
             field=models.TextField(null=True),
         ),
         migrations.AlterField(
-            model_name='workoutsession',
-            name='date',
+            model_name="workoutsession",
+            name="date",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
     ]

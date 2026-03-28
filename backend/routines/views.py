@@ -1,23 +1,24 @@
 from django.utils import timezone
 from django.utils.dateparse import parse_date
+
 # from users.models import User
-from rest_framework import status, generics
+from rest_framework import generics, status
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
 
-from .models import Routine, Exercise, WorkoutSession, SetLog
+from .models import Exercise, Routine, SetLog, WorkoutSession
 from .serializers.serializer_routine import (
     RoutineCreateSerializer,
     RoutineDetailSerializer,
 )
-from .serializers.serializers_exercise import ExerciseSerializer
 from .serializers.serializer_workout import (
-    WorkoutSessionSerializer,
     SetLogSerializer,
     WorkoutHistorySerializer,
+    WorkoutSessionSerializer,
 )
+from .serializers.serializers_exercise import ExerciseSerializer
 
 
 # Endpoint para buscar ejercicios por nombre y crear ejercicios
@@ -61,9 +62,11 @@ class RoutineListCreateView(APIView):
 
     def get(self, request):
         user = request.user
-        routines = Routine.objects.filter(created_by=user).prefetch_related(
-            "routine_exercises__exercise"
-        ).all()  # obtenemos todas las rutinas del usuario y precarga sus ejercicios
+        routines = (
+            Routine.objects.filter(created_by=user)
+            .prefetch_related("routine_exercises__exercise")
+            .all()
+        )  # obtenemos todas las rutinas del usuario y precarga sus ejercicios
         serializer = RoutineDetailSerializer(
             routines, many=True
         )  # convierte la lista de rutinas (y sus ejercicios) a formato JSON usando el serializer RoutineDetailSerializer.
@@ -71,7 +74,7 @@ class RoutineListCreateView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        serializer = RoutineCreateSerializer(data=request.data, context={'request': request})
+        serializer = RoutineCreateSerializer(data=request.data, context={"request": request})
 
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -102,9 +105,7 @@ class RoutineDetailView(APIView):
     def get(self, request, routine_id):
         routine = self._get_routine_or_404(routine_id)
         if routine is None:
-            return Response(
-                {"error": "Rutina no encontrada."}, status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"error": "Rutina no encontrada."}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = RoutineDetailSerializer(routine)  # convertimos a json y mandamos
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -112,9 +113,7 @@ class RoutineDetailView(APIView):
     def delete(self, request, routine_id):
         routine = self._get_routine_or_404(routine_id)
         if routine is None:
-            return Response(
-                {"error": "Rutina no encontrada."}, status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"error": "Rutina no encontrada."}, status=status.HTTP_404_NOT_FOUND)
 
         routine.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -127,6 +126,7 @@ class RoutineExerciseDeleteView(APIView):
 
     def delete(self, request, routine_id, exercise_id):
         from .models import RoutineExercise
+
         deleted, _ = RoutineExercise.objects.filter(
             routine_id=routine_id, exercise_id=exercise_id
         ).delete()
@@ -145,7 +145,7 @@ class WorkoutSessionListCreateView(APIView):
     """
 
     def post(self, request):
-        serializer = WorkoutSessionSerializer(data=request.data, context={'request': request})
+        serializer = WorkoutSessionSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             # Intentamos reutilizar sesión si es el mismo usuario, rutina y el MISMO DÍA.
             user = request.user
@@ -159,14 +159,10 @@ class WorkoutSessionListCreateView(APIView):
             ).first()
 
             if existing:
-                return Response(
-                    WorkoutSessionSerializer(existing).data, status=status.HTTP_200_OK
-                )
+                return Response(WorkoutSessionSerializer(existing).data, status=status.HTTP_200_OK)
 
             session = serializer.save()
-            return Response(
-                WorkoutSessionSerializer(session).data, status=status.HTTP_201_CREATED
-            )
+            return Response(WorkoutSessionSerializer(session).data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
@@ -202,9 +198,7 @@ class WorkoutHistoryByDateRangeView(APIView):
 
         if not start_date or not end_date:
             return Response(
-                {
-                    "detail": "Formato de fecha inválido. Usa YYYY-MM-DD en start_date y end_date."
-                },
+                {"detail": "Formato de fecha inválido. Usa YYYY-MM-DD en start_date y end_date."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -269,9 +263,7 @@ class LastExerciseLogView(APIView):
 
     def get(self, request, exercise_id):
         # Buscar el último SetLog para este ejercicio
-        last_log = SetLog.objects.filter(exercise_id=exercise_id).order_by(
-            "-session__date"
-        )
+        last_log = SetLog.objects.filter(exercise_id=exercise_id).order_by("-session__date")
         if not last_log.exists():
             return Response(
                 {"detail": "No hay registros previos."},

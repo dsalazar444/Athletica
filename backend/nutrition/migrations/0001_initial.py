@@ -5,31 +5,53 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('users', '0003_alter_athleteprofile_id_alter_coachprofile_id_and_more'),
+        ("users", "0003_alter_athleteprofile_id_alter_coachprofile_id_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='MealRecord',
+            name="MealRecord",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('meal_type', models.CharField(choices=[('breakfast', 'Breakfast'), ('lunch', 'Lunch'), ('dinner', 'Dinner'), ('snack', 'Snack')], max_length=20)),
-                ('food_name', models.CharField(max_length=255)),
-                ('portion_grams', models.FloatField()),
-                ('calories', models.FloatField()),
-                ('protein_g', models.FloatField(blank=True, null=True)),
-                ('carbs_g', models.FloatField(blank=True, null=True)),
-                ('fat_g', models.FloatField(blank=True, null=True)),
-                ('date', models.DateField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('athlete', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='meal_records', to='users.athleteprofile')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "meal_type",
+                    models.CharField(
+                        choices=[
+                            ("breakfast", "Breakfast"),
+                            ("lunch", "Lunch"),
+                            ("dinner", "Dinner"),
+                            ("snack", "Snack"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                ("food_name", models.CharField(max_length=255)),
+                ("portion_grams", models.FloatField()),
+                ("calories", models.FloatField()),
+                ("protein_g", models.FloatField(blank=True, null=True)),
+                ("carbs_g", models.FloatField(blank=True, null=True)),
+                ("fat_g", models.FloatField(blank=True, null=True)),
+                ("date", models.DateField()),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "athlete",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="meal_records",
+                        to="users.athleteprofile",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-date', 'meal_type'],
+                "ordering": ["-date", "meal_type"],
             },
         ),
     ]

@@ -6,34 +6,71 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('routines', '0001_initial'),
+        ("routines", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='WorkoutSession',
+            name="WorkoutSession",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateTimeField(auto_now_add=True)),
-                ('routine', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='workout_sessions', to='routines.routine')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='workout_sessions', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("date", models.DateTimeField(auto_now_add=True)),
+                (
+                    "routine",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="workout_sessions",
+                        to="routines.routine",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="workout_sessions",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='SetLog',
+            name="SetLog",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('set_number', models.PositiveIntegerField()),
-                ('reps', models.PositiveIntegerField()),
-                ('weight', models.DecimalField(decimal_places=2, max_digits=6)),
-                ('exercise', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='set_logs', to='routines.exercise')),
-                ('session', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='set_logs', to='routines.workoutsession')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("set_number", models.PositiveIntegerField()),
+                ("reps", models.PositiveIntegerField()),
+                ("weight", models.DecimalField(decimal_places=2, max_digits=6)),
+                (
+                    "exercise",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="set_logs",
+                        to="routines.exercise",
+                    ),
+                ),
+                (
+                    "session",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="set_logs",
+                        to="routines.workoutsession",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['session', 'exercise', 'set_number'],
+                "ordering": ["session", "exercise", "set_number"],
             },
         ),
     ]

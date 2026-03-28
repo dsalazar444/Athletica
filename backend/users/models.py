@@ -1,13 +1,13 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 
 # Extiende el modelo de usuario por defecto de Django.
 # Agrega el campo 'role' para distinguir entre atletas y coaches.
 class User(AbstractUser):
     ROLE_CHOICES = (
-        ('athlete', 'Athlete'),
-        ('coach', 'Coach'),
+        ("athlete", "Athlete"),
+        ("coach", "Coach"),
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
 
@@ -35,16 +35,16 @@ class AthleteProfile(Profile):
     age = models.IntegerField()
 
     GENDER_CHOICES = (
-        ('male', 'Male'),
-        ('female', 'Female'),
-        ('other', 'Other'),
+        ("male", "Male"),
+        ("female", "Female"),
+        ("other", "Other"),
     )
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
 
     ACTIVITY_CHOICES = (
-        ('high', 'High'),
-        ('medium', 'Medium'),
-        ('low', 'Low'),
+        ("high", "High"),
+        ("medium", "Medium"),
+        ("low", "Low"),
     )
     activity_level = models.CharField(max_length=10, choices=ACTIVITY_CHOICES)
 
@@ -66,20 +66,16 @@ class CoachProfile(Profile):
 # Un atleta puede tener múltiples metas activas o inactivas.
 class Goal(models.Model):
     GOAL_CHOICES = (
-        ('lose_weight', 'Lose_weight'),
-        ('gain_muscle', 'Gain_muscle'),
-        ('maintain', 'Maintain'),
-        ('endurance', 'Endurance'),
-        ('wellness', 'Wellness'),
+        ("lose_weight", "Lose_weight"),
+        ("gain_muscle", "Gain_muscle"),
+        ("maintain", "Maintain"),
+        ("endurance", "Endurance"),
+        ("wellness", "Wellness"),
     )
     goal_type = models.CharField(max_length=20, choices=GOAL_CHOICES)
 
     # Relación con el atleta dueño de la meta.
-    athlete = models.ForeignKey(
-        AthleteProfile,
-        on_delete=models.CASCADE,
-        related_name='goals'
-    )
+    athlete = models.ForeignKey(AthleteProfile, on_delete=models.CASCADE, related_name="goals")
 
     description = models.TextField(blank=True)
 
@@ -102,11 +98,7 @@ class Goal(models.Model):
 # Registro histórico del peso de un atleta.
 # Permite hacer seguimiento de la evolución física a lo largo del tiempo.
 class WeightLog(models.Model):
-    athlete = models.ForeignKey(
-        AthleteProfile,
-        on_delete=models.CASCADE,
-        related_name="weight"
-    )
+    athlete = models.ForeignKey(AthleteProfile, on_delete=models.CASCADE, related_name="weight")
     weight = models.FloatField()
 
     # Porcentaje de grasa corporal — opcional, no siempre se registra.
@@ -114,3 +106,6 @@ class WeightLog(models.Model):
 
     # Se registra automáticamente la fecha en que se crea el log.
     date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.athlete.user.username} - {self.weight}kg ({self.date})"

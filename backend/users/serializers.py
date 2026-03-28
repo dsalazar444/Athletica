@@ -1,7 +1,8 @@
-from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .models import Goal, WeightLog, AthleteProfile, CoachProfile, User
+
+from .models import AthleteProfile, CoachProfile, Goal, User, WeightLog
 
 
 # Serializer para las metas de un atleta.
@@ -9,19 +10,24 @@ class GoalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Goal
         fields = [
-            'id', 'goal_type', 'description',
-            'target_value', 'current_value',
-            'start_date', 'deadline', 'is_active',
+            "id",
+            "goal_type",
+            "description",
+            "target_value",
+            "current_value",
+            "start_date",
+            "deadline",
+            "is_active",
         ]
-        read_only_fields = ['start_date']
+        read_only_fields = ["start_date"]
 
 
 # Serializer para los registros de peso de un atleta.
 class WeightLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = WeightLog
-        fields = ['id', 'weight', 'body_fat', 'date']
-        read_only_fields = ['date']
+        fields = ["id", "weight", "body_fat", "date"]
+        read_only_fields = ["date"]
 
 
 # Serializer para el perfil del atleta.
@@ -31,26 +37,31 @@ class AthleteProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AthleteProfile
-        fields = ['id', 'height', 'age', 'gender', 'activity_level', 'goals', 'weight']
+        fields = ["id", "height", "age", "gender", "activity_level", "goals", "weight"]
 
 
 # Serializer para el perfil del coach.
 class CoachProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CoachProfile
-        fields = ['id', 'gym_name', 'business_address']
+        fields = ["id", "gym_name", "business_address"]
 
 
 # Serializer para mostrar la informacion de un usuario existente.
 class UserSerializer(serializers.ModelSerializer):
     athlete_profile = AthleteProfileSerializer(read_only=True)
-    coach_profile   = CoachProfileSerializer(read_only=True)
+    coach_profile = CoachProfileSerializer(read_only=True)
 
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'email', 'first_name', 'role',
-            'athlete_profile', 'coach_profile',
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "role",
+            "athlete_profile",
+            "coach_profile",
         ]
 
 
@@ -60,52 +71,49 @@ class RegisterSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(write_only=True)
 
     athlete_profile = AthleteProfileSerializer(required=False)
-    coach_profile   = CoachProfileSerializer(required=False)
+    coach_profile = CoachProfileSerializer(required=False)
 
     class Meta:
         model = get_user_model()
         fields = [
-            'username',
-            'email',
-            'first_name',
-            'password',
-            'password2',
-            'role',
-            'athlete_profile',
-            'coach_profile',
+            "username",
+            "email",
+            "first_name",
+            "password",
+            "password2",
+            "role",
+            "athlete_profile",
+            "coach_profile",
         ]
 
     def validate_email(self, value):
         User = get_user_model()
         if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError('Este email ya esta en uso.')
+            raise serializers.ValidationError("Este email ya esta en uso.")
         return value
 
     def validate(self, data):
-        if data.get('password') != data.get('password2'):
-            raise serializers.ValidationError('Las contrasenas no coinciden.')
+        if data.get("password") != data.get("password2"):
+            raise serializers.ValidationError("Las contrasenas no coinciden.")
         return data
 
     def create(self, validated_data):
         User = get_user_model()
-        athlete_data = validated_data.pop('athlete_profile', None)
-        coach_data   = validated_data.pop('coach_profile', None)
-        validated_data.pop('password2')
+        athlete_data = validated_data.pop("athlete_profile", None)
+        coach_data = validated_data.pop("coach_profile", None)
+        validated_data.pop("password2")
 
         user = User.objects.create_user(**validated_data)
 
-        if user.role == 'athlete' and athlete_data:
-            goals_data = athlete_data.pop('goals', [])
+        if user.role == "athlete" and athlete_data:
+            goals_data = athlete_data.pop("goals", [])
             # weight_logs_data = athlete_data.pop('weight_logs', [])
 
-            athlete = AthleteProfile.objects.create(
-                user=user,
-                **athlete_data
-            )
+            athlete = AthleteProfile.objects.create(user=user, **athlete_data)
             for goal in goals_data:
                 Goal.objects.create(athlete=athlete, **goal)
 
-        if user.role == 'coach' and coach_data:
+        if user.role == "coach" and coach_data:
             CoachProfile.objects.create(user=user, **coach_data)
 
         return user
@@ -114,5 +122,5 @@ class RegisterSerializer(serializers.ModelSerializer):
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
-        data['first_name'] = self.user.first_name or self.user.username
+        data["first_name"] = self.user.first_name or self.user.username
         return data

@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
+
 from users.models import User
-import datetime
 
 """
 ATRIBUTES:Exercise
@@ -9,7 +9,7 @@ ATRIBUTES:Exercise
 - name -> string -> routine name
 - descripcion -> string -> routine description
 - muscles -> string -> main muscle that is work by the exercise
-- image_url -> string -> url to the exercise image 
+- image_url -> string -> url to the exercise image
 """
 
 
@@ -18,7 +18,7 @@ class Exercise(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
     muscle = models.CharField(max_length=50)
-    image_url = models.TextField(null=True)
+    image_url = models.TextField(blank=True, default="")
 
     def __str__(self):
         return self.name
@@ -49,24 +49,30 @@ class Routine(models.Model):
         ADVANCED = "advanced", "Avanzado"
 
     title = models.CharField(max_length=150)
-    description = models.TextField(blank=True, null=True)
-    category = models.TextField()
-    difficulty = models.TextField()
+    description = models.TextField(blank=True, default="")
 
-    created_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="created_routines"
+    # Usamos CharField con choices para validación y eficiencia
+    category = models.CharField(
+        max_length=20,
+        choices=Category.choices,
+        default=Category.HYBRID
+    )
+    difficulty = models.CharField(
+        max_length=20,
+        choices=Difficulty.choices,
+        default=Difficulty.BEGINNER
     )
 
-    assigned_athletes = models.ManyToManyField(
-        User, related_name="routines", blank=True
-    )
-
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="created_routines")
+    assigned_athletes = models.ManyToManyField(User, related_name="routines", blank=True)
     exercises = models.ManyToManyField(
         Exercise,
-        through="RoutineExercise",  # usa nuestra tabla personalizada, permitiendonos el ManyToMany
+        through="RoutineExercise",
         related_name="routines",
     )
 
+    def __str__(self):
+        return f"{self.title} ({self.get_difficulty_display()})"
 
 """
 ATRIBUTES:RoutineExercise
@@ -111,16 +117,14 @@ ATRIBUTES:WorkoutSession
 
 
 class WorkoutSession(models.Model):
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="workout_sessions"
-    )
-    routine = models.ForeignKey(
-        Routine, on_delete=models.CASCADE, related_name="workout_sessions"
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="workout_sessions")
+    routine = models.ForeignKey(Routine, on_delete=models.CASCADE, related_name="workout_sessions")
     date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"{self.user.username} - {self.routine.title} ({self.date.strftime('%Y-%m-%d %H:%M')})"
+        return (
+            f"{self.user.username} - {self.routine.title} ({self.date.strftime('%Y-%m-%d %H:%M')})"
+        )
 
 
 """
@@ -134,12 +138,8 @@ ATRIBUTES:SetLog
 
 
 class SetLog(models.Model):
-    session = models.ForeignKey(
-        WorkoutSession, on_delete=models.CASCADE, related_name="set_logs"
-    )
-    exercise = models.ForeignKey(
-        Exercise, on_delete=models.CASCADE, related_name="set_logs"
-    )
+    session = models.ForeignKey(WorkoutSession, on_delete=models.CASCADE, related_name="set_logs")
+    exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE, related_name="set_logs")
     set_number = models.PositiveIntegerField()
     reps = models.PositiveIntegerField()
     weight = models.DecimalField(max_digits=6, decimal_places=2)

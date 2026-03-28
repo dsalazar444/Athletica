@@ -6,65 +6,132 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0001_initial'),
+        ("users", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='email',
+            model_name="user",
+            name="email",
             field=models.EmailField(max_length=254, unique=True),
         ),
         migrations.CreateModel(
-            name='AthleteProfile',
+            name="AthleteProfile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('height', models.FloatField()),
-                ('age', models.IntegerField()),
-                ('gender', models.CharField(choices=[('male', 'Male'), ('female', 'Female'), ('other', 'Other')], max_length=10)),
-                ('activity_level', models.CharField(choices=[('high', 'High'), ('medium', 'Medium'), ('low', 'Low')], max_length=10)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("height", models.FloatField()),
+                ("age", models.IntegerField()),
+                (
+                    "gender",
+                    models.CharField(
+                        choices=[("male", "Male"), ("female", "Female"), ("other", "Other")],
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "activity_level",
+                    models.CharField(
+                        choices=[("high", "High"), ("medium", "Medium"), ("low", "Low")],
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='CoachProfile',
+            name="CoachProfile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('gym_name', models.CharField(max_length=255)),
-                ('business_address', models.CharField(max_length=255)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("gym_name", models.CharField(max_length=255)),
+                ("business_address", models.CharField(max_length=255)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Goal',
+            name="Goal",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('goal_type', models.CharField(choices=[('lose_weight', 'Lose_weight'), ('gain_muscle', 'Gain_muscle'), ('maintain', 'Maintain'), ('endurance', 'Endurance'), ('wellness', 'Wellness')], max_length=20)),
-                ('description', models.TextField(blank=True)),
-                ('target_value', models.FloatField(blank=True, null=True)),
-                ('current_value', models.FloatField(blank=True, null=True)),
-                ('start_date', models.DateField(auto_now_add=True)),
-                ('deadline', models.DateField(blank=True, null=True)),
-                ('is_active', models.BooleanField(default=True)),
-                ('athlete', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='goals', to='users.athleteprofile')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "goal_type",
+                    models.CharField(
+                        choices=[
+                            ("lose_weight", "Lose_weight"),
+                            ("gain_muscle", "Gain_muscle"),
+                            ("maintain", "Maintain"),
+                            ("endurance", "Endurance"),
+                            ("wellness", "Wellness"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                ("description", models.TextField(blank=True)),
+                ("target_value", models.FloatField(blank=True, null=True)),
+                ("current_value", models.FloatField(blank=True, null=True)),
+                ("start_date", models.DateField(auto_now_add=True)),
+                ("deadline", models.DateField(blank=True, null=True)),
+                ("is_active", models.BooleanField(default=True)),
+                (
+                    "athlete",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="goals",
+                        to="users.athleteprofile",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='WeightLog',
+            name="WeightLog",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('weight', models.FloatField()),
-                ('body_fat', models.FloatField(blank=True, null=True)),
-                ('date', models.DateField(auto_now_add=True)),
-                ('athlete', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='weight', to='users.athleteprofile')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("weight", models.FloatField()),
+                ("body_fat", models.FloatField(blank=True, null=True)),
+                ("date", models.DateField(auto_now_add=True)),
+                (
+                    "athlete",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="weight",
+                        to="users.athleteprofile",
+                    ),
+                ),
             ],
         ),
     ]

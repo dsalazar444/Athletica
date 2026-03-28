@@ -1,4 +1,5 @@
 from django.db import models
+
 from users.models import AthleteProfile
 
 
@@ -9,16 +10,14 @@ class MealRecord(models.Model):
     """
 
     MEAL_TYPE_CHOICES = (
-        ('breakfast', 'Breakfast'),
-        ('lunch', 'Lunch'),
-        ('dinner', 'Dinner'),
-        ('snack', 'Snack'),
+        ("breakfast", "Breakfast"),
+        ("lunch", "Lunch"),
+        ("dinner", "Dinner"),
+        ("snack", "Snack"),
     )
 
     athlete = models.ForeignKey(
-        AthleteProfile,
-        on_delete=models.CASCADE,
-        related_name='meal_records'
+        AthleteProfile, on_delete=models.CASCADE, related_name="meal_records"
     )
 
     meal_type = models.CharField(max_length=20, choices=MEAL_TYPE_CHOICES)
@@ -38,7 +37,7 @@ class MealRecord(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-date', 'meal_type']
+        ordering = ["-date", "meal_type"]
 
     def __str__(self):
         return f"{self.athlete.user.username} — {self.meal_type} ({self.date})"
