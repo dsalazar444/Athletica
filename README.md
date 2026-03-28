@@ -1,48 +1,52 @@
-# 🏋️ Athletica
+# 🏋️# Athletica 🏋️‍♂️
 
-Athletica es una aplicación móvil enfocada en el seguimiento de entrenamientos, nutrición y progreso físico.  
-El objetivo es facilitar a los usuarios el registro de rutinas, ejercicios y alimentación, permitiendo un análisis claro de su evolución física.
-## Equipo de trabajo 
-- Daniela Salazar
-- Salome Gutierrez
-- Laura Marin
-- Juan Pablo Gaviria
-- Alejandro Arteaga
+Athletica es una plataforma integral de gestión de entrenamiento y nutrición diseñada para atletas y entrenadores. Combina un potente backend en Django con un frontend móvil moderno en Flutter.
 
-[Backlog](https://github.com/users/dsalazar444/projects/3) 
+## 📂 Estructura del Repositorio
 
-
-[Entregables P2](https://github.com/dsalazar444/Athletica/wiki/Entregables)
-
+- **`backend/`**: API REST desarrollada en Django, encargada de la lógica de negocio, autenticación JWT y persistencia de datos. [Ir al README del Backend](./backend/README.md)
+- **`frontend/`**: Aplicación móvil multiplataforma desarrollada en Flutter con arquitectura MVVM. [Ir al README del Frontend](./frontend/README.md)
 
 ---
 
-## 🚀 Objetivo del Proyecto
+## 🚀 Inicio Rápido (Entorno de Desarrollo)
 
-Desarrollar una aplicación móvil que permita:
+### Requisitos Previos
+- **Docker** y **Docker Compose**
+- **Flutter SDK** (para el desarrollo del frontend)
 
-- Registrar entrenamientos y ejercicios
-- Registrar alimentación diaria
-- Visualizar historial de actividad
-- Generar métricas básicas de progreso
-- Gestionar perfil físico del usuario
+### Levantamiento Completo (Backend + DB)
 
-El proyecto se desarrolla bajo metodología ágil utilizando planificación MoSCoW y trabajo por sprints.
+Desde la raíz del proyecto, ejecuta:
+
+```bash
+docker-compose up --build
+```
+
+Esto levantará los siguientes servicios:
+- **Port 8000**: API REST (Django)
+- **Port 5433**: Base de datos (PostgreSQL)
+
+### Comandos de Utilidad
+
+| Acción | Comando |
+| :--- | :--- |
+| Crear Migraciones | `docker-compose exec web python manage.py makemigrations` |
+| Aplicar Migraciones | `docker-compose exec web python manage.py migrate` |
+| Crear Superusuario | `docker-compose exec web python manage.py createsuperuser` |
+| Ver Logs | `docker-compose logs -f web` |
 
 ---
 
-## 🧩 Arquitectura Tecnológica
+## 🛠️ Tecnologías
 
-- **Frontend:** Flutter (Dart)
-- **Backend:** Django (Python)
-- **Base de Datos:** PostgreSQL / SQLite
-- **Control de Versiones:** Git + GitHub
+- **Backend**: Python 3.12, Django 5.1, Django REST Framework.
+- **Frontend**: Dart, Flutter 3.27+.
+- **Infraestructura**: Docker, PostgreSQL.
+- **CI/CD**: GitHub Actions (`flutter analyze`).
 
+---
 
-
-
-## 🛡️ Estado de la Integración (Rama dev)
+## 📈 Estado del Proyecto
 Actualmente, el flujo de **CI** valida cada commit en la rama de desarrollo antes de permitir el paso a `main`.
-
-
-[![Athletica CI](https://github.com/dsalazar444/Athletica/actions/workflows/athletica_ci.yml/badge.svg?branch=dev)](https://github.com/dsalazar444/Athletica/actions/workflows/athletica_ci.yml)
+[![Athletica CI](https://github.com/dsalazar444/Athletica/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/dsalazar444/Athletica/actions/workflows/ci.yml)
