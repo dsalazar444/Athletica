@@ -27,51 +27,53 @@ class _LoginScreenState extends State<LoginScreen> {
   void validate() {
     setState(() {
       usernameError = username.text.isEmpty ? 'El username es requerido' : null;
-      passwordError = password.text.isEmpty ? 'La contrasena es requerida' : null;
+      passwordError = password.text.isEmpty
+          ? 'La contrasena es requerida'
+          : null;
       isValid = usernameError == null && passwordError == null;
     });
   }
 
   // Envia las credenciales al backend y guarda los tokens si el login es exitoso.
   Future<void> login() async {
-  validate();
-  if (!isValid) return;
+    validate();
+    if (!isValid) return;
 
-  setState(() {
-    isLoading = true;
-    generalError = null;
-  });
-
-  try {
-    print('Intentando login con: ${username.text}');
-    final response = await ApiClient.dio.post('auth/login/', data: {
-      'username': username.text,
-      'password': password.text,
-    });
-    print('Login response: ${response.data}');
-
-    await TokenStorage.saveTokens(
-      access: response.data['access'],
-      refresh: response.data['refresh'],
-      athleteId: response.data['athlete_id'],
-      name: response.data['first_name'],
-    );
-
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const MainScreen()),
-      );
-    }
-  } catch (e) {
-    print('Login error: $e');
     setState(() {
-      generalError = 'Usuario o contrasena incorrectos';
+      isLoading = true;
+      generalError = null;
     });
-  } finally {
-    setState(() => isLoading = false);
+
+    try {
+      print('Intentando login con: ${username.text}');
+      final response = await ApiClient.dio.post(
+        'auth/login/',
+        data: {'username': username.text, 'password': password.text},
+      );
+      print('Login response: ${response.data}');
+
+      await TokenStorage.saveTokens(
+        access: response.data['access'],
+        refresh: response.data['refresh'],
+        athleteId: response.data['athlete_id'],
+        name: response.data['first_name'],
+      );
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MainScreen()),
+        );
+      }
+    } catch (e) {
+      print('Login error: $e');
+      setState(() {
+        generalError = 'Usuario o contrasena incorrectos';
+      });
+    } finally {
+      setState(() => isLoading = false);
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +81,6 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: AppColors.background,
       body: Column(
         children: [
-
           // Cabecera
           Container(
             width: double.infinity,
@@ -99,10 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(height: 5),
                 Text(
                   'Bienvenido de vuelta',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
                 ),
               ],
             ),
@@ -115,9 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
                 color: AppColors.surface,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(30),
-                ),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,7 +199,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       onTap: () {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (_) => const RegisterFlowScreen()),
+                          MaterialPageRoute(
+                            builder: (_) => const RegisterFlowScreen(),
+                          ),
                         );
                       },
                       child: const Text.rich(

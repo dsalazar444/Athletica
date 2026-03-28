@@ -22,7 +22,7 @@ class ExerciseTrackingViewModel extends ChangeNotifier {
 
   /// Lista de IDs de series que han sido eliminadas de la UI y deben borrarse del backend al guardar.
   List<int> setsToDelete = [];
-  
+
   /// Indica si los datos iniciales se están cargando desde el servidor.
   bool isLoading = false;
 
@@ -53,23 +53,29 @@ class ExerciseTrackingViewModel extends ChangeNotifier {
 
     try {
       // 1. Iniciamos/Recuperamos la sesión de entrenamiento.
-      currentSession = await workoutRepository.startSession(routineId, date: selectedDate);
+      currentSession = await workoutRepository.startSession(
+        routineId,
+        date: selectedDate,
+      );
 
       // 2. Revisamos el historial para ver si ya se guardaron ejercicios este día.
       final history = await workoutRepository.fetchExerciseHistory(exerciseId);
-      final dateKey = "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
-      
+      final dateKey =
+          "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
+
       final existingDay = history.firstWhere(
         (day) => day['date'] == dateKey,
         orElse: () => {'sets': []},
       );
-      
+
       final existingSets = (existingDay['sets'] as List)
           .map((s) => SetLogModel.fromJson(s))
           .toList();
 
       // 3. Obtenemos sugerencias del entrenamiento más reciente.
-      lastSessionSets = await workoutRepository.fetchLastExerciseLogs(exerciseId);
+      lastSessionSets = await workoutRepository.fetchLastExerciseLogs(
+        exerciseId,
+      );
 
       // 4. Inicializamos las filas de la tabla de tracking.
       if (existingSets.isNotEmpty) {
@@ -78,7 +84,9 @@ class ExerciseTrackingViewModel extends ChangeNotifier {
       } else {
         // Pre-llenamos con 4 series sugeridas o vacías.
         setsToLog = List.generate(4, (index) {
-          final lastSet = index < lastSessionSets.length ? lastSessionSets[index] : (lastSessionSets.isNotEmpty ? lastSessionSets.last : null);
+          final lastSet = index < lastSessionSets.length
+              ? lastSessionSets[index]
+              : (lastSessionSets.isNotEmpty ? lastSessionSets.last : null);
           return SetLogModel(
             exerciseId: exerciseId,
             setNumber: index + 1,
@@ -88,7 +96,6 @@ class ExerciseTrackingViewModel extends ChangeNotifier {
           );
         });
       }
-      
     } catch (e) {
       errorMessage = "Error al inicializar el registro del ejercicio.";
       debugPrint("Error en TrackingViewModel init: $e");
@@ -102,7 +109,7 @@ class ExerciseTrackingViewModel extends ChangeNotifier {
   void setDate(DateTime date) {
     selectedDate = date;
     setsToLog = [];
-    init(); 
+    init();
   }
 
   /// Actualiza los valores de una serie específica en la lista local antes de guardar.
@@ -119,13 +126,15 @@ class ExerciseTrackingViewModel extends ChangeNotifier {
   /// Añade una nueva fila de serie a la tabla, basándose en la última serie existente.
   void addRow() {
     final lastSet = setsToLog.isNotEmpty ? setsToLog.last : null;
-    setsToLog.add(SetLogModel(
-      exerciseId: exerciseId,
-      setNumber: setsToLog.length + 1,
-      reps: lastSet?.reps ?? 10,
-      weight: lastSet?.weight ?? 0.0,
-      sessionId: currentSession?.id,
-    ));
+    setsToLog.add(
+      SetLogModel(
+        exerciseId: exerciseId,
+        setNumber: setsToLog.length + 1,
+        reps: lastSet?.reps ?? 10,
+        weight: lastSet?.weight ?? 0.0,
+        sessionId: currentSession?.id,
+      ),
+    );
     notifyListeners();
   }
 
@@ -161,14 +170,19 @@ class ExerciseTrackingViewModel extends ChangeNotifier {
       for (var set in setsToLog) {
         if (set.id == null) {
           // Nueva serie: Crear en el servidor.
-          await workoutRepository.saveSet(set.copyWith(sessionId: currentSession?.id));
+          await workoutRepository.saveSet(
+            set.copyWith(sessionId: currentSession?.id),
+          );
         } else {
           // Serie existente: Actualizar en el servidor.
-          await workoutRepository.updateSet(set.copyWith(sessionId: currentSession?.id));
+          await workoutRepository.updateSet(
+            set.copyWith(sessionId: currentSession?.id),
+          );
         }
       }
     } catch (e) {
-      errorMessage = "Fallo al sincronizar los datos de entrenamiento con el servidor.";
+      errorMessage =
+          "Fallo al sincronizar los datos de entrenamiento con el servidor.";
       debugPrint("Error guardando series: $e");
     } finally {
       isSaving = false;

@@ -33,7 +33,10 @@ class RoutineDetailScreen extends StatelessWidget {
           return Scaffold(
             backgroundColor: AppColors.background,
             appBar: AppBar(
-              title: const Text('Detalle de Rutina', style: AppTextStyles.screenTitle),
+              title: const Text(
+                'Detalle de Rutina',
+                style: AppTextStyles.screenTitle,
+              ),
               backgroundColor: AppColors.background,
               elevation: 0,
               iconTheme: const IconThemeData(color: AppColors.textPrimary),
@@ -41,7 +44,11 @@ class RoutineDetailScreen extends StatelessWidget {
                 if (viewModel.isLoading)
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
                   ),
               ],
             ),
@@ -100,9 +107,17 @@ class RoutineDetailScreen extends StatelessWidget {
           // Etiquetas de categoría y dificultad.
           Row(
             children: [
-              _buildTag(routine.category, Colors.white.withOpacity(0.2), Colors.white),
+              _buildTag(
+                routine.category,
+                Colors.white.withOpacity(0.2),
+                Colors.white,
+              ),
               const SizedBox(width: AppSpacing.sm),
-              _buildTag(routine.difficulty, Colors.white.withOpacity(0.2), Colors.white),
+              _buildTag(
+                routine.difficulty,
+                Colors.white.withOpacity(0.2),
+                Colors.white,
+              ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
@@ -147,7 +162,10 @@ class RoutineDetailScreen extends StatelessWidget {
   }
 
   /// Genera la lista de ejercicios como tarjetas interactivas.
-  Widget _buildExercisesList(BuildContext context, RoutineDetailViewModel viewModel) {
+  Widget _buildExercisesList(
+    BuildContext context,
+    RoutineDetailViewModel viewModel,
+  ) {
     if (viewModel.routine.exercises.isEmpty) {
       return const Padding(
         padding: EdgeInsets.only(top: AppSpacing.md),
@@ -224,23 +242,29 @@ class RoutineDetailScreen extends StatelessWidget {
                       children: [
                         Text(
                           routineExercise.exercise.name,
-                          style: AppTextStyles.exerciseName.copyWith(fontSize: 16),
+                          style: AppTextStyles.exerciseName.copyWith(
+                            fontSize: 16,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            const Icon(Icons.fitness_center, size: 14, color: AppColors.textHint),
+                            const Icon(
+                              Icons.fitness_center,
+                              size: 14,
+                              color: AppColors.textHint,
+                            ),
                             const SizedBox(width: 4),
-                              Text(
-                                routineExercise.exercise.primaryMuscleName,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textSecondary,
-                                ),
-                                overflow: TextOverflow.ellipsis,
+                            Text(
+                              routineExercise.exercise.primaryMuscleName,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textSecondary,
                               ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ],
                         ),
                       ],
@@ -250,13 +274,25 @@ class RoutineDetailScreen extends StatelessWidget {
                   IconButton(
                     constraints: const BoxConstraints(),
                     padding: EdgeInsets.zero,
-                    icon: const Icon(Icons.delete_outline, color: AppColors.error, size: 22),
+                    icon: const Icon(
+                      Icons.delete_outline,
+                      color: AppColors.error,
+                      size: 22,
+                    ),
                     onPressed: () {
-                      _showDeleteConfirmation(context, viewModel, routineExercise);
+                      _showDeleteConfirmation(
+                        context,
+                        viewModel,
+                        routineExercise,
+                      );
                     },
                   ),
                   const SizedBox(width: 8),
-                  const Icon(Icons.chevron_right, color: AppColors.textHint, size: 20),
+                  const Icon(
+                    Icons.chevron_right,
+                    color: AppColors.textHint,
+                    size: 20,
+                  ),
                 ],
               ),
             ),
@@ -267,12 +303,18 @@ class RoutineDetailScreen extends StatelessWidget {
   }
 
   /// Muestra un diálogo de confirmación antes de eliminar el ejercicio de la rutina.
-  void _showDeleteConfirmation(BuildContext context, RoutineDetailViewModel viewModel, RoutineExerciseModel re) {
+  void _showDeleteConfirmation(
+    BuildContext context,
+    RoutineDetailViewModel viewModel,
+    RoutineExerciseModel re,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Quitar Ejercicio'),
-        content: Text('¿Estás seguro de que quieres remover "${re.exercise.name}" de esta rutina?'),
+        content: Text(
+          '¿Estás seguro de que quieres remover "${re.exercise.name}" de esta rutina?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

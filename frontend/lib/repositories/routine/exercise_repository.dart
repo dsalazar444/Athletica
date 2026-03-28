@@ -41,14 +41,18 @@ class ExerciseRepository {
     final exercises = results.map((e) => ExerciseModel.fromJson(e)).toList();
 
     // Traducimos automáticamente la descripción si no tiene versión oficial en español.
-    await Future.wait(exercises.map((ex) async {
-      if (ex.needsTranslation) {
-        final translatedDesc = await _translationService.translateToSpanish(ex.description);
-        ex.description = translatedDesc;
-        // El nombre se mantiene en inglés por preferencia del usuario.
-        ex.needsTranslation = false;
-      }
-    }));
+    await Future.wait(
+      exercises.map((ex) async {
+        if (ex.needsTranslation) {
+          final translatedDesc = await _translationService.translateToSpanish(
+            ex.description,
+          );
+          ex.description = translatedDesc;
+          // El nombre se mantiene en inglés por preferencia del usuario.
+          ex.needsTranslation = false;
+        }
+      }),
+    );
 
     return exercises;
   }
@@ -66,7 +70,7 @@ class ExerciseRepository {
     }
     return result;
   }
-  
+
   /// Obtiene la URL de la imagen principal para un ejercicio dado un su [id].
   /// Utiliza [_imageCache] para optimizar el rendimiento y reducir el tráfico de red.
   Future<String?> getExerciseImage(int id) async {

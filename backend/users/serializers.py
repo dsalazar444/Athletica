@@ -7,6 +7,11 @@ from .models import AthleteProfile, CoachProfile, Goal, User, WeightLog
 
 # Serializer para las metas de un atleta.
 class GoalSerializer(serializers.ModelSerializer):
+    description = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    target_value = serializers.FloatField(required=False, allow_null=True)
+    current_value = serializers.FloatField(required=False, allow_null=True)
+    deadline = serializers.DateField(required=False, allow_null=True)
+
     class Meta:
         model = Goal
         fields = [
@@ -32,12 +37,13 @@ class WeightLogSerializer(serializers.ModelSerializer):
 
 # Serializer para el perfil del atleta.
 class AthleteProfileSerializer(serializers.ModelSerializer):
-    goals = GoalSerializer(many=True, read_only=True)
-    weight = WeightLogSerializer(many=True, read_only=True)
+    goals = GoalSerializer(many=True, required=False)
+    # Cambiamos weight a weight_logs para coincidir con lo que envía el frontend
+    weight_logs = WeightLogSerializer(many=True, required=False, source="weight")
 
     class Meta:
         model = AthleteProfile
-        fields = ["id", "height", "age", "gender", "activity_level", "goals", "weight"]
+        fields = ["id", "height", "age", "gender", "activity_level", "goals", "weight_logs"]
 
 
 # Serializer para el perfil del coach.
@@ -107,11 +113,16 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         if user.role == "athlete" and athlete_data:
             goals_data = athlete_data.pop("goals", [])
-            # weight_logs_data = athlete_data.pop('weight_logs', [])
+            # Debido a source='weight' en AthleteProfileSerializer, la clave es 'weight'
+            weight_logs_data = athlete_data.pop("weight", [])
 
             athlete = AthleteProfile.objects.create(user=user, **athlete_data)
+            
             for goal in goals_data:
                 Goal.objects.create(athlete=athlete, **goal)
+            
+            for w_log in weight_logs_data:
+                WeightLog.objects.create(athlete=athlete, **w_log)
 
         if user.role == "coach" and coach_data:
             CoachProfile.objects.create(user=user, **coach_data)

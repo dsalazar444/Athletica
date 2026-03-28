@@ -73,7 +73,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.only(
-                  left: 24, right: 24, top: 40, bottom: 40),
+                left: 24,
+                right: 24,
+                top: 40,
+                bottom: 40,
+              ),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [AppColors.primary, Color(0xFFFF8A5C)],
@@ -91,9 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     radius: 40,
                     backgroundColor: Colors.white.withOpacity(0.3),
                     child: Text(
-                      _userName.isNotEmpty
-                          ? _userName[0].toUpperCase()
-                          : '?',
+                      _userName.isNotEmpty ? _userName[0].toUpperCase() : '?',
                       style: const TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
@@ -164,8 +166,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const Spacer(),
-            Icon(Icons.chevron_right,
-                color: (color ?? AppColors.textPrimary).withOpacity(0.4)),
+            Icon(
+              Icons.chevron_right,
+              color: (color ?? AppColors.textPrimary).withOpacity(0.4),
+            ),
           ],
         ),
       ),

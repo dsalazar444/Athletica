@@ -9,23 +9,23 @@ class RoutineExerciseModel {
   /// Detalles completos del ejercicio asociado.
   final ExerciseModel exercise;
 
-  RoutineExerciseModel({
-    required this.order,
-    required this.exercise,
-  });
+  RoutineExerciseModel({required this.order, required this.exercise});
 
   /// Construye una instancia de [RoutineExerciseModel] desde un JSON del servidor.
-  factory RoutineExerciseModel.fromJson(Map<String, dynamic> json) => RoutineExerciseModel(
+  factory RoutineExerciseModel.fromJson(Map<String, dynamic> json) =>
+      RoutineExerciseModel(
         order: json['order'],
         exercise: json['exercise'] != null
             ? ExerciseModel.fromJson(json['exercise'])
-            : ExerciseModel(id: 0, name: 'Desconocido', description: '', muscles: []),
+            : ExerciseModel(
+                id: 0,
+                name: 'Desconocido',
+                description: '',
+                muscles: [],
+              ),
       );
 
   /// Convierte el modelo a un formato compatible para enviar al backend.
   /// Se envía el `id` como `external_id` tal como lo espera el serializer de la rutina.
-  Map<String, dynamic> toJson() => {
-        'external_id': exercise.id,
-        'order': order,
-      };
+  Map<String, dynamic> toJson() => {'external_id': exercise.id, 'order': order};
 }

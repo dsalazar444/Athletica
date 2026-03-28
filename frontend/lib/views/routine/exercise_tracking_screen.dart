@@ -79,7 +79,11 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
           backgroundColor: Colors.white,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.close, color: AppColors.textPrimary, size: 24),
+            icon: const Icon(
+              Icons.close,
+              color: AppColors.textPrimary,
+              size: 24,
+            ),
             onPressed: () => Navigator.pop(context),
           ),
           title: const Text('Registro de Series', style: AppTextStyles.h3),
@@ -87,12 +91,19 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
             // Botón para cambiar la fecha de la sesión actual.
             TextButton.icon(
               onPressed: () => _selectDate(context),
-              icon: const Icon(Icons.calendar_today, size: 16, color: AppColors.primary),
+              icon: const Icon(
+                Icons.calendar_today,
+                size: 16,
+                color: AppColors.primary,
+              ),
               label: Consumer<ExerciseTrackingViewModel>(
                 builder: (context, vm, _) {
                   return Text(
                     DateFormat('d MMM').format(vm.selectedDate),
-                    style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   );
                 },
               ),
@@ -101,7 +112,8 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
         ),
         body: Consumer<ExerciseTrackingViewModel>(
           builder: (context, vm, child) {
-            if (vm.isLoading) return const Center(child: CircularProgressIndicator());
+            if (vm.isLoading)
+              return const Center(child: CircularProgressIndicator());
 
             return Column(
               children: [
@@ -116,7 +128,10 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
                         _buildTableHeader(),
                         const Divider(height: 1),
                         // Lista dinámica de filas para cada serie.
-                        ...List.generate(vm.setsToLog.length, (index) => _buildSetRow(vm, index)),
+                        ...List.generate(
+                          vm.setsToLog.length,
+                          (index) => _buildSetRow(vm, index),
+                        ),
                         const SizedBox(height: 16),
                         _buildAddRowButton(vm),
                       ],
@@ -139,10 +154,17 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.routineExercise.exercise.name, style: AppTextStyles.h2, overflow: TextOverflow.ellipsis),
+          Text(
+            widget.routineExercise.exercise.name,
+            style: AppTextStyles.h2,
+            overflow: TextOverflow.ellipsis,
+          ),
           Text(
             '${widget.routineExercise.exercise.primaryMuscleName} • Registra tu progreso',
-            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.textSecondary,
+            ),
             overflow: TextOverflow.ellipsis,
           ),
         ],
@@ -156,9 +178,41 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       child: Row(
         children: [
-          const SizedBox(width: 40, child: Text('SERIE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textSecondary))),
-          const Expanded(child: Center(child: Text('REPS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textSecondary)))),
-          const Expanded(child: Center(child: Text('PESO (kg)', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textSecondary)))),
+          const SizedBox(
+            width: 40,
+            child: Text(
+              'SERIE',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+          const Expanded(
+            child: Center(
+              child: Text(
+                'REPS',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+          ),
+          const Expanded(
+            child: Center(
+              child: Text(
+                'PESO (kg)',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+          ),
           const SizedBox(width: 40),
         ],
       ),
@@ -168,7 +222,7 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
   /// Construye una fila editable para una serie específica.
   Widget _buildSetRow(ExerciseTrackingViewModel vm, int index) {
     final set = vm.setsToLog[index];
-    
+
     return Container(
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: AppColors.border, width: 0.5)),
@@ -179,7 +233,13 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
           children: [
             SizedBox(
               width: 40,
-              child: Text('${set.setNumber}', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
+              child: Text(
+                '${set.setNumber}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
+              ),
             ),
             // Campo para ingresar repeticiones.
             Expanded(
@@ -193,7 +253,10 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
                     filled: true,
                     fillColor: AppColors.surface,
                     contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                   onChanged: (val) {
                     final reps = int.tryParse(val);
@@ -207,14 +270,19 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: TextField(
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
                     hintText: '${set.weight}',
                     filled: true,
                     fillColor: AppColors.surface,
                     contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                   onChanged: (val) {
                     final weight = double.tryParse(val);
@@ -225,7 +293,11 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
             ),
             // Botón para eliminar la fila de la serie.
             IconButton(
-              icon: const Icon(Icons.remove_circle_outline, color: AppColors.textHint, size: 20),
+              icon: const Icon(
+                Icons.remove_circle_outline,
+                color: AppColors.textHint,
+                size: 20,
+              ),
               onPressed: () => vm.removeRow(index),
             ),
           ],
@@ -253,26 +325,46 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
       ),
       child: SafeArea(
         child: ElevatedButton(
-          onPressed: vm.isSaving ? null : () async {
-            await vm.saveAll();
-            if (mounted) {
-              Navigator.pop(context);
-            }
-          },
+          onPressed: vm.isSaving
+              ? null
+              : () async {
+                  await vm.saveAll();
+                  if (mounted) {
+                    Navigator.pop(context);
+                  }
+                },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             minimumSize: const Size(double.infinity, 56),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             elevation: 0,
           ),
-          child: vm.isSaving 
-            ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-            : const Text('GUARDAR CAMBIOS', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          child: vm.isSaving
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+              : const Text(
+                  'GUARDAR CAMBIOS',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
         ),
       ),
     );

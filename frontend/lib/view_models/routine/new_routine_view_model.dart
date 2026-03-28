@@ -20,7 +20,7 @@ class RoutineViewModel {
     required String difficulty,
     required List<SelectedExercise> selectedExercises,
   }) async {
-    // Transformamos los SelectedExercise (que son temporales de la UI) 
+    // Transformamos los SelectedExercise (que son temporales de la UI)
     // a RoutineExerciseModel (que incluyen el orden y el objeto de ejercicio).
     final exercises = selectedExercises
         .map((e) => RoutineExerciseModel(order: e.order, exercise: e.exercise))

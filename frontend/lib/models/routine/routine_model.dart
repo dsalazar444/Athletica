@@ -48,11 +48,13 @@ class RoutineModel {
     difficulty: json['difficulty'],
     createdBy: json['created_by'],
     assignedAthletes: (json['assigned_athletes'] != null)
-      ? (json['assigned_athletes'] as List).map((e) => e as int).toList()
-      : [],
+        ? (json['assigned_athletes'] as List).map((e) => e as int).toList()
+        : [],
     exercises: (json['exercises'] != null)
-      ? (json['exercises'] as List).map((e) => RoutineExerciseModel.fromJson(e)).toList()
-      : [],
+        ? (json['exercises'] as List)
+              .map((e) => RoutineExerciseModel.fromJson(e))
+              .toList()
+        : [],
   );
 
   /// Convierte el modelo a un mapa JSON para ser enviado al servidor.

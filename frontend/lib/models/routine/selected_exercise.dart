@@ -5,9 +5,9 @@ import './exercise_model.dart';
 class SelectedExercise {
   /// El modelo completo del ejercicio seleccionado.
   final ExerciseModel exercise;
-  
+
   /// El orden correlativo asignado por el usuario (ej. 1, 2, 3).
   final int order;
- 
+
   const SelectedExercise({required this.exercise, required this.order});
 }

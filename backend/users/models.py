@@ -46,6 +46,7 @@ class AthleteProfile(Profile):
         ("medium", "Medium"),
         ("low", "Low"),
     )
+    # Nota: altura, edad y género están en el perfil por separación de responsabilidades.
     activity_level = models.CharField(max_length=10, choices=ACTIVITY_CHOICES)
 
     def __str__(self):

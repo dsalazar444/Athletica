@@ -64,7 +64,9 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
     if (result != null) {
       setState(() {
         // Evitamos añadir el mismo ejercicio más de una vez.
-        final alreadyAdded = _selectedExercises.any((e) => e.exercise.id == result.id);
+        final alreadyAdded = _selectedExercises.any(
+          (e) => e.exercise.id == result.id,
+        );
         if (!alreadyAdded) {
           _selectedExercises.add(
             SelectedExercise(
@@ -93,9 +95,9 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
   /// Valida y envía los datos al ViewModel para persistir la rutina en el backend.
   Future<void> _handleSave() async {
     if (_titleController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('El título es obligatorio')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('El título es obligatorio')));
       return;
     }
 
@@ -107,7 +109,7 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
         difficulty: _selectedDifficulty.name,
         selectedExercises: _selectedExercises,
       );
-      
+
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -117,11 +119,10 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
       // Pequeña pausa para que el usuario vea el mensaje de éxito antes de cerrar.
       await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) Navigator.of(context).pop();
-      
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Fallo al guardar: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Fallo al guardar: $e')));
     }
   }
 
@@ -148,8 +149,10 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
                       descriptionController: _descriptionController,
                       selectedCategory: _selectedCategory,
                       selectedDifficulty: _selectedDifficulty,
-                      onCategoryChanged: (value) => setState(() => _selectedCategory = value),
-                      onDifficultyChanged: (value) => setState(() => _selectedDifficulty = value),
+                      onCategoryChanged: (value) =>
+                          setState(() => _selectedCategory = value),
+                      onDifficultyChanged: (value) =>
+                          setState(() => _selectedDifficulty = value),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     // Gestión de la lista de ejercicios.
@@ -329,7 +332,10 @@ class _ExerciseListSection extends StatelessWidget {
         if (exercises.isEmpty)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
-            child: Text('No has seleccionado ejercicios todavía.', style: TextStyle(color: AppColors.textHint)),
+            child: Text(
+              'No has seleccionado ejercicios todavía.',
+              style: TextStyle(color: AppColors.textHint),
+            ),
           ),
         ...exercises.map(
           (entry) => Padding(
@@ -377,7 +383,11 @@ class _ExerciseListItem extends StatelessWidget {
             backgroundColor: AppColors.primary,
             child: Text(
               '${selectedExercise.order}',
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
           ),
           const SizedBox(width: AppSpacing.md),
@@ -390,7 +400,11 @@ class _ExerciseListItem extends StatelessWidget {
           ),
           IconButton(
             onPressed: onRemove,
-            icon: const Icon(Icons.delete_outline, color: AppColors.deleteRed, size: 22),
+            icon: const Icon(
+              Icons.delete_outline,
+              color: AppColors.deleteRed,
+              size: 22,
+            ),
           ),
         ],
       ),
@@ -403,10 +417,7 @@ class _RoutineActionButtons extends StatelessWidget {
   final VoidCallback onCancel;
   final VoidCallback onSave;
 
-  const _RoutineActionButtons({
-    required this.onCancel,
-    required this.onSave,
-  });
+  const _RoutineActionButtons({required this.onCancel, required this.onSave});
 
   @override
   Widget build(BuildContext context) {
@@ -428,10 +439,15 @@ class _RoutineActionButtons extends StatelessWidget {
               onPressed: onCancel,
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.border),
-                shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadius.button,
+                ),
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: const Text('Descartar', style: AppTextStyles.buttonSecondary),
+              child: const Text(
+                'Descartar',
+                style: AppTextStyles.buttonSecondary,
+              ),
             ),
           ),
           const SizedBox(width: AppSpacing.md),
@@ -443,10 +459,15 @@ class _RoutineActionButtons extends StatelessWidget {
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.surface,
                 elevation: 0,
-                shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadius.button,
+                ),
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: const Text('Crear Rutina', style: AppTextStyles.buttonPrimary),
+              child: const Text(
+                'Crear Rutina',
+                style: AppTextStyles.buttonPrimary,
+              ),
             ),
           ),
         ],

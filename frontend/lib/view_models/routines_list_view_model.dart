@@ -28,7 +28,8 @@ class RoutinesListViewModel extends ChangeNotifier {
     try {
       routines = await routineRepository.fetchRoutines();
     } catch (e) {
-      errorMessage = "No se pudieron cargar las rutinas. Por favor, revisa tu conexión.";
+      errorMessage =
+          "No se pudieron cargar las rutinas. Por favor, revisa tu conexión.";
     } finally {
       isLoading = false;
       notifyListeners();

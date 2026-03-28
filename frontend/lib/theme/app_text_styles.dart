@@ -144,9 +144,7 @@ class AppTextStyles {
 
   // ─── Goals ─────────────────────────────────────────────────────────────────
 
-  static const TextStyle goalEmoji = TextStyle(
-    fontSize: 36,
-  );
+  static const TextStyle goalEmoji = TextStyle(fontSize: 36);
 
   static const TextStyle goalLabel = TextStyle(
     fontSize: 14,

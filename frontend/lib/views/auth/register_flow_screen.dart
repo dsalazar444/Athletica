@@ -21,7 +21,6 @@ class RegisterFlowScreen extends StatefulWidget {
 }
 
 class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
-
   final vm = RegisterViewModel();
 
   // Avanza al siguiente paso y reconstruye la pantalla.
@@ -37,7 +36,6 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
       backgroundColor: AppColors.background,
       body: Column(
         children: [
-
           // Cabecera con el nombre de la app, subtitulo y barra de progreso.
           Container(
             width: double.infinity,
@@ -57,10 +55,7 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                 const SizedBox(height: 5),
                 const Text(
                   'Configura tu perfil',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
                 ),
                 const SizedBox(height: 20),
 
@@ -93,23 +88,19 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
                 color: AppColors.surface,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(30),
-                ),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
               ),
               child:
-
-              // Paso 0 — seleccion de rol (atleta o coach).
-              vm.step == 0
+                  // Paso 0 — seleccion de rol (atleta o coach).
+                  vm.step == 0
                   ? Step1Role(
                       onNext: (role) {
                         vm.data.role = role;
                         nextStep();
                       },
                     )
-
-              // Paso 1 — datos de la cuenta (usuario, email, contrasena).
-              : vm.step == 1
+                  // Paso 1 — datos de la cuenta (usuario, email, contrasena).
+                  : vm.step == 1
                   ? Step2Account(
                       onNext: (username, email, password, password2) {
                         vm.data.username = username;
@@ -119,50 +110,51 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                         nextStep();
                       },
                     )
-
-              // Paso 2 — datos personales del atleta o datos del coach.
-              // Muestra un formulario diferente segun el rol seleccionado.
-              : vm.step == 2
+                  // Paso 2 — datos personales del atleta o datos del coach.
+                  // Muestra un formulario diferente segun el rol seleccionado.
+                  : vm.step == 2
                   ? (vm.data.role == UserRole.coach
-                      ? Step2Coach(
-                          onNext: (specialty, years) async {
-                            vm.data.specialty = specialty;
-                            vm.data.yearsExperience = int.parse(years);
+                        ? Step2Coach(
+                            onNext: (specialty, years) async {
+                              vm.data.specialty = specialty;
+                              vm.data.yearsExperience = int.parse(years);
 
-                            // El coach envia el registro en este paso — no tiene pasos adicionales.
-                            final success = await vm.register();
-                            if (success) {
+                              // El coach envia el registro en este paso — no tiene pasos adicionales.
+                              final success = await vm.register();
+                              if (success) {
+                                nextStep();
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      vm.errorMessage ?? 'Error desconocido',
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                          )
+                        : Step2Personal(
+                            onNext: (name, age, weight, height, gender) {
+                              vm.data.name = name;
+                              vm.data.age = int.parse(age);
+                              vm.data.weight = double.parse(weight);
+                              vm.data.height = double.parse(height);
+                              vm.data.gender = gender;
                               nextStep();
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(vm.errorMessage ?? 'Error desconocido')),
-                              );
-                            }
-                          },
-                        )
-                      : Step2Personal(
-                          onNext: (name, age, weight, height, gender) {
-                            vm.data.name = name;
-                            vm.data.age = int.parse(age);
-                            vm.data.weight = double.parse(weight);
-                            vm.data.height = double.parse(height);
-                            vm.data.gender = gender;
-                            nextStep();
-                          },
-                        ))
-
-              // Paso 3 — seleccion de meta de entrenamiento (solo atleta).
-              : vm.step == 3
+                            },
+                          ))
+                  // Paso 3 — seleccion de meta de entrenamiento (solo atleta).
+                  : vm.step == 3
                   ? Step3Goals(
                       onNext: (goal) {
                         vm.data.goal = goal;
                         nextStep();
                       },
                     )
-
-              // Paso 4 — nivel de experiencia (solo atleta).
-              // Al completar este paso se envia el registro al backend.
-              : vm.step == 4
+                  // Paso 4 — nivel de experiencia (solo atleta).
+                  // Al completar este paso se envia el registro al backend.
+                  : vm.step == 4
                   ? Step4Experience(
                       onNext: (exp) async {
                         vm.data.activityLevel = exp;
@@ -172,63 +164,74 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                           nextStep();
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(vm.errorMessage ?? 'Error desconocido')),
+                            SnackBar(
+                              content: Text(
+                                vm.errorMessage ?? 'Error desconocido',
+                              ),
+                            ),
                           );
                         }
                       },
                     )
-
-              // Paso final — confirmacion de registro completado.
-              // Incluye un boton temporal para verificar que el token funciona correctamente.
-              : Center(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.check_circle_outline,
-                          color: AppColors.primary,
-                          size: 80,
-                        ),
-                        const SizedBox(height: 20),
-                        const Text(
-                          '¡Registro completado!',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        const Text(
-                          'Tu cuenta ha sido creada con éxito. Ya puedes empezar a entrenar.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                        const SizedBox(height: 40),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // Redirige al inicio (MainScreen)
-                              Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                  // Paso final — confirmacion de registro completado.
+                  // Incluye un boton temporal para verificar que el token funciona correctamente.
+                  : Center(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.check_circle_outline,
+                              color: AppColors.primary,
+                              size: 80,
+                            ),
+                            const SizedBox(height: 20),
+                            const Text(
+                              '¡Registro completado!',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            child: const Text(
-                              'Ir al Inicio',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                            const SizedBox(height: 10),
+                            const Text(
+                              'Tu cuenta ha sido creada con éxito. Ya puedes empezar a entrenar.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.grey),
                             ),
-                          ),
+                            const SizedBox(height: 40),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  // Redirige al inicio (MainScreen)
+                                  Navigator.of(context).pushNamedAndRemoveUntil(
+                                    '/',
+                                    (route) => false,
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Ir al Inicio',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
             ),
           ),
         ],

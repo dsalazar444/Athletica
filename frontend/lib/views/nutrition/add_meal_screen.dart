@@ -58,8 +58,12 @@ class _AddMealScreenState extends State<AddMealScreen> {
         foodName: _foodNameCtrl.text.trim(),
         portionGrams: double.parse(_portionCtrl.text),
         calories: double.parse(_caloriesCtrl.text),
-        proteinG: _proteinCtrl.text.isNotEmpty ? double.tryParse(_proteinCtrl.text) : null,
-        carbsG: _carbsCtrl.text.isNotEmpty ? double.tryParse(_carbsCtrl.text) : null,
+        proteinG: _proteinCtrl.text.isNotEmpty
+            ? double.tryParse(_proteinCtrl.text)
+            : null,
+        carbsG: _carbsCtrl.text.isNotEmpty
+            ? double.tryParse(_carbsCtrl.text)
+            : null,
         fatG: _fatCtrl.text.isNotEmpty ? double.tryParse(_fatCtrl.text) : null,
         date: widget.selectedDate,
       );
@@ -84,7 +88,10 @@ class _AddMealScreenState extends State<AddMealScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white70, fontSize: 13),
+        ),
         const SizedBox(height: 6),
         TextFormField(
           controller: controller,
@@ -102,10 +109,16 @@ class _AddMealScreenState extends State<AddMealScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Color(0xFFE91E63), width: 1.5),
+              borderSide: const BorderSide(
+                color: Color(0xFFE91E63),
+                width: 1.5,
+              ),
             ),
             errorStyle: const TextStyle(color: Color(0xFFE91E63)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 12,
+            ),
           ),
         ),
       ],
@@ -118,8 +131,10 @@ class _AddMealScreenState extends State<AddMealScreen> {
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
         backgroundColor: const Color(0xFF1E1E1E),
-        title: const Text('Agregar Comida',
-            style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Agregar Comida',
+          style: TextStyle(color: Colors.white),
+        ),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
@@ -131,52 +146,77 @@ class _AddMealScreenState extends State<AddMealScreen> {
             children: [
               // Fecha
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF1E1E1E),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.calendar_today,
-                        color: Color(0xFFE91E63), size: 16),
+                    const Icon(
+                      Icons.calendar_today,
+                      color: Color(0xFFE91E63),
+                      size: 16,
+                    ),
                     const SizedBox(width: 8),
-                    Text(widget.selectedDate,
-                        style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                    Text(
+                      widget.selectedDate,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 20),
 
               // Tipo de comida
-              const Text('Tipo de comida',
-                  style: TextStyle(color: Colors.white70, fontSize: 13)),
+              const Text(
+                'Tipo de comida',
+                style: TextStyle(color: Colors.white70, fontSize: 13),
+              ),
               const SizedBox(height: 8),
               Row(
                 children: _mealTypes.map((type) {
                   final selected = _mealType == type['value'];
                   return Expanded(
                     child: GestureDetector(
-                      onTap: () => setState(() => _mealType = type['value'] as String),
+                      onTap: () =>
+                          setState(() => _mealType = type['value'] as String),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         margin: const EdgeInsets.only(right: 8),
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: selected ? const Color(0xFFE91E63) : const Color(0xFF1E1E1E),
+                          color: selected
+                              ? const Color(0xFFE91E63)
+                              : const Color(0xFF1E1E1E),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: selected ? const Color(0xFFE91E63) : Colors.white12,
+                            color: selected
+                                ? const Color(0xFFE91E63)
+                                : Colors.white12,
                           ),
                         ),
                         child: Column(
                           children: [
-                            Icon(type['icon'] as IconData,
-                                color: Colors.white, size: 20),
+                            Icon(
+                              type['icon'] as IconData,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                             const SizedBox(height: 4),
-                            Text(type['label'] as String,
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 10)),
+                            Text(
+                              type['label'] as String,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -191,7 +231,8 @@ class _AddMealScreenState extends State<AddMealScreen> {
                 controller: _foodNameCtrl,
                 label: 'Nombre del alimento',
                 hint: 'Ej: Arroz con pollo',
-                validator: (v) => v == null || v.isEmpty ? 'Campo requerido' : null,
+                validator: (v) =>
+                    v == null || v.isEmpty ? 'Campo requerido' : null,
               ),
               const SizedBox(height: 14),
 
@@ -230,8 +271,10 @@ class _AddMealScreenState extends State<AddMealScreen> {
               const SizedBox(height: 20),
 
               // Macros
-              const Text('Macronutrientes (opcional)',
-                  style: TextStyle(color: Colors.white70, fontSize: 13)),
+              const Text(
+                'Macronutrientes (opcional)',
+                style: TextStyle(color: Colors.white70, fontSize: 13),
+              ),
               const SizedBox(height: 10),
               Row(
                 children: [
@@ -273,7 +316,8 @@ class _AddMealScreenState extends State<AddMealScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFE91E63),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   onPressed: _isLoading ? null : _submit,
                   child: _isLoading
@@ -281,13 +325,18 @@ class _AddMealScreenState extends State<AddMealScreen> {
                           width: 22,
                           height: 22,
                           child: CircularProgressIndicator(
-                              color: Colors.white, strokeWidth: 2.5),
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
                         )
-                      : const Text('Guardar comida',
+                      : const Text(
+                          'Guardar comida',
                           style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold)),
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
             ],

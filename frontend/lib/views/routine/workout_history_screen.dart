@@ -67,11 +67,18 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
             icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
             onPressed: () => Navigator.pop(context),
           ),
-          title: const Text('Historial de entrenamientos', style: AppTextStyles.h3),
+          title: const Text(
+            'Historial de entrenamientos',
+            style: AppTextStyles.h3,
+          ),
           actions: [
             TextButton.icon(
               onPressed: () => _pickRange(context),
-              icon: const Icon(Icons.date_range, size: 18, color: AppColors.primary),
+              icon: const Icon(
+                Icons.date_range,
+                size: 18,
+                color: AppColors.primary,
+              ),
               label: Consumer<WorkoutHistoryViewModel>(
                 builder: (context, vm, _) {
                   final formatter = DateFormat('d MMM');
@@ -132,7 +139,9 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: AppRadius.card,
-                        border: Border.all(color: AppColors.border.withOpacity(0.5)),
+                        border: Border.all(
+                          color: AppColors.border.withOpacity(0.5),
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.03),
@@ -142,7 +151,10 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                         ],
                       ),
                       child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         leading: Container(
                           width: 44,
                           height: 44,
@@ -150,7 +162,10 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                             color: AppColors.primary.withOpacity(0.12),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(Icons.event_available, color: AppColors.primary),
+                          child: const Icon(
+                            Icons.event_available,
+                            color: AppColors.primary,
+                          ),
                         ),
                         title: Text(
                           session.routineTitle,
@@ -162,8 +177,13 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                         subtitle: Padding(
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
-                              DateFormat('EEEE, d MMM yyyy • HH:mm', 'es_ES').format(session.date.toLocal()),
-                            style: const TextStyle(color: AppColors.textSecondary),
+                            DateFormat(
+                              'EEEE, d MMM yyyy • HH:mm',
+                              'es_ES',
+                            ).format(session.date.toLocal()),
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                         ),
                       ),

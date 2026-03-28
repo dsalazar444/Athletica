@@ -36,12 +36,12 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
-             crossAxisAlignment: CrossAxisAlignment.start,
-             children: [
-               _buildModernHeader(),
-               const SizedBox(height: 24),
-               _buildContent(),
-             ],
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildModernHeader(),
+              const SizedBox(height: 24),
+              _buildContent(),
+            ],
           ),
         ),
       ),
@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.only(left: 24, right: 24, top: 40, bottom: 40),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primary, Color(0xFFFF8A5C)], 
+          colors: [AppColors.primary, Color(0xFFFF8A5C)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -80,10 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 8),
           const Text(
             '¿List@ para empezar tu día de entrenamiento?',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white70,
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.white70),
           ),
         ],
       ),

@@ -9,7 +9,7 @@ class ExerciseDetailViewModel extends ChangeNotifier {
 
   /// Lista de sesiones pasadas obtenidas desde el backend para este ejercicio.
   List<Map<String, dynamic>> history = [];
-  
+
   /// Estado que indica si se están cargando datos desde el servidor.
   bool isLoading = false;
 
@@ -28,7 +28,8 @@ class ExerciseDetailViewModel extends ChangeNotifier {
     try {
       history = await workoutRepository.fetchExerciseHistory(exerciseId);
     } catch (e) {
-      errorMessage = "No se pudo cargar el historial del ejercicio. Reinténtalo más tarde.";
+      errorMessage =
+          "No se pudo cargar el historial del ejercicio. Reinténtalo más tarde.";
     } finally {
       isLoading = false;
       notifyListeners();
@@ -41,7 +42,7 @@ class ExerciseDetailViewModel extends ChangeNotifier {
     if (history.isEmpty) return null;
     double maxWeight = 0;
     int bestReps = 0;
-    
+
     for (var session in history) {
       if (session['sets'] == null) continue;
       for (var s in (session['sets'] as List)) {

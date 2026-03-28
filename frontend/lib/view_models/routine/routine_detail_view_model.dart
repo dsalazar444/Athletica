@@ -8,7 +8,7 @@ import '../../repositories/routine/routine_repository.dart';
 class RoutineDetailViewModel extends ChangeNotifier {
   final RoutineRepository routineRepository;
   RoutineModel routine;
-  
+
   /// Indica si la aplicación está cargando información del servidor.
   bool isLoading = false;
 
@@ -40,9 +40,11 @@ class RoutineDetailViewModel extends ChangeNotifier {
   /// Implementa una actualización optimista de la interfaz antes de confirmar con el backend.
   Future<void> removeExercise(int exerciseId) async {
     if (routine.id == null) return;
-    
+
     // Almacenamos el estado original para hacer rollback en caso de error.
-    final List<RoutineExerciseModel> originalExercises = List.from(routine.exercises);
+    final List<RoutineExerciseModel> originalExercises = List.from(
+      routine.exercises,
+    );
 
     // Actualización optimista: removemos el ejercicio de la lista local de inmediato.
     routine.exercises.removeWhere((e) => e.exercise.id == exerciseId);
@@ -51,14 +53,15 @@ class RoutineDetailViewModel extends ChangeNotifier {
     try {
       // Intentamos la eliminación persistente en el backend.
       await routineRepository.deleteRoutineExercise(routine.id!, exerciseId);
-      
+
       // Si tiene éxito, refrescamos detalles (por ejemplo, para actualizar números de orden).
       await refreshRoutine();
     } catch (e) {
       // En caso de fallo, restauramos los datos originales y notificamos el error.
       routine.exercises.clear();
       routine.exercises.addAll(originalExercises);
-      errorMessage = "Error al eliminar ejercicio de la rutina. Por favor, intenta de nuevo.";
+      errorMessage =
+          "Error al eliminar ejercicio de la rutina. Por favor, intenta de nuevo.";
       notifyListeners();
     }
   }

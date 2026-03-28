@@ -12,7 +12,6 @@ class Step1Role extends StatefulWidget {
 }
 
 class _Step1RoleState extends State<Step1Role> {
-
   UserRole? selectedRole;
 
   @override
@@ -23,10 +22,7 @@ class _Step1RoleState extends State<Step1Role> {
         children: [
           const Text(
             "¿Cuál es tu rol?",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-            ),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 10),
           const Text(
@@ -92,29 +88,25 @@ class _Step1RoleState extends State<Step1Role> {
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected
-                ? AppColors.primary
-                : AppColors.border,
+            color: isSelected ? AppColors.primary : AppColors.border,
             width: 2,
           ),
         ),
         child: Row(
           children: [
-
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      )),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text(subtitle,
-                      style: const TextStyle(
-                        color: Colors.grey,
-                      )),
+                  Text(subtitle, style: const TextStyle(color: Colors.grey)),
                 ],
               ),
             ),

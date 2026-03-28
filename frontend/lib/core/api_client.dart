@@ -28,7 +28,10 @@ class _AuthInterceptor extends Interceptor {
 
   // 1. Agrega el token a cada request automáticamente
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     final token = await TokenStorage.getAccessToken();
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
@@ -62,10 +65,10 @@ class _AuthInterceptor extends Interceptor {
 
         // Reintenta el request original con el nuevo token
         final retryOptions = err.requestOptions;
-        retryOptions.headers['Authorization'] = 'Bearer ${response.data['access']}';
+        retryOptions.headers['Authorization'] =
+            'Bearer ${response.data['access']}';
         final retryResponse = await dio.fetch(retryOptions);
         handler.resolve(retryResponse);
-
       } catch (_) {
         // Si el refresh también falla → limpiar tokens (logout automático)
         await TokenStorage.clearTokens();

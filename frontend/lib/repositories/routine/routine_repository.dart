@@ -15,7 +15,10 @@ class RoutineRepository {
   /// Comprueba si un ejercicio ya existe en la base de datos local usando su [externalId].
   Future<bool> existsExercise(int externalId) async {
     try {
-      final response = await _dio.get('exercises/', queryParameters: {'external_id': externalId});
+      final response = await _dio.get(
+        'exercises/',
+        queryParameters: {'external_id': externalId},
+      );
       if (response.statusCode == 200) {
         return response.data['exists'] == true;
       }
@@ -78,19 +81,23 @@ class RoutineRepository {
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
         final routines = data.map((e) => RoutineModel.fromJson(e)).toList();
-        
+
         // Traducir ejercicios si es necesario (para datos ya guardados en inglés)
         for (var routine in routines) {
-          await _translateExercises(routine.exercises.map((re) => re.exercise).toList());
+          await _translateExercises(
+            routine.exercises.map((re) => re.exercise).toList(),
+          );
         }
-        
+
         return routines;
       } else {
         throw Exception('Fallo al recuperar la lista de rutinas.');
       }
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
-        throw Exception('No tienes permiso para ver las rutinas. Por favor, inicia sesión de nuevo.');
+        throw Exception(
+          'No tienes permiso para ver las rutinas. Por favor, inicia sesión de nuevo.',
+        );
       }
       throw Exception('Error al conectar con el servidor: ${e.message}');
     }
@@ -98,13 +105,17 @@ class RoutineRepository {
 
   /// Helper para traducir una lista de ejercicios.
   Future<void> _translateExercises(List<ExerciseModel> exercises) async {
-    await Future.wait(exercises.map((ex) async {
-      if (ex.needsTranslation) {
-        final translatedDesc = await _translationService.translateToSpanish(ex.description);
-        ex.description = translatedDesc;
-        ex.needsTranslation = false;
-      }
-    }));
+    await Future.wait(
+      exercises.map((ex) async {
+        if (ex.needsTranslation) {
+          final translatedDesc = await _translationService.translateToSpanish(
+            ex.description,
+          );
+          ex.description = translatedDesc;
+          ex.needsTranslation = false;
+        }
+      }),
+    );
   }
 
   /// Obtiene los detalles de una rutina específica por su [routineId].
@@ -113,10 +124,12 @@ class RoutineRepository {
       final response = await _dio.get('routines/$routineId/');
       if (response.statusCode == 200) {
         final routine = RoutineModel.fromJson(response.data);
-        
+
         // Traducir ejercicios si es necesario
-        await _translateExercises(routine.exercises.map((re) => re.exercise).toList());
-        
+        await _translateExercises(
+          routine.exercises.map((re) => re.exercise).toList(),
+        );
+
         return routine;
       } else {
         throw Exception('Fallo al recuperar los detalles de la rutina.');
@@ -129,7 +142,9 @@ class RoutineRepository {
   /// Elimina la relación entre un ejercicio y una rutina específica.
   Future<void> deleteRoutineExercise(int routineId, int exerciseId) async {
     try {
-      final response = await _dio.delete('routines/$routineId/exercises/$exerciseId/');
+      final response = await _dio.delete(
+        'routines/$routineId/exercises/$exerciseId/',
+      );
       if (response.statusCode != 204) {
         throw Exception('No se pudo desvincular el ejercicio de la rutina.');
       }

@@ -32,7 +32,8 @@ class _Step2AccountState extends State<Step2Account> {
       passwordError = _validatePassword(password.text);
       password2Error = _validatePassword2(password2.text);
 
-      isValid = usernameError == null &&
+      isValid =
+          usernameError == null &&
           emailError == null &&
           passwordError == null &&
           password2Error == null;
@@ -61,9 +62,12 @@ class _Step2AccountState extends State<Step2Account> {
   // Minimo 8 caracteres, al menos una letra y un numero.
   String? _validatePassword(String value) {
     if (value.isEmpty) return 'La contrasena es requerida';
-    if (value.length < 8) return 'La contrasena debe tener al menos 8 caracteres';
-    if (!RegExp(r'[a-zA-Z]').hasMatch(value)) return 'Debe contener al menos una letra';
-    if (!RegExp(r'[0-9]').hasMatch(value)) return 'Debe contener al menos un numero';
+    if (value.length < 8)
+      return 'La contrasena debe tener al menos 8 caracteres';
+    if (!RegExp(r'[a-zA-Z]').hasMatch(value))
+      return 'Debe contener al menos una letra';
+    if (!RegExp(r'[0-9]').hasMatch(value))
+      return 'Debe contener al menos un numero';
     return null;
   }
 
@@ -96,18 +100,23 @@ class _Step2AccountState extends State<Step2Account> {
           const SizedBox(height: 15),
           _input('Password', password, passwordError, isPassword: true),
           const SizedBox(height: 15),
-          _input('Confirmar Password', password2, password2Error, isPassword: true),
+          _input(
+            'Confirmar Password',
+            password2,
+            password2Error,
+            isPassword: true,
+          ),
           const SizedBox(height: 30),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: isValid
                   ? () => widget.onNext(
-                        username.text,
-                        email.text,
-                        password.text,
-                        password2.text,
-                      )
+                      username.text,
+                      email.text,
+                      password.text,
+                      password2.text,
+                    )
                   : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,

@@ -72,10 +72,14 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
   IconData _mealIcon(String type) {
     switch (type) {
-      case 'breakfast': return Icons.free_breakfast;
-      case 'lunch': return Icons.lunch_dining;
-      case 'dinner': return Icons.dinner_dining;
-      default: return Icons.apple;
+      case 'breakfast':
+        return Icons.free_breakfast;
+      case 'lunch':
+        return Icons.lunch_dining;
+      case 'dinner':
+        return Icons.dinner_dining;
+      default:
+        return Icons.apple;
     }
   }
 
@@ -95,8 +99,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
         backgroundColor: const Color(0xFF1E1E1E),
-        title: const Text('Registro de Alimentación',
-            style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Registro de Alimentación',
+          style: TextStyle(color: Colors.white),
+        ),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
@@ -118,27 +124,39 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   onTap: _pickDate,
                   child: Row(
                     children: [
-                      const Icon(Icons.calendar_month,
-                          color: Color(0xFFE91E63), size: 18),
+                      const Icon(
+                        Icons.calendar_month,
+                        color: Color(0xFFE91E63),
+                        size: 18,
+                      ),
                       const SizedBox(width: 6),
-                      Text(_formattedDate,
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600)),
+                      Text(
+                        _formattedDate,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ],
                   ),
                 ),
                 Row(
                   children: [
-                    const Icon(Icons.local_fire_department,
-                        color: Color(0xFFE91E63), size: 18),
+                    const Icon(
+                      Icons.local_fire_department,
+                      color: Color(0xFFE91E63),
+                      size: 18,
+                    ),
                     const SizedBox(width: 4),
-                    Text('${_totalCalories.toStringAsFixed(0)} kcal',
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600)),
+                    Text(
+                      '${_totalCalories.toStringAsFixed(0)} kcal',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -149,32 +167,34 @@ class _NutritionScreenState extends State<NutritionScreen> {
           Expanded(
             child: _isLoading
                 ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFFE91E63)))
+                    child: CircularProgressIndicator(color: Color(0xFFE91E63)),
+                  )
                 : _meals.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'No hay comidas registradas para esta fecha.',
-                          style: TextStyle(color: Colors.white54),
-                          textAlign: TextAlign.center,
-                        ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _meals.length,
-                        itemBuilder: (context, index) {
-                          final meal = _meals[index];
-                          return _MealCard(
-                            meal: meal,
-                            icon: _mealIcon(meal.mealType),
-                            label: _mealLabel(meal.mealType),
-                            onDelete: () => _deleteMeal(meal.id!),
-                          );
-                        },
-                      ),
+                ? const Center(
+                    child: Text(
+                      'No hay comidas registradas para esta fecha.',
+                      style: TextStyle(color: Colors.white54),
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _meals.length,
+                    itemBuilder: (context, index) {
+                      final meal = _meals[index];
+                      return _MealCard(
+                        meal: meal,
+                        icon: _mealIcon(meal.mealType),
+                        label: _mealLabel(meal.mealType),
+                        onDelete: () => _deleteMeal(meal.id!),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'nutrition_fab',
         backgroundColor: const Color(0xFFE91E63),
         onPressed: () async {
           final added = await Navigator.push<bool>(
@@ -189,8 +209,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
           if (added == true) _fetchMeals();
         },
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Agregar comida',
-            style: TextStyle(color: Colors.white)),
+        label: const Text(
+          'Agregar comida',
+          style: TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
@@ -233,14 +255,19 @@ class _MealCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label,
-                      style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                  Text(
+                    label,
+                    style: const TextStyle(color: Colors.white54, fontSize: 12),
+                  ),
                   const SizedBox(height: 2),
-                  Text(meal.foodName,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600)),
+                  Text(
+                    meal.foodName,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   Wrap(
                     spacing: 10,
@@ -259,8 +286,11 @@ class _MealCard extends StatelessWidget {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.delete_outline,
-                  color: Colors.white38, size: 20),
+              icon: const Icon(
+                Icons.delete_outline,
+                color: Colors.white38,
+                size: 20,
+              ),
               onPressed: onDelete,
             ),
           ],
@@ -282,8 +312,10 @@ class _Chip extends StatelessWidget {
         color: Colors.white10,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(text,
-          style: const TextStyle(color: Colors.white70, fontSize: 11)),
+      child: Text(
+        text,
+        style: const TextStyle(color: Colors.white70, fontSize: 11),
+      ),
     );
   }
 }

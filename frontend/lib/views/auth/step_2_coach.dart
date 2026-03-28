@@ -48,11 +48,11 @@ class _Step2CoachState extends State<Step2Coach> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: isValid
-              ? () async => await widget.onNext(
-                    specialtyController.text,
-                    yearsController.text,
-                  )
-              : null,
+                  ? () async => await widget.onNext(
+                      specialtyController.text,
+                      yearsController.text,
+                    )
+                  : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -68,8 +68,11 @@ class _Step2CoachState extends State<Step2Coach> {
     );
   }
 
-  Widget _input(String label, TextEditingController controller,
-      {bool isNumber = false}) {
+  Widget _input(
+    String label,
+    TextEditingController controller, {
+    bool isNumber = false,
+  }) {
     return TextField(
       controller: controller,
       keyboardType: isNumber ? TextInputType.number : TextInputType.text,

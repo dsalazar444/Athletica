@@ -30,7 +30,7 @@ class _RoutinesListScreenState extends State<RoutinesListScreen> {
     );
     // Carga inicial de datos desde el servidor.
     _viewModel.loadRoutines();
-    
+
     // Escuchamos cambios en el ViewModel para redibujar la pantalla.
     _viewModel.addListener(_onViewModelChange);
   }
@@ -47,9 +47,9 @@ class _RoutinesListScreenState extends State<RoutinesListScreen> {
 
   /// Navega a la pantalla de creación de rutina y recarga la lista al volver si hubo cambios.
   Future<void> _navigateAndRefresh() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const NewRoutineScreen()),
-    );
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const NewRoutineScreen()));
     _viewModel.loadRoutines();
   }
 
@@ -58,20 +58,22 @@ class _RoutinesListScreenState extends State<RoutinesListScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'routines_fab',
         onPressed: _navigateAndRefresh,
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 4,
         icon: const Icon(Icons.add),
-        label: const Text('Nueva Rutina', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+        label: const Text(
+          'Nueva Rutina',
+          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5),
+        ),
       ),
       body: SafeArea(
         child: Column(
           children: [
             _buildHeader(),
-            Expanded(
-              child: _buildContent(),
-            ),
+            Expanded(child: _buildContent()),
           ],
         ),
       ),
@@ -81,7 +83,12 @@ class _RoutinesListScreenState extends State<RoutinesListScreen> {
   /// Construye el título y subtítulo de la sección.
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.only(left: 24.0, right: 24.0, top: 32.0, bottom: 16.0),
+      padding: const EdgeInsets.only(
+        left: 24.0,
+        right: 24.0,
+        top: 32.0,
+        bottom: 16.0,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -90,7 +97,7 @@ class _RoutinesListScreenState extends State<RoutinesListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
                 Text(
-                  'Mis Rutinas', 
+                  'Mis Rutinas',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -113,9 +120,7 @@ class _RoutinesListScreenState extends State<RoutinesListScreen> {
             tooltip: 'Ver historial',
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const WorkoutHistoryScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const WorkoutHistoryScreen()),
               );
             },
             style: IconButton.styleFrom(
@@ -142,11 +147,14 @@ class _RoutinesListScreenState extends State<RoutinesListScreen> {
           children: [
             const Icon(Icons.error_outline, size: 48, color: Colors.red),
             const SizedBox(height: 16),
-            Text('Error: ${_viewModel.errorMessage}', style: const TextStyle(color: Colors.red)),
+            Text(
+              'Error: ${_viewModel.errorMessage}',
+              style: const TextStyle(color: Colors.red),
+            ),
             const SizedBox(height: 16),
             ElevatedButton(
-               onPressed: _viewModel.loadRoutines,
-               child: const Text('Reintentar'),
+              onPressed: _viewModel.loadRoutines,
+              child: const Text('Reintentar'),
             ),
           ],
         ),
@@ -155,7 +163,10 @@ class _RoutinesListScreenState extends State<RoutinesListScreen> {
 
     if (_viewModel.routines.isEmpty) {
       return const Center(
-        child: Text('No hay rutinas creadas aún.', style: TextStyle(color: AppColors.textSecondary)),
+        child: Text(
+          'No hay rutinas creadas aún.',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
       );
     }
 
@@ -217,10 +228,7 @@ class _RoutineCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Center(
-                    child: Icon(
-                      Icons.fitness_center,
-                      color: Colors.white,
-                    ),
+                    child: Icon(Icons.fitness_center, color: Colors.white),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -245,8 +253,16 @@ class _RoutineCard extends StatelessWidget {
                         spacing: 8,
                         runSpacing: 4,
                         children: [
-                          _buildMiniChip(routine.category.toUpperCase(), AppColors.primary.withOpacity(0.1), AppColors.primary),
-                          _buildMiniChip(routine.difficulty.toUpperCase(), AppColors.surfaceVariant, AppColors.textSecondary),
+                          _buildMiniChip(
+                            routine.category.toUpperCase(),
+                            AppColors.primary.withOpacity(0.1),
+                            AppColors.primary,
+                          ),
+                          _buildMiniChip(
+                            routine.difficulty.toUpperCase(),
+                            AppColors.surfaceVariant,
+                            AppColors.textSecondary,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -270,16 +286,16 @@ class _RoutineCard extends StatelessWidget {
                         runSpacing: 4,
                         children: [
                           _buildIndicator(Icons.access_time, '45 min'),
-                          _buildIndicator(Icons.fitness_center, '${routine.exercises.length} ejers'),
+                          _buildIndicator(
+                            Icons.fitness_center,
+                            '${routine.exercises.length} ejers',
+                          ),
                         ],
                       ),
                     ],
                   ),
                 ),
-                const Icon(
-                  Icons.chevron_right,
-                  color: AppColors.textHint,
-                ),
+                const Icon(Icons.chevron_right, color: AppColors.textHint),
               ],
             ),
           ),
@@ -323,7 +339,11 @@ class _RoutineCard extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             text,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.textSecondary),
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: AppColors.textSecondary,
+            ),
           ),
         ],
       ),

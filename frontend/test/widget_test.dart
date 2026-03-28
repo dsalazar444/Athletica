@@ -10,7 +10,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/main.dart';
 
 void main() {
-  testWidgets('WorkoutApp renders main navigation', (WidgetTester tester) async {
+  testWidgets('WorkoutApp renders main navigation', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(const WorkoutApp());
 
     expect(find.text('Inicio'), findsOneWidget);

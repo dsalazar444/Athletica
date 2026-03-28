@@ -15,12 +15,15 @@ class WorkoutRepository {
   /// Inicia una nueva sesión de entrenamiento para una rutina específica.
   /// Si se proporciona una [date], la sesión se registrará en esa fecha.
   /// Retorna un [WorkoutSessionModel] con el ID de la sesión creada/reutilizada.
-  Future<WorkoutSessionModel> startSession(int routineId, {DateTime? date}) async {
+  Future<WorkoutSessionModel> startSession(
+    int routineId, {
+    DateTime? date,
+  }) async {
     final Map<String, dynamic> body = {'routine': routineId};
     if (date != null) {
       body['date'] = date.toIso8601String();
     }
-    
+
     try {
       final response = await _dio.post('sessions/', data: body);
       if (response.statusCode == 201 || response.statusCode == 200) {
@@ -48,11 +51,16 @@ class WorkoutRepository {
   /// Actualiza una serie (set) existente en el backend.
   Future<SetLogModel> updateSet(SetLogModel setLog) async {
     try {
-      final response = await _dio.put('sets/${setLog.id}/', data: setLog.toJson());
+      final response = await _dio.put(
+        'sets/${setLog.id}/',
+        data: setLog.toJson(),
+      );
       if (response.statusCode == 200) {
         return SetLogModel.fromJson(response.data);
       }
-      throw Exception('Error al actualizar serie: Código ${response.statusCode}');
+      throw Exception(
+        'Error al actualizar serie: Código ${response.statusCode}',
+      );
     } on DioException catch (e) {
       throw Exception('Error al actualizar la serie: ${e.message}');
     }
@@ -63,10 +71,14 @@ class WorkoutRepository {
     try {
       final response = await _dio.delete('sets/$setId/');
       if (response.statusCode != 204) {
-        throw Exception('Error al eliminar serie: Código ${response.statusCode}');
+        throw Exception(
+          'Error al eliminar serie: Código ${response.statusCode}',
+        );
       }
     } on DioException catch (e) {
-      throw Exception('Error al eliminar la serie de la base de datos: ${e.message}');
+      throw Exception(
+        'Error al eliminar la serie de la base de datos: ${e.message}',
+      );
     }
   }
 
@@ -88,16 +100,22 @@ class WorkoutRepository {
 
   /// Obtiene el historial completo de entrenamientos realizados para un ejercicio específico.
   /// Retorna una lista de mapas con las fechas y las series realizadas.
-  Future<List<Map<String, dynamic>>> fetchExerciseHistory(int exerciseId) async {
+  Future<List<Map<String, dynamic>>> fetchExerciseHistory(
+    int exerciseId,
+  ) async {
     try {
       final response = await _dio.get('exercises/$exerciseId/history/');
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
         return data.cast<Map<String, dynamic>>();
       }
-      throw Exception('Error al obtener historial: Código ${response.statusCode}');
+      throw Exception(
+        'Error al obtener historial: Código ${response.statusCode}',
+      );
     } on DioException catch (e) {
-      throw Exception('Error al obtener el historial de este ejercicio: ${e.message}');
+      throw Exception(
+        'Error al obtener el historial de este ejercicio: ${e.message}',
+      );
     }
   }
 
@@ -112,19 +130,26 @@ class WorkoutRepository {
     final end = _formatDate(endDate);
 
     try {
-      final response = await _dio.get('sessions/history/', queryParameters: {
-        'start_date': start,
-        'end_date': end,
-        'page': page,
-        'page_size': pageSize,
-      });
+      final response = await _dio.get(
+        'sessions/history/',
+        queryParameters: {
+          'start_date': start,
+          'end_date': end,
+          'page': page,
+          'page_size': pageSize,
+        },
+      );
 
       if (response.statusCode == 200) {
         return PaginatedWorkoutHistoryModel.fromJson(response.data);
       }
-      throw Exception('Error al obtener historial: Código ${response.statusCode}');
+      throw Exception(
+        'Error al obtener historial: Código ${response.statusCode}',
+      );
     } on DioException catch (e) {
-      throw Exception('Error al obtener el historial de entrenamientos: ${e.message}');
+      throw Exception(
+        'Error al obtener el historial de entrenamientos: ${e.message}',
+      );
     }
   }
 

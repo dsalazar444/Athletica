@@ -16,10 +16,12 @@ class ExerciseViewModel {
   Future<void> loadExercises() async {
     // Obtenemos los datos básicos del catálogo.
     exercises = await repository.getExercises();
-    
+
     // Recuperamos las imágenes correspondientes a los ejercicios cargados.
-    final images = await repository.getExerciseImages(exercises.map((e) => e.id).toList());
-    
+    final images = await repository.getExerciseImages(
+      exercises.map((e) => e.id).toList(),
+    );
+
     // Vinculamos las imágenes a cada modelo de ejercicio para su visualización.
     exercises = repository.combineExercisesWithImages(exercises, images);
   }
@@ -28,16 +30,17 @@ class ExerciseViewModel {
   List<ExerciseModel> filteredExercises(String query, String categoryName) {
     return exercises.where((exercise) {
       // 1. Filtro por texto (nombre)
-      final matchesQuery = query.isEmpty || 
+      final matchesQuery =
+          query.isEmpty ||
           exercise.name.toLowerCase().contains(query.toLowerCase());
-      
+
       // 2. Filtro por categoría (músculo)
       bool matchesCategory = true;
       if (categoryName != 'Todos') {
         final categoryEnum = _stringToMuscleGroup(categoryName);
         matchesCategory = exercise.muscleCategory == categoryEnum;
       }
-      
+
       return matchesQuery && matchesCategory;
     }).toList();
   }

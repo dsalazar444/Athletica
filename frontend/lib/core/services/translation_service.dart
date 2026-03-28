@@ -9,7 +9,11 @@ class TranslationService {
   Future<String> translateToSpanish(String text) async {
     if (text.isEmpty) return text;
     try {
-      final translation = await _translator.translate(text, from: 'en', to: 'es');
+      final translation = await _translator.translate(
+        text,
+        from: 'en',
+        to: 'es',
+      );
       return translation.text;
     } catch (e) {
       // Retornar original en caso de fallo (ej. sin conexión o límite de cuota).

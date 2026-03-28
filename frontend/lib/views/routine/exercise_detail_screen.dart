@@ -51,14 +51,22 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
           elevation: 0,
           leading: TextButton.icon(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back_ios, size: 16, color: AppColors.textSecondary),
-            label: const Text('Atrás', style: TextStyle(color: AppColors.textSecondary)),
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              size: 16,
+              color: AppColors.textSecondary,
+            ),
+            label: const Text(
+              'Atrás',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ),
           leadingWidth: 100,
         ),
         body: Consumer<ExerciseDetailViewModel>(
           builder: (context, vm, child) {
-            if (vm.isLoading) return const Center(child: CircularProgressIndicator());
+            if (vm.isLoading)
+              return const Center(child: CircularProgressIndicator());
 
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -84,7 +92,9 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
 
   /// Construye el encabezado con el nombre del ejercicio y las iniciales decorativas.
   Widget _buildHeader() {
-    final initials = widget.routineExercise.exercise.name.substring(0, 2).toUpperCase();
+    final initials = widget.routineExercise.exercise.name
+        .substring(0, 2)
+        .toUpperCase();
     return Row(
       children: [
         Container(
@@ -97,7 +107,11 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
           child: Center(
             child: Text(
               initials,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
             ),
           ),
         ),
@@ -106,10 +120,16 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.routineExercise.exercise.name, style: AppTextStyles.h2, overflow: TextOverflow.ellipsis),
+              Text(
+                widget.routineExercise.exercise.name,
+                style: AppTextStyles.h2,
+                overflow: TextOverflow.ellipsis,
+              ),
               Text(
                 widget.routineExercise.exercise.primaryMuscleName,
-                style: AppTextStyles.bodyText1.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.bodyText1.copyWith(
+                  color: AppColors.textSecondary,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ],
@@ -128,7 +148,11 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
         color: Colors.white,
         borderRadius: AppRadius.card,
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 5)),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
         ],
       ),
       child: Column(
@@ -137,7 +161,11 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Expanded(
-                child: Text('Mejor Marca', style: AppTextStyles.sectionTitle, overflow: TextOverflow.ellipsis),
+                child: Text(
+                  'Mejor Marca',
+                  style: AppTextStyles.sectionTitle,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               const SizedBox(width: 8),
               ElevatedButton.icon(
@@ -158,8 +186,13 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 0,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   elevation: 0,
                 ),
               ),
@@ -169,7 +202,10 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStat(best != null ? '${best['weight']}kg' : '--', 'Peso Máx'),
+              _buildStat(
+                best != null ? '${best['weight']}kg' : '--',
+                'Peso Máx',
+              ),
               Container(width: 1, height: 40, color: Colors.grey[200]),
               _buildStat(best != null ? '${best['reps']}' : '--', 'Reps (PR)'),
             ],
@@ -184,7 +220,10 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
     return Column(
       children: [
         Text(value, style: AppTextStyles.h2.copyWith(fontSize: 28)),
-        Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+        ),
       ],
     );
   }
@@ -204,10 +243,13 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
           const Text('Descripción Técnica', style: AppTextStyles.sectionTitle),
           const SizedBox(height: 16),
           Text(
-            widget.routineExercise.exercise.description.isEmpty 
-              ? 'No hay descripción detallada disponible para este ejercicio.' 
-              : widget.routineExercise.exercise.description,
-            style: AppTextStyles.bodyText1.copyWith(color: AppColors.textSecondary, height: 1.5),
+            widget.routineExercise.exercise.description.isEmpty
+                ? 'No hay descripción detallada disponible para este ejercicio.'
+                : widget.routineExercise.exercise.description,
+            style: AppTextStyles.bodyText1.copyWith(
+              color: AppColors.textSecondary,
+              height: 1.5,
+            ),
           ),
         ],
       ),
@@ -224,7 +266,10 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
         if (vm.history.isEmpty)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 20),
-            child: Text('Aún no has registrado este ejercicio.', style: TextStyle(color: AppColors.textSecondary)),
+            child: Text(
+              'Aún no has registrado este ejercicio.',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ),
         ...vm.history.map((session) {
           final date = DateTime.parse(session['date']);
@@ -258,7 +303,9 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border.withOpacity(0.5)),
+                    border: Border.all(
+                      color: AppColors.border.withOpacity(0.5),
+                    ),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -267,13 +314,31 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(DateFormat('EEEE, d MMMM').format(date), style: const TextStyle(fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
-                            Text('$setsCount series completadas • $reps reps', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary), overflow: TextOverflow.ellipsis),
+                            Text(
+                              DateFormat('EEEE, d MMMM').format(date),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              '$setsCount series completadas • $reps reps',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ],
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Text('${weight}kg', style: AppTextStyles.h3.copyWith(color: AppColors.primary)),
+                      Text(
+                        '${weight}kg',
+                        style: AppTextStyles.h3.copyWith(
+                          color: AppColors.primary,
+                        ),
+                      ),
                     ],
                   ),
                 ),

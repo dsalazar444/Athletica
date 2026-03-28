@@ -16,9 +16,9 @@ ATRIBUTES:Exercise
 class Exercise(models.Model):
     external_id = models.IntegerField(default=-1, unique=True)
     name = models.CharField(max_length=100)
-    description = models.TextField()
-    muscle = models.CharField(max_length=50)
-    image_url = models.TextField(blank=True, default="")
+    description = models.TextField(null=True, blank=True)
+    muscle = models.CharField(max_length=50, null=True, blank=True)
+    image_url = models.TextField(null=True, blank=True, default="")
 
     def __str__(self):
         return self.name

@@ -19,13 +19,13 @@ class ExerciseSelectorSheet extends StatefulWidget {
 class _ExerciseSelectorSheetState extends State<ExerciseSelectorSheet> {
   // Controlador para el campo de búsqueda de texto.
   final TextEditingController _searchController = TextEditingController();
-  
+
   // Categoría de filtro seleccionada (por defecto 'Todos', aunque proviene de un Enum).
-  String _selectedCategory = 'Todos'; 
-  
+  String _selectedCategory = 'Todos';
+
   // Texto actual de la consulta de búsqueda.
-  String _searchQuery = ''; 
-  
+  String _searchQuery = '';
+
   late ExerciseViewModel viewModel;
   bool isLoading = true;
 
@@ -38,7 +38,8 @@ class _ExerciseSelectorSheetState extends State<ExerciseSelectorSheet> {
   }
 
   /// Filtra los ejercicios basándose en el query y la categoría seleccionada.
-  List<ExerciseModel> get _filteredExercises => viewModel.filteredExercises(_searchQuery, _selectedCategory);
+  List<ExerciseModel> get _filteredExercises =>
+      viewModel.filteredExercises(_searchQuery, _selectedCategory);
 
   /// Carga el catálogo completo de ejercicios desde la API.
   Future<void> _loadExercises() async {
@@ -79,28 +80,33 @@ class _ExerciseSelectorSheetState extends State<ExerciseSelectorSheet> {
       child: Column(
         children: [
           _SheetDragHandle(), // Indicador visual de que el modal es deslizable.
-          _SelectorHeader(
-            onClose: () => Navigator.of(context).pop(),
-          ),
+          _SelectorHeader(onClose: () => Navigator.of(context).pop()),
           _SearchBar(
             controller: _searchController,
             onChanged: (value) => setState(() => _searchQuery = value),
           ),
           _CategoryFilterRow(
             selectedCategory: _selectedCategory,
-            onCategorySelected: (cat) => setState(() => _selectedCategory = cat),
+            onCategorySelected: (cat) =>
+                setState(() => _selectedCategory = cat),
           ),
           const Divider(height: 1, color: AppColors.border),
           Expanded(
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                    vertical: AppSpacing.sm,
+                  ),
                   child: Row(
                     children: [
                       Text(
                         '${_filteredExercises.length} ejercicios encontrados',
-                        style: AppTextStyles.bodyText1.copyWith(color: AppColors.textSecondary, fontSize: 13),
+                        style: AppTextStyles.bodyText1.copyWith(
+                          color: AppColors.textSecondary,
+                          fontSize: 13,
+                        ),
                       ),
                     ],
                   ),
@@ -108,7 +114,8 @@ class _ExerciseSelectorSheetState extends State<ExerciseSelectorSheet> {
                 Expanded(
                   child: _ExerciseResultList(
                     exercises: _filteredExercises,
-                    onExerciseSelected: (exercise) => Navigator.of(context).pop(exercise),
+                    onExerciseSelected: (exercise) =>
+                        Navigator.of(context).pop(exercise),
                   ),
                 ),
               ],
@@ -118,7 +125,11 @@ class _ExerciseSelectorSheetState extends State<ExerciseSelectorSheet> {
           _CreateExerciseButton(
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Funcionalidad de creación personalizada próximamente.')),
+                const SnackBar(
+                  content: Text(
+                    'Funcionalidad de creación personalizada próximamente.',
+                  ),
+                ),
               );
             },
           ),
@@ -156,14 +167,23 @@ class _SelectorHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.sm),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.md,
+        AppSpacing.lg,
+        AppSpacing.sm,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Text('Añadir Ejercicio', style: AppTextStyles.screenTitle),
           IconButton(
             onPressed: onClose,
-            icon: const Icon(Icons.close, color: AppColors.textSecondary, size: 24),
+            icon: const Icon(
+              Icons.close,
+              color: AppColors.textSecondary,
+              size: 24,
+            ),
           ),
         ],
       ),
@@ -181,7 +201,10 @@ class _SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.sm,
+      ),
       child: TextField(
         controller: controller,
         onChanged: onChanged,
@@ -189,7 +212,11 @@ class _SearchBar extends StatelessWidget {
         decoration: InputDecoration(
           hintText: 'Ej: Sentadillas, Press...',
           hintStyle: AppTextStyles.hintText,
-          prefixIcon: const Icon(Icons.search, color: AppColors.textHint, size: 20),
+          prefixIcon: const Icon(
+            Icons.search,
+            color: AppColors.textHint,
+            size: 20,
+          ),
           filled: true,
           fillColor: AppColors.surfaceVariant,
           border: OutlineInputBorder(
@@ -219,7 +246,10 @@ class _CategoryFilterRow extends StatelessWidget {
       height: 44,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.sm,
+        ),
         itemCount: MuscleGroup.values.length + 1, // +1 para la opción "Todos"
         separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
         itemBuilder: (_, index) {
@@ -234,16 +264,23 @@ class _CategoryFilterRow extends StatelessWidget {
             onTap: () => onCategorySelected(category),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.xs,
+              ),
               decoration: BoxDecoration(
                 color: isSelected ? AppColors.primary : AppColors.surface,
                 borderRadius: AppRadius.chip,
-                border: Border.all(color: isSelected ? AppColors.primary : AppColors.border),
+                border: Border.all(
+                  color: isSelected ? AppColors.primary : AppColors.border,
+                ),
               ),
               child: Text(
                 category,
                 style: AppTextStyles.chipLabel.copyWith(
-                  color: isSelected ? AppColors.surface : AppColors.textSecondary,
+                  color: isSelected
+                      ? AppColors.surface
+                      : AppColors.textSecondary,
                 ),
               ),
             ),
@@ -268,7 +305,10 @@ class _ExerciseResultList extends StatelessWidget {
   Widget build(BuildContext context) {
     if (exercises.isEmpty) {
       return const Center(
-        child: Text('No se encontraron ejercicios.', style: TextStyle(color: AppColors.textSecondary)),
+        child: Text(
+          'No se encontraron ejercicios.',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
       );
     }
     return ListView.separated(
@@ -301,7 +341,10 @@ class _ExerciseResultCard extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Row(
         children: [
-          _ExerciseAvatar(initials: exercise.name.substring(0, 1), imageUrl: exercise.imageUrl),
+          _ExerciseAvatar(
+            initials: exercise.name.substring(0, 1),
+            imageUrl: exercise.imageUrl,
+          ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
@@ -315,7 +358,11 @@ class _ExerciseResultCard extends StatelessWidget {
           ),
           IconButton(
             onPressed: onAdd,
-            icon: const Icon(Icons.add_circle_outline, color: AppColors.primary, size: 28),
+            icon: const Icon(
+              Icons.add_circle_outline,
+              color: AppColors.primary,
+              size: 28,
+            ),
           ),
         ],
       ),
@@ -350,11 +397,22 @@ class _ExerciseAvatar extends StatelessWidget {
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => Text(
                     initials,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primary),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
                   ),
                 ),
               )
-            : Text(initials, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primary)),
+            : Text(
+                initials,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
+              ),
       ),
     );
   }
@@ -368,7 +426,10 @@ class _CategoryTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: 2,
+      ),
       decoration: const BoxDecoration(
         color: AppColors.tagBackground,
         borderRadius: AppRadius.chip,
@@ -401,8 +462,13 @@ class _CreateExerciseButton extends StatelessWidget {
         child: OutlinedButton.icon(
           onPressed: onPressed,
           icon: const Icon(Icons.add, color: AppColors.primary),
-          label: const Text('¿No encuentras tu ejercicio? Créalo aquí', 
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.primary),
+          label: const Text(
+            '¿No encuentras tu ejercicio? Créalo aquí',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.primary,
+            ),
           ),
           style: OutlinedButton.styleFrom(
             side: const BorderSide(color: AppColors.primary, width: 1.5),

@@ -33,8 +33,12 @@ class MealRecord {
       foodName: json['food_name'],
       portionGrams: (json['portion_grams'] as num).toDouble(),
       calories: (json['calories'] as num).toDouble(),
-      proteinG: json['protein_g'] != null ? (json['protein_g'] as num).toDouble() : null,
-      carbsG: json['carbs_g'] != null ? (json['carbs_g'] as num).toDouble() : null,
+      proteinG: json['protein_g'] != null
+          ? (json['protein_g'] as num).toDouble()
+          : null,
+      carbsG: json['carbs_g'] != null
+          ? (json['carbs_g'] as num).toDouble()
+          : null,
       fatG: json['fat_g'] != null ? (json['fat_g'] as num).toDouble() : null,
       date: json['date'],
       createdAt: json['created_at'],

@@ -15,8 +15,7 @@ class FormFieldLabel extends StatelessWidget {
     return Row(
       children: [
         Text(label, style: AppTextStyles.label),
-        if (isRequired)
-          const Text(' *', style: AppTextStyles.labelRequired),
+        if (isRequired) const Text(' *', style: AppTextStyles.labelRequired),
       ],
     );
   }

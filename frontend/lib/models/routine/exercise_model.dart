@@ -37,7 +37,7 @@ class ExerciseModel {
     // Iteramos por las traducciones para obtener el nombre en inglés y la descripción en español.
     final translations = json['translations'] as List?;
     bool isOfficialSpanish = false;
-    
+
     if (translations != null && translations.isNotEmpty) {
       // 1. Buscamos la traducción al inglés para el NOMBRE (preferencia del usuario).
       final enTranslation = translations.firstWhere(
@@ -57,7 +57,7 @@ class ExerciseModel {
         rawDescription = esTranslation['description'] ?? rawDescription;
         isOfficialSpanish = true;
       }
-      
+
       // Si después de buscar no tenemos nombre (raro), usamos la primera traducción disponible.
       if (rawName == 'Sin nombre' && translations.isNotEmpty) {
         rawName = translations.first['name'] ?? rawName;
@@ -69,7 +69,9 @@ class ExerciseModel {
       name: _stripHtml(rawName),
       description: _stripHtml(rawDescription),
       muscles: (json['muscles'] != null)
-          ? (json['muscles'] as List).map((m) => m is int ? m : m['id'] as int).toList()
+          ? (json['muscles'] as List)
+                .map((m) => m is int ? m : m['id'] as int)
+                .toList()
           : [],
       needsTranslation: !isOfficialSpanish,
     );
@@ -99,18 +101,43 @@ class ExerciseModel {
 
   /// Diccionario estático de IDs de músculos a nombres legibles en español.
   static const Map<int, String> muscleNames = {
-    1: 'Pecho', 2: 'Espalda', 3: 'Hombro anterior', 4: 'Hombro posterior',
-    5: 'Tríceps', 6: 'Bíceps', 7: 'Glúteo mayor', 8: 'Glúteo medio',
-    9: 'Recto femoral', 10: 'Vasto lateral', 11: 'Vasto medial',
-    12: 'Semitendinoso', 13: 'Bíceps femoral', 14: 'Gastrocnemio',
-    15: 'Sóleo', 16: 'Trapecio superior', 17: 'Trapecio medio',
-    18: 'Trapecio inferior', 19: 'Romboides', 20: 'Erectores espinales',
-    21: 'Abdominales rectos', 22: 'Oblicuos externos', 23: 'Oblicuos internos',
-    24: 'Psoas-ilíaco', 25: 'Aductores de cadera', 26: 'Pectoral menor',
-    27: 'Serrato anterior', 28: 'Subescapular', 29: 'Infraespinoso',
-    30: 'Redondo mayor', 31: 'Redondo menor', 32: 'Supinador',
-    33: 'Pronador', 34: 'Flexores de antebrazo', 35: 'Extensores de antebrazo',
-    36: 'Bíceps braquial corto', 37: 'Bíceps braquial largo',
+    1: 'Pecho',
+    2: 'Espalda',
+    3: 'Hombro anterior',
+    4: 'Hombro posterior',
+    5: 'Tríceps',
+    6: 'Bíceps',
+    7: 'Glúteo mayor',
+    8: 'Glúteo medio',
+    9: 'Recto femoral',
+    10: 'Vasto lateral',
+    11: 'Vasto medial',
+    12: 'Semitendinoso',
+    13: 'Bíceps femoral',
+    14: 'Gastrocnemio',
+    15: 'Sóleo',
+    16: 'Trapecio superior',
+    17: 'Trapecio medio',
+    18: 'Trapecio inferior',
+    19: 'Romboides',
+    20: 'Erectores espinales',
+    21: 'Abdominales rectos',
+    22: 'Oblicuos externos',
+    23: 'Oblicuos internos',
+    24: 'Psoas-ilíaco',
+    25: 'Aductores de cadera',
+    26: 'Pectoral menor',
+    27: 'Serrato anterior',
+    28: 'Subescapular',
+    29: 'Infraespinoso',
+    30: 'Redondo mayor',
+    31: 'Redondo menor',
+    32: 'Supinador',
+    33: 'Pronador',
+    34: 'Flexores de antebrazo',
+    35: 'Extensores de antebrazo',
+    36: 'Bíceps braquial corto',
+    37: 'Bíceps braquial largo',
   };
 
   /// Convierte un ID de músculo de la API a su equivalente textual.
@@ -128,16 +155,18 @@ class ExerciseModel {
   MuscleGroup? get muscleCategory {
     if (muscles.isEmpty) return null;
     final id = muscles.first;
-    
+
     // Mapeo de IDs de Wger a categorías de nuestra App.
     if ([1, 26].contains(id)) return MuscleGroup.chest;
     if ([2, 16, 17, 18, 19, 20].contains(id)) return MuscleGroup.back;
     if ([3, 4, 30, 31].contains(id)) return MuscleGroup.shoulders;
     if ([5, 6, 36, 37, 34, 35, 32, 33].contains(id)) return MuscleGroup.arms;
-    if ([7, 8, 9, 10, 11, 12, 13, 14, 15, 24, 25].contains(id)) return MuscleGroup.legs;
+    if ([7, 8, 9, 10, 11, 12, 13, 14, 15, 24, 25].contains(id))
+      return MuscleGroup.legs;
     if ([21, 22, 23].contains(id)) return MuscleGroup.abdominal;
-    if ([27, 28, 29].contains(id)) return MuscleGroup.back; // Músculos de escápula/espalda
-    
+    if ([27, 28, 29].contains(id))
+      return MuscleGroup.back; // Músculos de escápula/espalda
+
     return null;
   }
 }

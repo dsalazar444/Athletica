@@ -37,7 +37,7 @@ class _Step4ExperienceState extends State<Step4Experience> {
             child: ElevatedButton(
               onPressed: selectedLevel == null
                   ? null
-                  : () async => await widget.onNext(selectedLevel!), 
+                  : () async => await widget.onNext(selectedLevel!),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -47,7 +47,10 @@ class _Step4ExperienceState extends State<Step4Experience> {
               ),
               child: const Text(
                 "Finalizar",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),
