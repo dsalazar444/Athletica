@@ -16,9 +16,9 @@ ATRIBUTES:Exercise
 class Exercise(models.Model):
     external_id = models.IntegerField(default=-1, unique=True)
     name = models.CharField(max_length=100)
-    description = models.TextField(null=True, blank=True)
-    muscle = models.CharField(max_length=50, null=True, blank=True)
-    image_url = models.TextField(null=True, blank=True, default="")
+    description = models.TextField(blank=True, default="")
+    muscle = models.CharField(max_length=50, blank=True, default="")
+    image_url = models.TextField(blank=True, default="")
 
     def __str__(self):
         return self.name
@@ -52,15 +52,9 @@ class Routine(models.Model):
     description = models.TextField(blank=True, default="")
 
     # Usamos CharField con choices para validación y eficiencia
-    category = models.CharField(
-        max_length=20,
-        choices=Category.choices,
-        default=Category.HYBRID
-    )
+    category = models.CharField(max_length=20, choices=Category.choices, default=Category.HYBRID)
     difficulty = models.CharField(
-        max_length=20,
-        choices=Difficulty.choices,
-        default=Difficulty.BEGINNER
+        max_length=20, choices=Difficulty.choices, default=Difficulty.BEGINNER
     )
 
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="created_routines")
@@ -73,6 +67,7 @@ class Routine(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.get_difficulty_display()})"
+
 
 """
 ATRIBUTES:RoutineExercise

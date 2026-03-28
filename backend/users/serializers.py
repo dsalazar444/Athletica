@@ -117,10 +117,10 @@ class RegisterSerializer(serializers.ModelSerializer):
             weight_logs_data = athlete_data.pop("weight", [])
 
             athlete = AthleteProfile.objects.create(user=user, **athlete_data)
-            
+
             for goal in goals_data:
                 Goal.objects.create(athlete=athlete, **goal)
-            
+
             for w_log in weight_logs_data:
                 WeightLog.objects.create(athlete=athlete, **w_log)
 

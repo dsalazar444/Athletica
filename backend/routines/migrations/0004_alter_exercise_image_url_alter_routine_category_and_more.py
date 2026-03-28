@@ -4,30 +4,46 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('routines', '0003_alter_exercise_description_alter_exercise_image_url_and_more'),
+        ("routines", "0003_alter_exercise_description_alter_exercise_image_url_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='exercise',
-            name='image_url',
-            field=models.TextField(blank=True, default=''),
+            model_name="exercise",
+            name="image_url",
+            field=models.TextField(blank=True, default=""),
         ),
         migrations.AlterField(
-            model_name='routine',
-            name='category',
-            field=models.CharField(choices=[('hybrid', 'Híbrido'), ('strength', 'Fuerza'), ('cardio', 'Cardio'), ('flexibility', 'Flexibilidad')], default='hybrid', max_length=20),
+            model_name="routine",
+            name="category",
+            field=models.CharField(
+                choices=[
+                    ("hybrid", "Híbrido"),
+                    ("strength", "Fuerza"),
+                    ("cardio", "Cardio"),
+                    ("flexibility", "Flexibilidad"),
+                ],
+                default="hybrid",
+                max_length=20,
+            ),
         ),
         migrations.AlterField(
-            model_name='routine',
-            name='description',
-            field=models.TextField(blank=True, default=''),
+            model_name="routine",
+            name="description",
+            field=models.TextField(blank=True, default=""),
         ),
         migrations.AlterField(
-            model_name='routine',
-            name='difficulty',
-            field=models.CharField(choices=[('beginner', 'Principiante'), ('intermediate', 'Intermedio'), ('advanced', 'Avanzado')], default='beginner', max_length=20),
+            model_name="routine",
+            name="difficulty",
+            field=models.CharField(
+                choices=[
+                    ("beginner", "Principiante"),
+                    ("intermediate", "Intermedio"),
+                    ("advanced", "Avanzado"),
+                ],
+                default="beginner",
+                max_length=20,
+            ),
         ),
     ]
