@@ -38,6 +38,8 @@ jobs:
 
       - name: Vulnerability Scan (Safety)
         run: safety scan -r ../requirements.txt
+        env:
+          SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
           
       - name: Run Django Tests
         run: |
