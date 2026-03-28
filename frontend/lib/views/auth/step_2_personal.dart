@@ -123,7 +123,7 @@ class _Step2PersonalState extends State<Step2Personal> {
 
           // Dropdown para seleccion de genero.
           DropdownButtonFormField<String>(
-            value: selectedGender,
+            initialValue: selectedGender,
             decoration: InputDecoration(
               labelText: 'Genero',
               filled: true,

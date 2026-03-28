@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
 import '../../view_models/auth/register_view_model.dart';
 import '../../models/auth/register_model.dart';
-import '../../core/api_client.dart';
 
 import 'step_1_role.dart';
 import 'step_2_account.dart';

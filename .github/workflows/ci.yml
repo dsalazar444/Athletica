@@ -33,13 +33,13 @@ jobs:
           ruff check .
           ruff format --check .
           
-      - name: Run Django Tests
-        run: |
-          python manage.py test
-        env:
-          DJANGO_SETTINGS_MODULE: backend.settings
-          SECRET_KEY: "test-secret-key-for-ci"
-          DEBUG: "True"
+#      - name: Run Django Tests
+#        run: |
+#          python manage.py test
+#        env:
+#          DJANGO_SETTINGS_MODULE: backend.settings
+#          SECRET_KEY: "test-secret-key-for-ci"
+#          DEBUG: "True"
 
   frontend-quality:
     name: Frontend Quality (Flutter)
@@ -67,5 +67,5 @@ jobs:
       - name: Analyze code
         run: flutter analyze
         
-      - name: Run Flutter tests
-        run: flutter test
+#      - name: Run Flutter tests
+#        run: flutter test

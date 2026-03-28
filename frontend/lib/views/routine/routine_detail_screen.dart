@@ -8,7 +8,6 @@ import '../../view_models/routine/routine_detail_view_model.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_radius.dart';
 import '../../theme/app_text_styles.dart';
-import 'exercise_tracking_screen.dart';
 import 'exercise_detail_screen.dart';
 
 /// Pantalla detallada de una rutina específica.
