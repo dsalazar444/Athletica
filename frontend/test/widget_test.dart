@@ -6,16 +6,22 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:frontend/main.dart';
 
 void main() {
-  testWidgets('WorkoutApp renders main navigation', (
+  testWidgets('WorkoutApp renders login screen by default', (
     WidgetTester tester,
   ) async {
+    // Mock SharedPreferences para evitar errores de persistencia en test
+    SharedPreferences.setMockInitialValues({});
+    
     await tester.pumpWidget(const WorkoutApp());
+    await tester.pumpAndSettle();
 
-    expect(find.text('Inicio'), findsOneWidget);
-    expect(find.text('Rutinas'), findsOneWidget);
+    // Verifica que se renderiza el texto de bienvenida o el titulo de login
+    expect(find.text('Inicia sesion'), findsOneWidget);
+    expect(find.text('Username'), findsOneWidget);
   });
 }

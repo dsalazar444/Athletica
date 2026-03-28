@@ -20,13 +20,14 @@ class MealRecordTestCase(TestCase):
 
         # Crear usuario y perfil atleta base para las pruebas
         self.user = User.objects.create_user(
-            username="testathlete", password="testpass123", email="athlete@test.com", role="athlete"
+            username="testathlete", password="testpass123", email="athlete@test.com", role="athlete"  # nosec
         )
+        self.client.force_authenticate(user=self.user)
         self.athlete = AthleteProfile.objects.create(
             user=self.user, height=175.0, age=25, gender="male", activity_level="medium"
         )
 
-        self.meal_url = "/nutrition/meals/"
+        self.meal_url = "/api/nutrition/meals/"
         self.today = datetime.date.today().isoformat()
 
     # ---------------------------------------------------------------

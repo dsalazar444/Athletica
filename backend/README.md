@@ -38,4 +38,25 @@ docker-compose exec web python manage.py migrate
 - **`routines/`**: Gestión de ejercicios, categorías y rutinas personalizadas.
 - **`nutrition/`**: Registro de comidas y seguimiento calórico.
 
+---
 
+## 🛡️ Seguridad y Calidad
+
+El proyecto incluye herramientas para garantizar la seguridad del código:
+
+- **Bandit**: Analizador estático de seguridad para Python.
+  ```bash
+  bandit -r .
+  ```
+- **Safety**: Escaneo de vulnerabilidades en dependencias.
+  ```bash
+  safety scan -r requirements.txt
+  ```
+- **Ruff**: Linter y formateador (PEP 8).
+  ```bash
+  python -m ruff check .
+  ```
+- **Tests Unitarios**: Ejecución de la suite de pruebas (usa SQLite automáticamente).
+  ```bash
+  python manage.py test
+  ```

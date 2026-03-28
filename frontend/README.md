@@ -44,6 +44,19 @@ flutter analyze
 
 ---
 
+## 🛡️ Calidad y Tests
+
+Para asegurar la estabilidad del frontend, el CI ejecuta:
+
+- **Linter**: `flutter analyze` para mantener el estándar de código.
+- **Tests de Widget**: `flutter test` para validar la interfaz.
+
+Para ejecutar localmente:
+```bash
+flutter analyze
+flutter test
+```
+
 ## Recursos Originales de Flutter
 
 A few resources to get you started if this is your first Flutter project:

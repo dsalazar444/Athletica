@@ -14,12 +14,14 @@ class WorkoutHistoryByDateRangeViewTests(TestCase):
 
         self.user_daniela = User.objects.create_user(
             username="daniela",
-            password="test123",
+            password="test123",  # nosec
+            email="daniela@test.com",
             role="athlete",
         )
         self.other_user = User.objects.create_user(
             username="otro_usuario",
-            password="test123",
+            password="test123",  # nosec
+            email="otro@test.com",
             role="athlete",
         )
 
