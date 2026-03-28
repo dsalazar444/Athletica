@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'home/home_screen.dart';
 import 'routine/routines_list_screen.dart';
 import 'auth/register_flow_screen.dart';
+import 'nutrition/nutrition_screen.dart';
 import '../../theme/app_colors.dart';
+import '../../core/token_storage.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -13,11 +15,25 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  int? _athleteId;
 
-  final List<Widget> _screens = [
+  @override
+  void initState() {
+    super.initState();
+    _loadAthleteId();
+  }
+
+  Future<void> _loadAthleteId() async {
+    final id = await TokenStorage.getAthleteId();
+    setState(() => _athleteId = id);
+  }
+
+  List<Widget> get _screens => [
     const HomeScreen(),
     const RoutinesListScreen(),
-    const Center(child: Text('Comida')),
+    _athleteId != null
+        ? NutritionScreen(athleteId: _athleteId!)
+        : const Center(child: CircularProgressIndicator()),
     const Center(child: Text('Comunidad')),
     const RegisterFlowScreen(),
   ];
@@ -32,9 +48,7 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          setState(() => _currentIndex = index);
         },
         backgroundColor: AppColors.surface,
         indicatorColor: AppColors.primary.withOpacity(0.15),

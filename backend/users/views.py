@@ -3,12 +3,12 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
-from .serializers import RegisterSerializer, UserSerializer
+from .models import AthleteProfile
+from .serializers import RegisterSerializer, UserSerializer, AthleteProfileSerializer, MyTokenObtainPairSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import MyTokenObtainPairSerializer
 
 
-# Vista protegida de prueba para verificar que el token JWT es valido.
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def protected_test(request):
@@ -18,23 +18,34 @@ def protected_test(request):
     })
 
 
-# Vista para el registro de nuevos usuarios.
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def RegisterView(request):
     serializer = RegisterSerializer(data=request.data)
-
     if serializer.is_valid():
         user = serializer.save()
         refresh = RefreshToken.for_user(user)
-
         return Response({
             'user': UserSerializer(user).data,
             'access': str(refresh.access_token),
             'refresh': str(refresh),
         }, status=status.HTTP_201_CREATED)
-
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        try:
+            athlete = AthleteProfile.objects.get(user=self.user)
+            data['athlete_id'] = athlete.id
+        except AthleteProfile.DoesNotExist:
+            data['athlete_id'] = None
+        return data
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 
 class MyTokenObtainPairView(TokenObtainPairView):

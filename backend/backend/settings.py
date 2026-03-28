@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'users',
     'routines',
+    'nutrition',
 ]
 
 # To indicate that we'll use our own User Model
