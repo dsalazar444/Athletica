@@ -1,9 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/home/daniela/Athletica/frontend/build/linux/x64/debug/cmake_install.cmake",
-		"/home/daniela/Athletica/frontend/build/linux/x64/debug/flutter/cmake_install.cmake",
-		"/home/daniela/Athletica/frontend/build/linux/x64/debug/runner/cmake_install.cmake"
-	],
-	"Parallel" : false
-}

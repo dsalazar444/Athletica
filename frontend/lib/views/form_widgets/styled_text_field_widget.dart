@@ -9,6 +9,7 @@ class StyledTextField extends StatelessWidget {
   final int maxLines;
 
   const StyledTextField({
+    super.key,
     required this.controller,
     required this.hintText,
     this.maxLines = 1,

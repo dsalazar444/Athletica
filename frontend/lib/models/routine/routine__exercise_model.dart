@@ -1,24 +1,31 @@
 import '../../models/routine/exercise_model.dart';
 
-// relacion entre una rutina y sus ejercicios, para modelo en backend routineExercise
+/// Modelo que representa la relación entre una rutina y un ejercicio específico.
+/// Este modelo refleja el objeto `RoutineExercise` persistido en el backend.
 class RoutineExerciseModel {
+  /// Posición del ejercicio dentro de la secuencia de la rutina.
   final int order;
+
+  /// Detalles completos del ejercicio asociado.
   final ExerciseModel exercise;
 
-  RoutineExerciseModel({
-    required this.order,
-    required this.exercise,
-  });
+  RoutineExerciseModel({required this.order, required this.exercise});
 
-  factory RoutineExerciseModel.fromJson(Map<String, dynamic> json) => RoutineExerciseModel(
+  /// Construye una instancia de [RoutineExerciseModel] desde un JSON del servidor.
+  factory RoutineExerciseModel.fromJson(Map<String, dynamic> json) =>
+      RoutineExerciseModel(
         order: json['order'],
         exercise: json['exercise'] != null
             ? ExerciseModel.fromJson(json['exercise'])
-            : ExerciseModel(id: 0, name: '', description: '', muscles: []), // maneja el caso null 
+            : ExerciseModel(
+                id: 0,
+                name: 'Desconocido',
+                description: '',
+                muscles: [],
+              ),
       );
 
-  Map<String, dynamic> toJson() => {
-        'external_id': exercise.id,
-        'order': order,
-      };
+  /// Convierte el modelo a un formato compatible para enviar al backend.
+  /// Se envía el `id` como `external_id` tal como lo espera el serializer de la rutina.
+  Map<String, dynamic> toJson() => {'external_id': exercise.id, 'order': order};
 }

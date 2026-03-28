@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import './app_colors.dart';
 
-// Class that defines text styles for the app
 class AppTextStyles {
   AppTextStyles._();
+
+  // ─── Screen & Section Titles ───────────────────────────────────────────────
 
   static const TextStyle screenTitle = TextStyle(
     fontSize: 22,
@@ -13,10 +14,57 @@ class AppTextStyles {
   );
 
   static const TextStyle sectionTitle = TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
+    fontSize: 26,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textPrimary,
+    letterSpacing: -0.3,
+  );
+
+  static const TextStyle sectionSubtitle = TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textSecondary,
+  );
+
+  static const TextStyle h2 = TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
     color: AppColors.textPrimary,
   );
+
+  static const TextStyle h3 = TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+    color: AppColors.textPrimary,
+  );
+
+  static const TextStyle bodyText1 = TextStyle(
+    fontSize: 14,
+    color: AppColors.textPrimary,
+  );
+
+  // ─── Header (naranja) ──────────────────────────────────────────────────────
+
+  static const TextStyle appTitle = TextStyle(
+    fontSize: 32,
+    fontWeight: FontWeight.w600,
+    color: AppColors.white,
+    letterSpacing: -0.5,
+  );
+
+  static const TextStyle headerSubtitle = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    color: AppColors.white,
+  );
+
+  static const TextStyle stepCounter = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: AppColors.white,
+  );
+
+  // ─── Labels ────────────────────────────────────────────────────────────────
 
   static const TextStyle label = TextStyle(
     fontSize: 13,
@@ -30,6 +78,14 @@ class AppTextStyles {
     color: AppColors.primary,
   );
 
+  static const TextStyle inputLabel = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
+  );
+
+  // ─── Inputs ────────────────────────────────────────────────────────────────
+
   static const TextStyle inputText = TextStyle(
     fontSize: 14,
     color: AppColors.textPrimary,
@@ -40,11 +96,21 @@ class AppTextStyles {
     color: AppColors.textHint,
   );
 
-  static const TextStyle addExerciseLink = TextStyle(
-    fontSize: 13,
+  // ─── Cards ─────────────────────────────────────────────────────────────────
+
+  static const TextStyle cardTitle = TextStyle(
+    fontSize: 18,
     fontWeight: FontWeight.w600,
-    color: AppColors.primary,
+    color: AppColors.textPrimary,
   );
+
+  static const TextStyle cardSubtitle = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textSecondary,
+  );
+
+  // ─── Exercises ─────────────────────────────────────────────────────────────
 
   static const TextStyle exerciseName = TextStyle(
     fontSize: 15,
@@ -57,6 +123,14 @@ class AppTextStyles {
     color: AppColors.textSecondary,
   );
 
+  static const TextStyle addExerciseLink = TextStyle(
+    fontSize: 13,
+    fontWeight: FontWeight.w600,
+    color: AppColors.primary,
+  );
+
+  // ─── Tags & Chips ──────────────────────────────────────────────────────────
+
   static const TextStyle tagLabel = TextStyle(
     fontSize: 11,
     fontWeight: FontWeight.w500,
@@ -67,6 +141,18 @@ class AppTextStyles {
     fontSize: 13,
     fontWeight: FontWeight.w500,
   );
+
+  // ─── Goals ─────────────────────────────────────────────────────────────────
+
+  static const TextStyle goalEmoji = TextStyle(fontSize: 36);
+
+  static const TextStyle goalLabel = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
+  );
+
+  // ─── Buttons ───────────────────────────────────────────────────────────────
 
   static const TextStyle buttonPrimary = TextStyle(
     fontSize: 15,
@@ -81,9 +167,24 @@ class AppTextStyles {
     color: AppColors.textPrimary,
     letterSpacing: 0.2,
   );
+
+  static const TextStyle buttonText = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AppColors.white,
+    letterSpacing: 0.2,
+  );
+
+  static const TextStyle buttonTextDisabled = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AppColors.buttonDisabledText,
+    letterSpacing: 0.2,
+  );
 }
 
-// Class that defines spacing constants
+// ─── Spacing ───────────────────────────────────────────────────────────────────
+
 class AppSpacing {
   AppSpacing._();
 

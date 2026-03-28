@@ -7,63 +7,68 @@ import '../../models/routine/exercise_model.dart';
 import '../../view_models/routine/exercise_selector_view_model.dart';
 import '../../repositories/routine/exercise_repository.dart';
 
+/// Hoja modal (BottomSheet) para la selección de ejercicios desde el catálogo global.
+/// Incluye búsqueda por texto y filtros por grupo muscular.
 class ExerciseSelectorSheet extends StatefulWidget {
-  const ExerciseSelectorSheet({super.key}); // constructor de este widget
+  const ExerciseSelectorSheet({super.key});
 
-  //Indicamos a flutter que cuando use este widget, debe crear un objeto tipo _Ex..., que es donde se maneja lógica que cambia estado
   @override
   State<ExerciseSelectorSheet> createState() => _ExerciseSelectorSheetState();
 }
 
 class _ExerciseSelectorSheetState extends State<ExerciseSelectorSheet> {
-  // controlador que permite saber que escribe el usuario en barra de busqueda
+  // Controlador para el campo de búsqueda de texto.
   final TextEditingController _searchController = TextEditingController();
-  String _selectedCategory = 'Todos'; // guarda categoria seleccionada por user
-  String _searchQuery =
-      ''; // Guarda lo que usuario escribe en barra de busqueda
-  late ExerciseViewModel viewModel; // objeto con el que traeremos datos
+
+  // Categoría de filtro seleccionada (por defecto 'Todos', aunque proviene de un Enum).
+  String _selectedCategory = 'Todos';
+
+  // Texto actual de la consulta de búsqueda.
+  String _searchQuery = '';
+
+  late ExerciseViewModel viewModel;
   bool isLoading = true;
 
-  // funcion "main" de vista
   @override
   void initState() {
-    super
-        .initState(); // llamamos funcion original de flutter para saber que todo esta bien
-
-    //inicializamos var con objeto -> los atributos de la clase son los parametros que se deben pasar a objeto
+    super.initState();
+    // Inicialización del ViewModel con su repositorio correspondiente.
     viewModel = ExerciseViewModel(ExerciseRepository());
-
     _loadExercises();
   }
 
-  // usamos viewModel para manejar logica de filtrado
+  /// Filtra los ejercicios basándose en el query y la categoría seleccionada.
   List<ExerciseModel> get _filteredExercises =>
-      viewModel.filteredExercises(_searchQuery);
+      viewModel.filteredExercises(_searchQuery, _selectedCategory);
 
-  // Carga ejercicios desde view model, Future es para funciones que tardan (tiene async)
+  /// Carga el catálogo completo de ejercicios desde la API.
   Future<void> _loadExercises() async {
-    await viewModel
-        .loadExercises(); // espera hasta que se termine de ejecutar func de view model
-
-    // Le dice a Flutter que ya terminó de cargar, así que debe actualizar la pantalla para mostrar los ejercicios (y quitar el círculo de carga).
-    setState(() {
-      isLoading = false;
-    });
+    await viewModel.loadExercises();
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
-  // funcion que se llama autom. cuando pantalla se va a cerrar o destruir
   @override
   void dispose() {
-    _searchController.dispose(); // liberamos recursos
-    super.dispose(); // llama a func. original de flutter para cerrar bien
+    _searchController.dispose();
+    super.dispose();
   }
 
-  //Funcion que renderiza pantalla cada que algo cambia
   @override
   Widget build(BuildContext context) {
-    //Si los ejercicios todavía se están cargando, muestra un círculo de carga en el centro de la pantalla.
+    // Estado de carga inicial.
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Container(
+        height: MediaQuery.of(context).size.height * 0.5,
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: const Center(child: CircularProgressIndicator()),
+      );
     }
 
     return Container(
@@ -74,16 +79,11 @@ class _ExerciseSelectorSheetState extends State<ExerciseSelectorSheet> {
       ),
       child: Column(
         children: [
-          _SheetDragHandle(), // barra para indicar que ventana se puede arrastrar
-          _SelectorHeader(
-            onClose: () => Navigator.of(context).pop(),
-          ), //encabezado con titulo y boton para cerrar, si cerramos, nos devuelve a pantalla anterior
+          _SheetDragHandle(), // Indicador visual de que el modal es deslizable.
+          _SelectorHeader(onClose: () => Navigator.of(context).pop()),
           _SearchBar(
-            controller:
-                _searchController, //Obtenemos contenido de barra de busqueda
-            onChanged: (value) => setState(
-              () => _searchQuery = value,
-            ), // si se cambia, actualizamos var searchQuery
+            controller: _searchController,
+            onChanged: (value) => setState(() => _searchQuery = value),
           ),
           _CategoryFilterRow(
             selectedCategory: _selectedCategory,
@@ -92,16 +92,45 @@ class _ExerciseSelectorSheetState extends State<ExerciseSelectorSheet> {
           ),
           const Divider(height: 1, color: AppColors.border),
           Expanded(
-            child: _ExerciseResultList(
-              exercises: _filteredExercises,
-              onExerciseSelected: (exercise) => Navigator.of(
-                context,
-              ).pop(exercise), // se toma para añadir a rutina
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                    vertical: AppSpacing.sm,
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        '${_filteredExercises.length} ejercicios encontrados',
+                        style: AppTextStyles.bodyText1.copyWith(
+                          color: AppColors.textSecondary,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: _ExerciseResultList(
+                    exercises: _filteredExercises,
+                    onExerciseSelected: (exercise) =>
+                        Navigator.of(context).pop(exercise),
+                  ),
+                ),
+              ],
             ),
           ),
+          // Botón para crear ejercicios personalizados (aún no implementado).
           _CreateExerciseButton(
             onPressed: () {
-              // TODO: navigate to create exercise screen
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'Funcionalidad de creación personalizada próximamente.',
+                  ),
+                ),
+              );
             },
           ),
         ],
@@ -110,8 +139,9 @@ class _ExerciseSelectorSheetState extends State<ExerciseSelectorSheet> {
   }
 }
 
-// stateless porque es la barra
+/// Pequeña barra superior decorativa para el modal.
 class _SheetDragHandle extends StatelessWidget {
+  const _SheetDragHandle();
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -130,9 +160,9 @@ class _SheetDragHandle extends StatelessWidget {
   }
 }
 
+/// Título y botón de cierre del selector.
 class _SelectorHeader extends StatelessWidget {
   final VoidCallback onClose;
-
   const _SelectorHeader({required this.onClose});
 
   @override
@@ -147,10 +177,10 @@ class _SelectorHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('Nueva rutina', style: AppTextStyles.screenTitle),
-          GestureDetector(
-            onTap: onClose,
-            child: const Icon(
+          const Text('Añadir Ejercicio', style: AppTextStyles.screenTitle),
+          IconButton(
+            onPressed: onClose,
+            icon: const Icon(
               Icons.close,
               color: AppColors.textSecondary,
               size: 24,
@@ -162,6 +192,7 @@ class _SelectorHeader extends StatelessWidget {
   }
 }
 
+/// Barra de entrada de texto para filtrar ejercicios por nombre.
 class _SearchBar extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
@@ -180,7 +211,7 @@ class _SearchBar extends StatelessWidget {
         onChanged: onChanged,
         style: AppTextStyles.inputText,
         decoration: InputDecoration(
-          hintText: 'Buscar ejercicio...',
+          hintText: 'Ej: Sentadillas, Press...',
           hintStyle: AppTextStyles.hintText,
           prefixIcon: const Icon(
             Icons.search,
@@ -200,6 +231,7 @@ class _SearchBar extends StatelessWidget {
   }
 }
 
+/// Fila horizontal de chips para filtrar por grupo muscular.
 class _CategoryFilterRow extends StatelessWidget {
   final String selectedCategory;
   final ValueChanged<String> onCategorySelected;
@@ -219,10 +251,15 @@ class _CategoryFilterRow extends StatelessWidget {
           horizontal: AppSpacing.lg,
           vertical: AppSpacing.sm,
         ),
-        itemCount: MuscleGroup.values.length,
-        separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
+        itemCount: MuscleGroup.values.length + 1, // +1 para la opción "Todos"
+        separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
         itemBuilder: (_, index) {
-          final category = muscleGroupToString(MuscleGroup.values[index]);
+          final String category;
+          if (index == 0) {
+            category = 'Todos';
+          } else {
+            category = muscleGroupToString(MuscleGroup.values[index - 1]);
+          }
           final isSelected = category == selectedCategory;
           return GestureDetector(
             onTap: () => onCategorySelected(category),
@@ -255,6 +292,7 @@ class _CategoryFilterRow extends StatelessWidget {
   }
 }
 
+/// Lista scrolleable que muestra los resultados de la búsqueda/filtro.
 class _ExerciseResultList extends StatelessWidget {
   final List<ExerciseModel> exercises;
   final ValueChanged<ExerciseModel> onExerciseSelected;
@@ -269,18 +307,15 @@ class _ExerciseResultList extends StatelessWidget {
     if (exercises.isEmpty) {
       return const Center(
         child: Text(
-          'No se encontraron ejercicios',
+          'No se encontraron ejercicios.',
           style: TextStyle(color: AppColors.textSecondary),
         ),
       );
     }
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
-      ),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       itemCount: exercises.length,
-      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
       itemBuilder: (_, index) => _ExerciseResultCard(
         exercise: exercises[index],
         onAdd: () => onExerciseSelected(exercises[index]),
@@ -289,6 +324,7 @@ class _ExerciseResultList extends StatelessWidget {
   }
 }
 
+/// Tarjeta individual para cada ejercicio en el listado de búsqueda.
 class _ExerciseResultCard extends StatelessWidget {
   final ExerciseModel exercise;
   final VoidCallback onAdd;
@@ -306,23 +342,28 @@ class _ExerciseResultCard extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Row(
         children: [
-          _ExerciseAvatar(initials: 'Ex', imageUrl: exercise.imageUrl),
+          _ExerciseAvatar(
+            initials: exercise.name.substring(0, 1),
+            imageUrl: exercise.imageUrl,
+          ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(exercise.name, style: AppTextStyles.exerciseName),
-                const SizedBox(height: 2),
-                // Text(exercise.subtitle, style: AppTextStyles.exerciseSubtitle),
-                // const SizedBox(height: AppSpacing.xs),
+                const SizedBox(height: 4),
                 _CategoryTag(label: exercise.primaryMuscleName),
               ],
             ),
           ),
-          GestureDetector(
-            onTap: onAdd,
-            child: const Icon(Icons.add, color: AppColors.primary, size: 24),
+          IconButton(
+            onPressed: onAdd,
+            icon: const Icon(
+              Icons.add_circle_outline,
+              color: AppColors.primary,
+              size: 28,
+            ),
           ),
         ],
       ),
@@ -330,6 +371,7 @@ class _ExerciseResultCard extends StatelessWidget {
   }
 }
 
+/// Avatar circular o imagen del ejercicio para la tarjeta de resultados.
 class _ExerciseAvatar extends StatelessWidget {
   final String initials;
   final String? imageUrl;
@@ -357,8 +399,8 @@ class _ExerciseAvatar extends StatelessWidget {
                   errorBuilder: (context, error, stackTrace) => Text(
                     initials,
                     style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
                       color: AppColors.primary,
                     ),
                   ),
@@ -367,8 +409,8 @@ class _ExerciseAvatar extends StatelessWidget {
             : Text(
                 initials,
                 style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
                   color: AppColors.primary,
                 ),
               ),
@@ -377,9 +419,9 @@ class _ExerciseAvatar extends StatelessWidget {
   }
 }
 
+/// Etiqueta estilizada para el grupo muscular en la tarjeta.
 class _CategoryTag extends StatelessWidget {
   final String label;
-
   const _CategoryTag({required this.label});
 
   @override
@@ -398,22 +440,19 @@ class _CategoryTag extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  CREATE EXERCISE BUTTON (bottom of selector) este boton es para crear nuevo ejercicio (porque los propuestos por api no son suficientes) -> todavia no se ha implementado lógica
-// ─────────────────────────────────────────────
+/// Botón persistente en la parte inferior para habilitar la creación de ejercicios personalizados.
 class _CreateExerciseButton extends StatelessWidget {
   final VoidCallback onPressed;
-
   const _CreateExerciseButton({required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         AppSpacing.lg,
         AppSpacing.md,
         AppSpacing.lg,
-        AppSpacing.xl,
+        MediaQuery.of(context).padding.bottom + AppSpacing.md,
       ),
       decoration: const BoxDecoration(
         color: AppColors.surface,
@@ -423,11 +462,11 @@ class _CreateExerciseButton extends StatelessWidget {
         width: double.infinity,
         child: OutlinedButton.icon(
           onPressed: onPressed,
-          icon: const Icon(Icons.add_circle_outline, color: AppColors.primary),
+          icon: const Icon(Icons.add, color: AppColors.primary),
           label: const Text(
-            'Crear ejercicio',
+            '¿No encuentras tu ejercicio? Créalo aquí',
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.primary,
             ),

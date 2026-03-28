@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,44 +14,87 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Exercise',
+            name="Exercise",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('external_id', models.IntegerField(default=-1, unique=True)),
-                ('name', models.CharField(max_length=100)),
-                ('description', models.CharField(max_length=200)),
-                ('muscle', models.CharField(max_length=50)),
-                ('image_url', models.CharField(max_length=200, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("external_id", models.IntegerField(default=-1, unique=True)),
+                ("name", models.CharField(max_length=100)),
+                ("description", models.CharField(max_length=200)),
+                ("muscle", models.CharField(max_length=50)),
+                ("image_url", models.CharField(max_length=200, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Routine',
+            name="Routine",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=150)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('category', models.TextField()),
-                ('difficulty', models.TextField()),
-                ('assigned_athletes', models.ManyToManyField(blank=True, related_name='routines', to=settings.AUTH_USER_MODEL)),
-                ('created_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='created_routines', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("title", models.CharField(max_length=150)),
+                ("description", models.TextField(blank=True, null=True)),
+                ("category", models.TextField()),
+                ("difficulty", models.TextField()),
+                (
+                    "assigned_athletes",
+                    models.ManyToManyField(
+                        blank=True, related_name="routines", to=settings.AUTH_USER_MODEL
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="created_routines",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='RoutineExercise',
+            name="RoutineExercise",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('order', models.PositiveIntegerField()),
-                ('exercise', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='routine_exercises', to='routines.exercise')),
-                ('routine', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='routine_exercises', to='routines.routine')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("order", models.PositiveIntegerField()),
+                (
+                    "exercise",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="routine_exercises",
+                        to="routines.exercise",
+                    ),
+                ),
+                (
+                    "routine",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="routine_exercises",
+                        to="routines.routine",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['order'],
-                'unique_together': {('routine', 'order')},
+                "ordering": ["order"],
+                "unique_together": {("routine", "order")},
             },
         ),
         migrations.AddField(
-            model_name='routine',
-            name='exercises',
-            field=models.ManyToManyField(related_name='routines', through='routines.RoutineExercise', to='routines.exercise'),
+            model_name="routine",
+            name="exercises",
+            field=models.ManyToManyField(
+                related_name="routines", through="routines.RoutineExercise", to="routines.exercise"
+            ),
         ),
     ]

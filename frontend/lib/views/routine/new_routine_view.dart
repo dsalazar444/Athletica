@@ -11,9 +11,10 @@ import '../../views/form_widgets/styled_text_field_widget.dart';
 import '../../views/form_widgets/syled_dropdown_widget.dart';
 import '../../view_models/routine/new_routine_view_model.dart';
 import '../../repositories/routine/routine_repository.dart';
-// ─────────────────────────────────────────────
-//  NEW ROUTINE SCREEN
-// ─────────────────────────────────────────────
+import '../../core/config/api_config.dart';
+
+/// Pantalla para crear una nueva rutina de entrenamiento.
+/// Permite definir nombre, descripción, categoría, dificultad y seleccionar una lista de ejercicios.
 class NewRoutineScreen extends StatefulWidget {
   const NewRoutineScreen({super.key});
 
@@ -22,32 +23,25 @@ class NewRoutineScreen extends StatefulWidget {
 }
 
 class _NewRoutineScreenState extends State<NewRoutineScreen> {
+  // Controladores para los campos de texto del formulario.
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
+  // Valores por defecto para los selectores de categoría y dificultad.
   CategoryType _selectedCategory = CategoryType.hybrid;
   DifficultyLevel _selectedDifficulty = DifficultyLevel.advanced;
 
-  final List<SelectedExercise> _selectedExercises = [
-    SelectedExercise(
-      exercise: ExerciseModel(
-        id: 1,
-        name: 'Press de Banca',
-        description: 'Ejercicio de pecho con barra',
-        muscles: [1],
-        imageUrl: null,
-      ),
-      order: 1,
-    ),
-  ];
+  /// Lista local de ejercicios seleccionados por el usuario para la nueva rutina.
+  final List<SelectedExercise> _selectedExercises = [];
 
   late final RoutineViewModel _routineViewModel;
 
   @override
   void initState() {
     super.initState();
+    // Inicialización del ViewModel con el repositorio configurado.
     _routineViewModel = RoutineViewModel(
-      routineRepository: RoutineRepository(baseUrl: 'http://localhost:8000/api'),
+      routineRepository: RoutineRepository(baseUrl: ApiConfig.baseUrl),
     );
   }
 
@@ -58,9 +52,8 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
     super.dispose();
   }
 
+  /// Abre un modal para buscar y elegir un ejercicio del catálogo global.
   Future<void> _openExerciseSelector() async {
-    // Muestra a user modal para que selecciones ejercicio, puede ser exercise o null
-    // await pausa la ejecución hasta que cierre modal
     final ExerciseModel? result = await showModalBottomSheet<ExerciseModel>(
       context: context,
       isScrollControlled: true,
@@ -68,12 +61,13 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
       builder: (_) => const ExerciseSelectorSheet(),
     );
 
-    // si hay result, verifica que no se quiera añadir un ejercicio que ya estaba, si no, lo agrega
     if (result != null) {
       setState(() {
-        final alreadyAdded =
-            _selectedExercises.any((e) => e.exercise.id == result.id);
-        if (!alreadyAdded) { //Acá es donde se añaden SelectedExercise a var
+        // Evitamos añadir el mismo ejercicio más de una vez.
+        final alreadyAdded = _selectedExercises.any(
+          (e) => e.exercise.id == result.id,
+        );
+        if (!alreadyAdded) {
           _selectedExercises.add(
             SelectedExercise(
               exercise: result,
@@ -85,10 +79,10 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
     }
   }
 
+  /// Remueve un ejercicio de la lista temporal y reajusta el orden de los restantes.
   void _removeExercise(int exerciseId) {
     setState(() {
       _selectedExercises.removeWhere((e) => e.exercise.id == exerciseId);
-      // Re-assign order numbers after removal
       for (int i = 0; i < _selectedExercises.length; i++) {
         _selectedExercises[i] = SelectedExercise(
           exercise: _selectedExercises[i].exercise,
@@ -98,7 +92,15 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
     });
   }
 
+  /// Valida y envía los datos al ViewModel para persistir la rutina en el backend.
   Future<void> _handleSave() async {
+    if (_titleController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('El título es obligatorio')));
+      return;
+    }
+
     try {
       await _routineViewModel.saveRoutine(
         title: _titleController.text,
@@ -107,22 +109,22 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
         difficulty: _selectedDifficulty.name,
         selectedExercises: _selectedExercises,
       );
+
       if (!mounted) return;
 
-      // Si todo sale bien, mostrar un mensaje o navegar
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Rutina guardada con éxito')),
+        const SnackBar(content: Text('¡Rutina creada con éxito!')),
       );
 
-      // Espera 1 segundo antes de cerrar la pantalla
-      await Future.delayed(const Duration(seconds: 1));
+      // Pequeña pausa para que el usuario vea el mensaje de éxito antes de cerrar.
+      await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) Navigator.of(context).pop();
-      
     } catch (e) {
-      // Maneja el error (por ejemplo, muestra un mensaje)
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Fallo al guardar: $e')));
+      }
     }
   }
 
@@ -143,6 +145,7 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Formulario de datos básicos.
                     _BasicInfoCard(
                       titleController: _titleController,
                       descriptionController: _descriptionController,
@@ -154,6 +157,7 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
                           setState(() => _selectedDifficulty = value),
                     ),
                     const SizedBox(height: AppSpacing.lg),
+                    // Gestión de la lista de ejercicios.
                     _ExerciseListSection(
                       exercises: _selectedExercises,
                       onAddExercise: _openExerciseSelector,
@@ -164,6 +168,7 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
                 ),
               ),
             ),
+            // Panel inferior con botones de acción.
             _RoutineActionButtons(
               onCancel: () => Navigator.of(context).pop(),
               onSave: _handleSave,
@@ -175,32 +180,22 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
   }
 }
 
-// ─────────────────────────────────────────────
-//  HEADER
-// ─────────────────────────────────────────────
+/// Cabecera minimalista con botón de cierre.
 class _RoutineScreenHeader extends StatelessWidget {
   final VoidCallback onClose;
-
   const _RoutineScreenHeader({required this.onClose});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.lg,
-      ),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Text('Nueva Rutina', style: AppTextStyles.screenTitle),
-          GestureDetector(
-            onTap: onClose,
-            child: const Icon(
-              Icons.close,
-              color: AppColors.textSecondary,
-              size: 24,
-            ),
+          IconButton(
+            onPressed: onClose,
+            icon: const Icon(Icons.close, color: AppColors.textSecondary),
           ),
         ],
       ),
@@ -208,15 +203,13 @@ class _RoutineScreenHeader extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  BASIC INFO CARD
-// ─────────────────────────────────────────────
+/// Tarjeta que agrupa los campos principales del formulario (Título, Descripción, etc).
 class _BasicInfoCard extends StatelessWidget {
   final TextEditingController titleController;
   final TextEditingController descriptionController;
   final CategoryType selectedCategory;
   final DifficultyLevel selectedDifficulty;
-  final ValueChanged<CategoryType> onCategoryChanged; //funcion que se llamará cuando usuario cambie categoria
+  final ValueChanged<CategoryType> onCategoryChanged;
   final ValueChanged<DifficultyLevel> onDifficultyChanged;
 
   const _BasicInfoCard({
@@ -242,18 +235,18 @@ class _BasicInfoCard extends StatelessWidget {
         children: [
           const Text('Información Básica', style: AppTextStyles.sectionTitle),
           const SizedBox(height: AppSpacing.lg),
-          const FormFieldLabel(label: 'Título', isRequired: true),
+          const FormFieldLabel(label: 'Título de la rutina', isRequired: true),
           const SizedBox(height: AppSpacing.sm),
           StyledTextField(
             controller: titleController,
-            hintText: 'Ej: Rutina de Fuerza Superior',
+            hintText: 'Ej: Entrenamiento de Pierna A',
           ),
           const SizedBox(height: AppSpacing.md),
-          const FormFieldLabel(label: 'Descripción (opcional)'),
+          const FormFieldLabel(label: 'Descripción (objetivos, notas)'),
           const SizedBox(height: AppSpacing.sm),
-            StyledTextField(
+          StyledTextField(
             controller: descriptionController,
-            hintText: 'Descripción de la rutina...',
+            hintText: 'Escribe una breve descripción...',
             maxLines: 3,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -298,9 +291,7 @@ class _BasicInfoCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  EXERCISE LIST SECTION
-// ─────────────────────────────────────────────
+/// Sección que lista los ejercicios añadidos y ofrece el botón para agregar más.
 class _ExerciseListSection extends StatelessWidget {
   final List<SelectedExercise> exercises;
   final VoidCallback onAddExercise;
@@ -319,23 +310,35 @@ class _ExerciseListSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Ejercicios (${exercises.length})',
-              style: AppTextStyles.sectionTitle,
+            Expanded(
+              child: Text(
+                'Ejercicios seleccionados (${exercises.length})',
+                style: AppTextStyles.sectionTitle,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            GestureDetector(
-              onTap: onAddExercise,
-              child: const Row(
-                children: [
-                  Icon(Icons.add, size: 16, color: AppColors.primary),
-                  SizedBox(width: AppSpacing.xs),
-                  Text('Añadir ejercicio', style: AppTextStyles.addExerciseLink),
-                ],
+            const SizedBox(width: 8),
+            TextButton.icon(
+              onPressed: onAddExercise,
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Añadir', style: AppTextStyles.addExerciseLink),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
             ),
           ],
         ),
         const SizedBox(height: AppSpacing.md),
+        if (exercises.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
+            child: Text(
+              'No has seleccionado ejercicios todavía.',
+              style: TextStyle(color: AppColors.textHint),
+            ),
+          ),
         ...exercises.map(
           (entry) => Padding(
             padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -350,6 +353,7 @@ class _ExerciseListSection extends StatelessWidget {
   }
 }
 
+/// Elemento individual de la lista de ejercicios seleccionados.
 class _ExerciseListItem extends StatelessWidget {
   final SelectedExercise selectedExercise;
   final VoidCallback onRemove;
@@ -375,21 +379,16 @@ class _ExerciseListItem extends StatelessWidget {
         children: [
           const Icon(Icons.drag_indicator, color: AppColors.textHint, size: 20),
           const SizedBox(width: AppSpacing.sm),
-          Container(
-            width: 24,
-            height: 24,
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                '${selectedExercise.order}',
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.surface,
-                ),
+          // Burbuja con el número de orden.
+          CircleAvatar(
+            radius: 12,
+            backgroundColor: AppColors.primary,
+            child: Text(
+              '${selectedExercise.order}',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
             ),
           ),
@@ -397,21 +396,16 @@ class _ExerciseListItem extends StatelessWidget {
           Expanded(
             child: Text(
               selectedExercise.exercise.name,
-              style: AppTextStyles.exerciseName,
+              style: AppTextStyles.exerciseName.copyWith(fontSize: 15),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          const Icon(
-            Icons.keyboard_arrow_up,
-            color: AppColors.textSecondary,
-            size: 20,
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          GestureDetector(
-            onTap: onRemove,
-            child: const Icon(
+          IconButton(
+            onPressed: onRemove,
+            icon: const Icon(
               Icons.delete_outline,
               color: AppColors.deleteRed,
-              size: 20,
+              size: 22,
             ),
           ),
         ],
@@ -420,26 +414,21 @@ class _ExerciseListItem extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  ACTION BUTTONS
-// ─────────────────────────────────────────────
+/// Botones inferiores para confirmar o descartar la creación de la rutina.
 class _RoutineActionButtons extends StatelessWidget {
   final VoidCallback onCancel;
   final VoidCallback onSave;
 
-  const _RoutineActionButtons({
-    required this.onCancel,
-    required this.onSave,
-  });
+  const _RoutineActionButtons({required this.onCancel, required this.onSave});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         AppSpacing.lg,
         AppSpacing.md,
         AppSpacing.lg,
-        AppSpacing.xl,
+        MediaQuery.of(context).padding.bottom + AppSpacing.md,
       ),
       decoration: const BoxDecoration(
         color: AppColors.surface,
@@ -453,10 +442,14 @@ class _RoutineActionButtons extends StatelessWidget {
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.border),
                 shape: const RoundedRectangleBorder(
-                    borderRadius: AppRadius.button),
+                  borderRadius: AppRadius.button,
+                ),
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: const Text('Cancelar', style: AppTextStyles.buttonSecondary),
+              child: const Text(
+                'Descartar',
+                style: AppTextStyles.buttonSecondary,
+              ),
             ),
           ),
           const SizedBox(width: AppSpacing.md),
@@ -469,10 +462,14 @@ class _RoutineActionButtons extends StatelessWidget {
                 foregroundColor: AppColors.surface,
                 elevation: 0,
                 shape: const RoundedRectangleBorder(
-                    borderRadius: AppRadius.button),
+                  borderRadius: AppRadius.button,
+                ),
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: const Text('Guardar Rutina', style: AppTextStyles.buttonPrimary),
+              child: const Text(
+                'Crear Rutina',
+                style: AppTextStyles.buttonPrimary,
+              ),
             ),
           ),
         ],
