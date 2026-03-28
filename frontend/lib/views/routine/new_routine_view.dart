@@ -120,9 +120,11 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
       await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Fallo al guardar: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Fallo al guardar: $e')));
+      }
     }
   }
 

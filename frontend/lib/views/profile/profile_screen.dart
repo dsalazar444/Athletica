@@ -93,7 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   CircleAvatar(
                     radius: 40,
-                    backgroundColor: Colors.white.withOpacity(0.3),
+                    backgroundColor: Colors.white.withValues(alpha: 0.3),
                     child: Text(
                       _userName.isNotEmpty ? _userName[0].toUpperCase() : '?',
                       style: const TextStyle(
@@ -168,7 +168,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const Spacer(),
             Icon(
               Icons.chevron_right,
-              color: (color ?? AppColors.textPrimary).withOpacity(0.4),
+              color: (color ?? AppColors.textPrimary).withValues(alpha: 0.4),
             ),
           ],
         ),

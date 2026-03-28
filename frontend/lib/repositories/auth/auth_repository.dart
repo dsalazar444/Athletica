@@ -13,9 +13,6 @@ class AuthRepository {
     try {
       final json = data.toApiJson();
 
-      print('URL: ${_dio.options.baseUrl}auth/register/');
-      print('JSON: $json');
-
       final response = await _dio.post('auth/register/', data: json);
 
       // Guarda el access token, el refresh token y el nombre en el almacenamiento local.
@@ -24,12 +21,7 @@ class AuthRepository {
         refresh: response.data['refresh'],
         name: response.data['user']['first_name'],
       );
-
-      print('RESPONSE:');
-      print(response.data);
     } on DioException catch (e) {
-      print('STATUS: ${e.response?.statusCode}');
-      print('ERROR: ${e.response?.data}');
       throw e.response?.data;
     }
   }

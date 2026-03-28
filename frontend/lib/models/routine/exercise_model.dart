@@ -1,4 +1,6 @@
 /// Estos ejercicios se muestran en el catálogo al buscar para añadir a una rutina.
+library;
+
 import 'routine_enums.dart';
 
 class ExerciseModel {
@@ -157,15 +159,27 @@ class ExerciseModel {
     final id = muscles.first;
 
     // Mapeo de IDs de Wger a categorías de nuestra App.
-    if ([1, 26].contains(id)) return MuscleGroup.chest;
-    if ([2, 16, 17, 18, 19, 20].contains(id)) return MuscleGroup.back;
-    if ([3, 4, 30, 31].contains(id)) return MuscleGroup.shoulders;
-    if ([5, 6, 36, 37, 34, 35, 32, 33].contains(id)) return MuscleGroup.arms;
-    if ([7, 8, 9, 10, 11, 12, 13, 14, 15, 24, 25].contains(id))
+    if ([1, 26].contains(id)) {
+      return MuscleGroup.chest;
+    }
+    if ([2, 16, 17, 18, 19, 20].contains(id)) {
+      return MuscleGroup.back;
+    }
+    if ([3, 4, 30, 31].contains(id)) {
+      return MuscleGroup.shoulders;
+    }
+    if ([5, 6, 36, 37, 34, 35, 32, 33].contains(id)) {
+      return MuscleGroup.arms;
+    }
+    if ([7, 8, 9, 10, 11, 12, 13, 14, 15, 24, 25].contains(id)) {
       return MuscleGroup.legs;
-    if ([21, 22, 23].contains(id)) return MuscleGroup.abdominal;
-    if ([27, 28, 29].contains(id))
+    }
+    if ([21, 22, 23].contains(id)) {
+      return MuscleGroup.abdominal;
+    }
+    if ([27, 28, 29].contains(id)) {
       return MuscleGroup.back; // Músculos de escápula/espalda
+    }
 
     return null;
   }

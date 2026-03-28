@@ -48,7 +48,7 @@ class _MainScreenState extends State<MainScreen> {
           setState(() => _currentIndex = index);
         },
         backgroundColor: AppColors.surface,
-        indicatorColor: AppColors.primary.withOpacity(0.15),
+        indicatorColor: AppColors.primary.withValues(alpha: 0.15),
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),

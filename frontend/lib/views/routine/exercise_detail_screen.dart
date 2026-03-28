@@ -65,8 +65,9 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
         ),
         body: Consumer<ExerciseDetailViewModel>(
           builder: (context, vm, child) {
-            if (vm.isLoading)
+            if (vm.isLoading) {
               return const Center(child: CircularProgressIndicator());
+            }
 
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -149,7 +150,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
         borderRadius: AppRadius.card,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -304,7 +305,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: AppColors.border.withOpacity(0.5),
+                      color: AppColors.border.withValues(alpha: 0.5),
                     ),
                   ),
                   child: Row(
@@ -345,7 +346,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
               ),
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }

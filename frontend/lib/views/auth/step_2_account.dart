@@ -62,12 +62,15 @@ class _Step2AccountState extends State<Step2Account> {
   // Minimo 8 caracteres, al menos una letra y un numero.
   String? _validatePassword(String value) {
     if (value.isEmpty) return 'La contrasena es requerida';
-    if (value.length < 8)
+    if (value.length < 8) {
       return 'La contrasena debe tener al menos 8 caracteres';
-    if (!RegExp(r'[a-zA-Z]').hasMatch(value))
+    }
+    if (!RegExp(r'[a-zA-Z]').hasMatch(value)) {
       return 'Debe contener al menos una letra';
-    if (!RegExp(r'[0-9]').hasMatch(value))
+    }
+    if (!RegExp(r'[0-9]').hasMatch(value)) {
       return 'Debe contener al menos un numero';
+    }
     return null;
   }
 

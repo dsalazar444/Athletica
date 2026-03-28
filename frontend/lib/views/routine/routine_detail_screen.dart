@@ -93,7 +93,7 @@ class RoutineDetailScreen extends StatelessWidget {
         borderRadius: AppRadius.card,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -108,13 +108,13 @@ class RoutineDetailScreen extends StatelessWidget {
             children: [
               _buildTag(
                 routine.category,
-                Colors.white.withOpacity(0.2),
+                Colors.white.withValues(alpha: 0.2),
                 Colors.white,
               ),
               const SizedBox(width: AppSpacing.sm),
               _buildTag(
                 routine.difficulty,
-                Colors.white.withOpacity(0.2),
+                Colors.white.withValues(alpha: 0.2),
                 Colors.white,
               ),
             ],
@@ -135,7 +135,7 @@ class RoutineDetailScreen extends StatelessWidget {
               routine.description,
               style: TextStyle(
                 fontSize: 15,
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
                 height: 1.4,
               ),
             ),
@@ -204,12 +204,14 @@ class RoutineDetailScreen extends StatelessWidget {
                 borderRadius: AppRadius.card,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
                 ],
-                border: Border.all(color: AppColors.border.withOpacity(0.5)),
+                border: Border.all(
+                  color: AppColors.border.withValues(alpha: 0.5),
+                ),
               ),
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Row(
@@ -220,7 +222,7 @@ class RoutineDetailScreen extends StatelessWidget {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Center(

@@ -141,6 +141,7 @@ class _ExerciseSelectorSheetState extends State<ExerciseSelectorSheet> {
 
 /// Pequeña barra superior decorativa para el modal.
 class _SheetDragHandle extends StatelessWidget {
+  const _SheetDragHandle();
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -251,7 +252,7 @@ class _CategoryFilterRow extends StatelessWidget {
           vertical: AppSpacing.sm,
         ),
         itemCount: MuscleGroup.values.length + 1, // +1 para la opción "Todos"
-        separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
+        separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
         itemBuilder: (_, index) {
           final String category;
           if (index == 0) {
@@ -314,7 +315,7 @@ class _ExerciseResultList extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.all(AppSpacing.lg),
       itemCount: exercises.length,
-      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
       itemBuilder: (_, index) => _ExerciseResultCard(
         exercise: exercises[index],
         onAdd: () => onExerciseSelected(exercises[index]),

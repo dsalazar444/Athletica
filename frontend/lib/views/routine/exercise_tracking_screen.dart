@@ -111,8 +111,9 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
         ),
         body: Consumer<ExerciseTrackingViewModel>(
           builder: (context, vm, child) {
-            if (vm.isLoading)
+            if (vm.isLoading) {
               return const Center(child: CircularProgressIndicator());
+            }
 
             return Column(
               children: [
@@ -326,7 +327,7 @@ class _ExerciseTrackingScreenState extends State<ExerciseTrackingScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),

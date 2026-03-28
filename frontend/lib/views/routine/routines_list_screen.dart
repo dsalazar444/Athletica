@@ -196,12 +196,12 @@ class _RoutineCard extends StatelessWidget {
         borderRadius: AppRadius.card,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: AppColors.border.withOpacity(0.4)),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.4)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -255,7 +255,7 @@ class _RoutineCard extends StatelessWidget {
                         children: [
                           _buildMiniChip(
                             routine.category.toUpperCase(),
-                            AppColors.primary.withOpacity(0.1),
+                            AppColors.primary.withValues(alpha: 0.1),
                             AppColors.primary,
                           ),
                           _buildMiniChip(

@@ -10,6 +10,7 @@ class StyledDropdown<T> extends StatelessWidget {
   final ValueChanged<T> onChanged;
 
   const StyledDropdown({
+    super.key,
     required this.value,
     required this.items,
     required this.labelBuilder,

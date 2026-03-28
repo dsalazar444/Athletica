@@ -245,7 +245,7 @@ class _MealCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFFE91E63).withOpacity(0.15),
+                color: const Color(0xFFE91E63).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: const Color(0xFFE91E63), size: 22),

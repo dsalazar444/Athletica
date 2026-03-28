@@ -38,3 +38,11 @@ El proyecto se desarrolla bajo metodología ágil utilizando planificación MoSC
 - **Base de Datos:** PostgreSQL / SQLite
 - **Control de Versiones:** Git + GitHub
 
+
+
+
+## 🛡️ Estado de la Integración (Rama dev)
+Actualmente, el flujo de **CI** valida cada commit en la rama de desarrollo antes de permitir el paso a `main`.
+
+
+[![Athletica CI](https://github.com/dsalazar444/Athletica/actions/workflows/athletica_ci.yml/badge.svg?branch=dev)](https://github.com/dsalazar444/Athletica/actions/workflows/athletica_ci.yml)

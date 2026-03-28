@@ -23,8 +23,7 @@ class RoutineRepository {
         return response.data['exists'] == true;
       }
       return false;
-    } on DioException catch (e) {
-      print('Error checking exercise existence: ${e.message}');
+    } on DioException catch (_) {
       return false;
     }
   }

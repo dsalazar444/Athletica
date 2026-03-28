@@ -45,12 +45,10 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      print('Intentando login con: ${username.text}');
       final response = await ApiClient.dio.post(
         'auth/login/',
         data: {'username': username.text, 'password': password.text},
       );
-      print('Login response: ${response.data}');
 
       await TokenStorage.saveTokens(
         access: response.data['access'],
@@ -66,7 +64,6 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
-      print('Login error: $e');
       setState(() {
         generalError = 'Usuario o contrasena incorrectos';
       });
@@ -131,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       padding: const EdgeInsets.all(12),
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
-                        color: AppColors.error.withOpacity(0.1),
+                        color: AppColors.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(

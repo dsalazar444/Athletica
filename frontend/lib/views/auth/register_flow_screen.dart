@@ -67,9 +67,9 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                         height: 4,
                         margin: const EdgeInsets.symmetric(horizontal: 3),
                         decoration: BoxDecoration(
-                          color: index <= vm.step
+                          color: (vm.step >= index)
                               ? Colors.white
-                              : Colors.white.withOpacity(0.3),
+                              : Colors.white.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
@@ -118,12 +118,13 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                               vm.data.specialty = specialty;
                               vm.data.yearsExperience = int.parse(years);
 
+                              final messenger = ScaffoldMessenger.of(context);
                               // El coach envia el registro en este paso — no tiene pasos adicionales.
                               final success = await vm.register();
                               if (success) {
                                 nextStep();
                               } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                messenger.showSnackBar(
                                   SnackBar(
                                     content: Text(
                                       vm.errorMessage ?? 'Error desconocido',
@@ -158,11 +159,12 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                       onNext: (exp) async {
                         vm.data.activityLevel = exp;
 
+                        final messenger = ScaffoldMessenger.of(context);
                         final success = await vm.register();
                         if (success) {
                           nextStep();
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          messenger.showSnackBar(
                             SnackBar(
                               content: Text(
                                 vm.errorMessage ?? 'Error desconocido',

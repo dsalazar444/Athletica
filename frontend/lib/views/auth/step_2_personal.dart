@@ -77,8 +77,9 @@ class _Step2PersonalState extends State<Step2Personal> {
     if (value.isEmpty) return 'El peso es requerido';
     final parsed = double.tryParse(value);
     if (parsed == null) return 'El peso debe ser un numero';
-    if (parsed < 30 || parsed > 300)
+    if (parsed < 30 || parsed > 300) {
       return 'El peso debe estar entre 30 y 300 kg';
+    }
     return null;
   }
 
@@ -87,8 +88,9 @@ class _Step2PersonalState extends State<Step2Personal> {
     if (value.isEmpty) return 'La altura es requerida';
     final parsed = double.tryParse(value);
     if (parsed == null) return 'La altura debe ser un numero';
-    if (parsed < 50 || parsed > 250)
+    if (parsed < 50 || parsed > 250) {
       return 'La altura debe estar entre 50 y 250 cm';
+    }
     return null;
   }
 

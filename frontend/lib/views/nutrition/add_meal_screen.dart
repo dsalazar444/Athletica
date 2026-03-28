@@ -70,9 +70,11 @@ class _AddMealScreenState extends State<AddMealScreen> {
       await _service.createMeal(meal);
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al guardar la comida.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al guardar la comida.')),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
