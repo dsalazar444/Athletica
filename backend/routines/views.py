@@ -139,6 +139,7 @@ class RoutineExerciseDeleteView(APIView):
 
 
 class WorkoutSessionListCreateView(APIView):
+    permission_classes = [IsAuthenticated]
     """
     POST /api/sessions/         → inicia una sesión de entrenamiento
     GET  /api/sessions/         → lista sesiones pasadas
@@ -173,6 +174,8 @@ class WorkoutSessionListCreateView(APIView):
 
 
 class WorkoutHistoryByDateRangeView(APIView):
+    permission_classes = [IsAuthenticated]
+
     """
     GET /api/sessions/history/?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&page=1&page_size=10
     → historial de entrenamientos del usuario en un rango de fechas.

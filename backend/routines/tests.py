@@ -18,6 +18,7 @@ class WorkoutHistoryByDateRangeViewTests(TestCase):
             email="daniela@test.com",
             role="athlete",
         )
+        self.client.force_authenticate(user=self.user_daniela)
         self.other_user = User.objects.create_user(
             username="otro_usuario",
             password="test123",  # nosec
