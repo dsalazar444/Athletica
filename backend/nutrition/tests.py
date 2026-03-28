@@ -20,7 +20,10 @@ class MealRecordTestCase(TestCase):
 
         # Crear usuario y perfil atleta base para las pruebas
         self.user = User.objects.create_user(
-            username="testathlete", password="testpass123", email="athlete@test.com", role="athlete"  # nosec
+            username="testathlete",
+            password="testpass123",
+            email="athlete@test.com",
+            role="athlete",  # nosec
         )
         self.client.force_authenticate(user=self.user)
         self.athlete = AthleteProfile.objects.create(

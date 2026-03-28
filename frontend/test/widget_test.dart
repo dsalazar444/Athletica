@@ -16,7 +16,7 @@ void main() {
   ) async {
     // Mock SharedPreferences para evitar errores de persistencia en test
     SharedPreferences.setMockInitialValues({});
-    
+
     await tester.pumpWidget(const WorkoutApp());
     await tester.pumpAndSettle();
 

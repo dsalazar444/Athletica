@@ -92,7 +92,7 @@ DEFAULT_DB_HOST = "db" if RUNNING_IN_DOCKER else "localhost"
 DEFAULT_DB_PORT = "5432" if RUNNING_IN_DOCKER else "5433"
 
 
-if 'test' in sys.argv:
+if "test" in sys.argv:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
