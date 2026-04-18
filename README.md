@@ -18,7 +18,8 @@ El objetivo es facilitar a los usuarios el registro de rutinas, ejercicios y ali
 - Juan Pablo Gaviria
 - Alejandro Arteaga
 
-[📋 Backlog](https://github.com/users/dsalazar444/projects/3) | [📄 Entregables P2](https://github.com/dsalazar444/Athletica/wiki/Entregables)
+[📋 Backlog](https://github.com/users/dsalazar444/projects/3) 
+[📄 Entregables P2](https://github.com/dsalazar444/Athletica/wiki/Entregables)
 
 ---
 
