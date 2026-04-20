@@ -35,10 +35,7 @@ class RoutineCard extends StatelessWidget {
             onTap: onTap,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTopSection(),
-                _buildFooter(),
-              ],
+              children: [_buildTopSection(), _buildFooter()],
             ),
           ),
         ),
@@ -58,7 +55,11 @@ class RoutineCard extends StatelessWidget {
               gradient: AppColors.primaryGradient,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Icon(Icons.flash_on_rounded, color: Colors.white, size: 30),
+            child: const Icon(
+              Icons.flash_on_rounded,
+              color: Colors.white,
+              size: 30,
+            ),
           ),
           const SizedBox(width: 20),
           Expanded(
@@ -76,10 +77,21 @@ class RoutineCard extends StatelessWidget {
                   spacing: 8,
                   runSpacing: 4,
                   children: [
-                    _buildBadge(routine.difficulty.toUpperCase(), const Color(0xFFFFA500)),
-                    _buildBadge("45 MIN", AppColors.textSecondary.withValues(alpha: 0.1), textColor: AppColors.textSecondary),
+                    _buildBadge(
+                      routine.difficulty.toUpperCase(),
+                      const Color(0xFFFFA500),
+                    ),
+                    _buildBadge(
+                      "45 MIN",
+                      AppColors.textSecondary.withValues(alpha: 0.1),
+                      textColor: AppColors.textSecondary,
+                    ),
                     if (isCoach && routine.assignedAthletesCount > 0)
-                      _buildBadge("${routine.assignedAthletesCount} ATLETAS", AppColors.primary.withValues(alpha: 0.15), textColor: AppColors.primary),
+                      _buildBadge(
+                        "${routine.assignedAthletesCount} ATLETAS",
+                        AppColors.primary.withValues(alpha: 0.15),
+                        textColor: AppColors.primary,
+                      ),
                   ],
                 ),
               ],
@@ -106,9 +118,19 @@ class RoutineCard extends StatelessWidget {
           ),
           Row(
             children: [
-              Text("DETALLES", style: AppTextStyles.fitnessCaption.copyWith(color: AppColors.primary, fontSize: 10)),
+              Text(
+                "DETALLES",
+                style: AppTextStyles.fitnessCaption.copyWith(
+                  color: AppColors.primary,
+                  fontSize: 10,
+                ),
+              ),
               const SizedBox(width: 4),
-              const Icon(Icons.arrow_forward_ios_rounded, size: 10, color: AppColors.primary),
+              const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 10,
+                color: AppColors.primary,
+              ),
             ],
           ),
           if (isCoach && onAssign != null) ...[
@@ -116,7 +138,10 @@ class RoutineCard extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onAssign,
               icon: const Icon(Icons.person_add_alt_rounded, size: 14),
-              label: const Text("ASIGNAR", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+              label: const Text(
+                "ASIGNAR",
+                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,

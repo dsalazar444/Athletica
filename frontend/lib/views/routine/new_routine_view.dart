@@ -184,7 +184,12 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
         ),
         boxShadow: AppColors.mediumShadow,
       ),
-      padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 20, 24, 40),
+      padding: EdgeInsets.fromLTRB(
+        24,
+        MediaQuery.of(context).padding.top + 20,
+        24,
+        40,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -199,12 +204,19 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+                  child: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
               ),
               Text(
                 'ATHLETICA',
-                style: AppTextStyles.fitnessCaption.copyWith(color: Colors.white70, fontSize: 12),
+                style: AppTextStyles.fitnessCaption.copyWith(
+                  color: Colors.white70,
+                  fontSize: 12,
+                ),
               ),
               const SizedBox(width: 40), // Balance
             ],
@@ -212,18 +224,23 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
           const SizedBox(height: 32),
           Text(
             'DISEÑA TU'.toUpperCase(),
-            style: AppTextStyles.fitnessCaption.copyWith(color: Colors.white.withValues(alpha: 0.8), letterSpacing: 2),
+            style: AppTextStyles.fitnessCaption.copyWith(
+              color: Colors.white.withValues(alpha: 0.8),
+              letterSpacing: 2,
+            ),
           ),
           Text(
             'PROPIA RUTINA',
-            style: AppTextStyles.fitnessDisplay.copyWith(color: Colors.white, fontSize: 32),
+            style: AppTextStyles.fitnessDisplay.copyWith(
+              color: Colors.white,
+              fontSize: 32,
+            ),
           ),
         ],
       ),
     );
   }
 }
-
 
 /// Tarjeta Bento-Style para información básica.
 class _BasicInfoCard extends StatelessWidget {
@@ -250,9 +267,16 @@ class _BasicInfoCard extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.edit_note_rounded, color: AppColors.primary, size: 28),
+            const Icon(
+              Icons.edit_note_rounded,
+              color: AppColors.primary,
+              size: 28,
+            ),
             const SizedBox(width: 8),
-            Text('DEFINICIÓN', style: AppTextStyles.fitnessBold.copyWith(fontSize: 20)),
+            Text(
+              'DEFINICIÓN',
+              style: AppTextStyles.fitnessBold.copyWith(fontSize: 20),
+            ),
           ],
         ),
         const SizedBox(height: AppSpacing.lg),
@@ -273,7 +297,10 @@ class _BasicInfoCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const FormFieldLabel(label: 'Título de la rutina', isRequired: true),
+              const FormFieldLabel(
+                label: 'Título de la rutina',
+                isRequired: true,
+              ),
               const SizedBox(height: AppSpacing.sm),
               StyledTextField(
                 controller: titleController,
@@ -353,23 +380,39 @@ class _ExerciseListSection extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.fitness_center_rounded, color: AppColors.primary, size: 28),
+                const Icon(
+                  Icons.fitness_center_rounded,
+                  color: AppColors.primary,
+                  size: 28,
+                ),
                 const SizedBox(width: 8),
-                Text('EJERCICIOS', style: AppTextStyles.fitnessBold.copyWith(fontSize: 20)),
+                Text(
+                  'EJERCICIOS',
+                  style: AppTextStyles.fitnessBold.copyWith(fontSize: 20),
+                ),
               ],
             ),
             GestureDetector(
               onTap: onAddExercise,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.add_circle_outline_rounded, color: AppColors.primary, size: 18),
+                    const Icon(
+                      Icons.add_circle_outline_rounded,
+                      color: AppColors.primary,
+                      size: 18,
+                    ),
                     const SizedBox(width: 6),
                     const Text('Añadir', style: AppTextStyles.addExerciseLink),
                   ],
@@ -386,15 +429,24 @@ class _ExerciseListSection extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.surface.withValues(alpha: 0.5),
               borderRadius: AppRadius.cardLarge,
-              border: Border.all(color: AppColors.border, style: BorderStyle.none),
+              border: Border.all(
+                color: AppColors.border,
+                style: BorderStyle.none,
+              ),
             ),
             child: Column(
               children: [
-                Icon(Icons.layers_clear_rounded, color: AppColors.textHint.withValues(alpha: 0.5), size: 48),
+                Icon(
+                  Icons.layers_clear_rounded,
+                  color: AppColors.textHint.withValues(alpha: 0.5),
+                  size: 48,
+                ),
                 const SizedBox(height: 12),
                 Text(
                   'Tu lista de ejercicios está vacía',
-                  style: AppTextStyles.cardSubtitle.copyWith(color: AppColors.textHint),
+                  style: AppTextStyles.cardSubtitle.copyWith(
+                    color: AppColors.textHint,
+                  ),
                 ),
               ],
             ),
@@ -518,7 +570,9 @@ class _RoutineActionButtons extends StatelessWidget {
               onPressed: onCancel,
               child: Text(
                 'DESCARTAR',
-                style: AppTextStyles.fitnessCaption.copyWith(color: AppColors.textHint),
+                style: AppTextStyles.fitnessCaption.copyWith(
+                  color: AppColors.textHint,
+                ),
               ),
             ),
           ),
@@ -542,7 +596,12 @@ class _RoutineActionButtons extends StatelessWidget {
                 children: [
                   const Icon(Icons.check_circle_rounded, size: 20),
                   const SizedBox(width: 8),
-                  Text('CREAR RUTINA', style: AppTextStyles.buttonPrimary.copyWith(letterSpacing: 1.5)),
+                  Text(
+                    'CREAR RUTINA',
+                    style: AppTextStyles.buttonPrimary.copyWith(
+                      letterSpacing: 1.5,
+                    ),
+                  ),
                 ],
               ),
             ),

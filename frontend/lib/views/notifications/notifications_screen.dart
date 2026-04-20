@@ -27,7 +27,13 @@ class NotificationsScreen extends StatelessWidget {
           if (notifications.isNotEmpty)
             TextButton(
               onPressed: onClearAll,
-              child: const Text('Limpiar Todo', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Limpiar Todo',
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
         ],
       ),
@@ -49,11 +55,17 @@ class NotificationsScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.notifications_none_rounded, size: 80, color: AppColors.textHint.withValues(alpha: 0.2)),
+          Icon(
+            Icons.notifications_none_rounded,
+            size: 80,
+            color: AppColors.textHint.withValues(alpha: 0.2),
+          ),
           const SizedBox(height: 16),
           Text(
             'NO TIENES NOTIFICACIONES',
-            style: AppTextStyles.fitnessBold.copyWith(color: AppColors.textHint),
+            style: AppTextStyles.fitnessBold.copyWith(
+              color: AppColors.textHint,
+            ),
           ),
           const SizedBox(height: 8),
           const Text(
@@ -65,7 +77,10 @@ class NotificationsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildNotificationItem(BuildContext context, NotificationModel notification) {
+  Widget _buildNotificationItem(
+    BuildContext context,
+    NotificationModel notification,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -90,7 +105,11 @@ class NotificationsScreen extends StatelessWidget {
                     color: notification.color.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(notification.icon, color: notification.color, size: 24),
+                  child: Icon(
+                    notification.icon,
+                    color: notification.color,
+                    size: 24,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -102,18 +121,29 @@ class NotificationsScreen extends StatelessWidget {
                         children: [
                           Text(
                             notification.title.toUpperCase(),
-                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 13,
+                              letterSpacing: 0.5,
+                            ),
                           ),
                           Text(
                             _formatTime(notification.date),
-                            style: TextStyle(color: AppColors.textHint, fontSize: 10),
+                            style: TextStyle(
+                              color: AppColors.textHint,
+                              fontSize: 10,
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 6),
                       Text(
                         notification.message,
-                        style: TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.4),
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 13,
+                          height: 1.4,
+                        ),
                       ),
                     ],
                   ),
@@ -126,15 +156,20 @@ class NotificationsScreen extends StatelessWidget {
     );
   }
 
-  void _handleNotificationTap(BuildContext context, NotificationModel notification) {
-    if (notification.type == NotificationType.routineAssigned || notification.type == NotificationType.routineUpdated) {
+  void _handleNotificationTap(
+    BuildContext context,
+    NotificationModel notification,
+  ) {
+    if (notification.type == NotificationType.routineAssigned ||
+        notification.type == NotificationType.routineUpdated) {
       if (notification.relatedId != null) {
         final routineId = int.tryParse(notification.relatedId!);
         if (routineId != null) {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => RoutineDetailScreenFromId(routineId: routineId),
+              builder: (context) =>
+                  RoutineDetailScreenFromId(routineId: routineId),
             ),
           );
         }

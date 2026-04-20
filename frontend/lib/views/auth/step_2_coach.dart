@@ -3,7 +3,6 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_radius.dart';
 import '../../theme/app_text_styles.dart';
 
-
 class Step2Coach extends StatefulWidget {
   final Future<void> Function(String specialty, String yearsExperience) onNext;
 
@@ -33,19 +32,25 @@ class _Step2CoachState extends State<Step2Coach> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Datos del entrenador",
-            style: AppTextStyles.sectionTitle,
-          ),
+          Text("Datos del entrenador", style: AppTextStyles.sectionTitle),
           const SizedBox(height: 8),
           Text(
             "Cuéntanos sobre tu especialidad y experiencia profesional.",
             style: AppTextStyles.sectionSubtitle,
           ),
           const SizedBox(height: 32),
-          _input("Especialidad", specialtyController, icon: Icons.workspace_premium_outlined),
+          _input(
+            "Especialidad",
+            specialtyController,
+            icon: Icons.workspace_premium_outlined,
+          ),
           const SizedBox(height: 20),
-          _input("Años de experiencia", yearsController, isNumber: true, icon: Icons.history_toggle_off_rounded),
+          _input(
+            "Años de experiencia",
+            yearsController,
+            isNumber: true,
+            icon: Icons.history_toggle_off_rounded,
+          ),
           const SizedBox(height: 48),
           SizedBox(
             width: double.infinity,
@@ -61,16 +66,13 @@ class _Step2CoachState extends State<Step2Coach> {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppRadius.button,
-                ),
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
               ),
               child: Text("Continuar", style: AppTextStyles.buttonPrimary),
             ),
           ),
         ],
       ),
-
     );
   }
 
@@ -97,4 +99,3 @@ class _Step2CoachState extends State<Step2Coach> {
     );
   }
 }
-

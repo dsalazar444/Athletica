@@ -22,10 +22,7 @@ class _Step1RoleState extends State<Step1Role> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "¿Cuál es tu rol?",
-            style: AppTextStyles.sectionTitle,
-          ),
+          Text("¿Cuál es tu rol?", style: AppTextStyles.sectionTitle),
           const SizedBox(height: 8),
           Text(
             "Selecciona cómo usarás la aplicación para personalizar tu experiencia.",
@@ -41,7 +38,8 @@ class _Step1RoleState extends State<Step1Role> {
           const SizedBox(height: 16),
           _card(
             title: "Soy Entrenador",
-            subtitle: "Quiero gestionar grupos, crear rutinas y seguir atletas.",
+            subtitle:
+                "Quiero gestionar grupos, crear rutinas y seguir atletas.",
             value: UserRole.coach,
             icon: Icons.psychology_outlined,
           ),
@@ -57,14 +55,9 @@ class _Step1RoleState extends State<Step1Role> {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppRadius.button,
-                ),
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
               ),
-              child: Text(
-                "Continuar",
-                style: AppTextStyles.buttonPrimary,
-              ),
+              child: Text("Continuar", style: AppTextStyles.buttonPrimary),
             ),
           ),
         ],
@@ -91,7 +84,9 @@ class _Step1RoleState extends State<Step1Role> {
         curve: Curves.easeInOut,
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : AppColors.surfaceVariant.withValues(alpha: 0.3),
+          color: isSelected
+              ? Colors.white
+              : AppColors.surfaceVariant.withValues(alpha: 0.3),
           borderRadius: AppRadius.cardLarge,
           border: Border.all(
             color: isSelected ? AppColors.primary : Colors.transparent,
@@ -125,7 +120,9 @@ class _Step1RoleState extends State<Step1Role> {
                     style: AppTextStyles.cardTitle.copyWith(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: isSelected ? AppColors.textPrimary : AppColors.textPrimary.withValues(alpha: 0.7),
+                      color: isSelected
+                          ? AppColors.textPrimary
+                          : AppColors.textPrimary.withValues(alpha: 0.7),
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -143,7 +140,11 @@ class _Step1RoleState extends State<Step1Role> {
             if (isSelected)
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
-                child: const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 30),
+                child: const Icon(
+                  Icons.check_circle_rounded,
+                  color: AppColors.primary,
+                  size: 30,
+                ),
               ),
           ],
         ),
@@ -151,6 +152,3 @@ class _Step1RoleState extends State<Step1Role> {
     );
   }
 }
-
-
-

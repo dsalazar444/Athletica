@@ -44,7 +44,10 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
     }
     setState(() => _isSearching = true);
     try {
-      final response = await ApiClient.dio.get('users/athletes/search/', queryParameters: {'q': query});
+      final response = await ApiClient.dio.get(
+        'users/athletes/search/',
+        queryParameters: {'q': query},
+      );
       setState(() => _searchResults = response.data);
     } catch (e) {
       debugPrint("Error searching athletes: $e");
@@ -66,10 +69,10 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
         _searchController.clear();
       });
     } catch (e) {
-       if (!mounted) return;
-       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Error al vincular atleta")),
-      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Error al vincular atleta")));
     }
   }
 
@@ -84,7 +87,8 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => RoutineDetailScreenFromId(routineId: response.data['id']),
+            builder: (_) =>
+                RoutineDetailScreenFromId(routineId: response.data['id']),
           ),
         ).then((deleted) {
           if (deleted == true) refresh();
@@ -93,7 +97,9 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Este atleta aún no tiene una rutina asignada.")),
+          const SnackBar(
+            content: Text("Este atleta aún no tiene una rutina asignada."),
+          ),
         );
       }
     } finally {
@@ -110,7 +116,11 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
 
       if (routines.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Aún no tienes rutinas creadas. Ve a la pestaña Rutinas.")),
+          const SnackBar(
+            content: Text(
+              "Aún no tienes rutinas creadas. Ve a la pestaña Rutinas.",
+            ),
+          ),
         );
         return;
       }
@@ -137,23 +147,40 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
                     itemBuilder: (context, index) {
                       final routine = routines[index];
                       return ListTile(
-                        title: Text(routine['title'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                        title: Text(
+                          routine['title'],
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         subtitle: Text(routine['category'] ?? ''),
-                        trailing: const Icon(Icons.check_circle_outline_rounded, color: AppColors.primary),
+                        trailing: const Icon(
+                          Icons.check_circle_outline_rounded,
+                          color: AppColors.primary,
+                        ),
                         onTap: () async {
                           Navigator.pop(context);
                           try {
                             await ApiClient.dio.post(
-                              'routines/${routine['id']}/assign/', 
-                              data: {'athlete_ids': [athleteId]}
+                              'routines/${routine['id']}/assign/',
+                              data: {
+                                'athlete_ids': [athleteId],
+                              },
                             );
 
                             refresh();
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("¡Rutina asignada!")));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("¡Rutina asignada!"),
+                                ),
+                              );
                             }
                           } catch (e) {
-                            if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error al asignar rutina.")));
+                            if (context.mounted)
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Error al asignar rutina."),
+                                ),
+                              );
                           }
                         },
                       );
@@ -166,7 +193,10 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
         },
       );
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error al cargar rutinas.")));
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Error al cargar rutinas.")),
+        );
     }
   }
 
@@ -184,19 +214,27 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 24),
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.05), // Indented inner look
+                  color: Colors.black.withValues(
+                    alpha: 0.05,
+                  ), // Indented inner look
                   borderRadius: BorderRadius.circular(100),
-                  border: Border.all(color: Colors.black.withValues(alpha: 0.05), width: 1),
+                  border: Border.all(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    width: 1,
+                  ),
                 ),
                 child: TabBar(
                   indicatorSize: TabBarIndicatorSize.tab,
                   dividerColor: Colors.transparent,
                   indicator: BoxDecoration(
-                    color: AppColors.primary, // Vibrant Orange active background
+                    color:
+                        AppColors.primary, // Vibrant Orange active background
                     borderRadius: BorderRadius.circular(100),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.4), // Glow effect
+                        color: AppColors.primary.withValues(
+                          alpha: 0.4,
+                        ), // Glow effect
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -205,7 +243,9 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
                   labelColor: Colors.white, // Text inside orange pill
                   unselectedLabelColor: AppColors.textSecondary,
                   labelStyle: AppTextStyles.fitnessBold.copyWith(fontSize: 11),
-                  unselectedLabelStyle: AppTextStyles.fitnessBold.copyWith(fontSize: 11),
+                  unselectedLabelStyle: AppTextStyles.fitnessBold.copyWith(
+                    fontSize: 11,
+                  ),
                   tabs: const [
                     Tab(text: "BUSCADOR", height: 40),
                     Tab(text: "POR ASIGNAR", height: 40),
@@ -231,7 +271,9 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
   }
 
   Widget _buildPorAsignarTab() {
-    final pending = _myAthletes.where((a) => a['active_routine_id'] == null).toList();
+    final pending = _myAthletes
+        .where((a) => a['active_routine_id'] == null)
+        .toList();
     return _buildTabContainer(
       title: "ATLETAS SIN PLAN",
       subtitle: "ESTOS ATLETAS NECESITAN UNA RUTINA ACTIVA",
@@ -240,7 +282,9 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
   }
 
   Widget _buildEntrenandoTab() {
-    final active = _myAthletes.where((a) => a['active_routine_id'] != null).toList();
+    final active = _myAthletes
+        .where((a) => a['active_routine_id'] != null)
+        .toList();
     return _buildTabContainer(
       title: "PLANES ACTIVOS",
       subtitle: "ATLETAS QUE YA ESTÁN ENTRENANDO",
@@ -260,27 +304,37 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
             decoration: InputDecoration(
               hintText: "Nombre o email...",
               prefixIcon: const Icon(Icons.search_rounded),
-              suffixIcon: _isSearching ? const Padding(
-                padding: EdgeInsets.all(12),
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ) : null,
+              suffixIcon: _isSearching
+                  ? const Padding(
+                      padding: EdgeInsets.all(12),
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : null,
             ),
           ),
           const SizedBox(height: 24),
           if (_searchResults.isNotEmpty) _buildSearchResults(),
-          if (_searchResults.isEmpty && !_isSearching) 
-             Center(
-               child: Padding(
-                 padding: const EdgeInsets.all(40),
-                 child: Icon(Icons.person_search_rounded, size: 80, color: AppColors.textHint.withValues(alpha: 0.2)),
-               ),
-             ),
+          if (_searchResults.isEmpty && !_isSearching)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(40),
+                child: Icon(
+                  Icons.person_search_rounded,
+                  size: 80,
+                  color: AppColors.textHint.withValues(alpha: 0.2),
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildTabContainer({required String title, required String subtitle, required Widget child}) {
+  Widget _buildTabContainer({
+    required String title,
+    required String subtitle,
+    required Widget child,
+  }) {
     return RefreshIndicator(
       onRefresh: refresh,
       color: AppColors.primary,
@@ -288,7 +342,10 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 24),
         children: [
           const SizedBox(height: 32),
-          Text(title, style: AppTextStyles.fitnessDisplay.copyWith(fontSize: 24)),
+          Text(
+            title,
+            style: AppTextStyles.fitnessDisplay.copyWith(fontSize: 24),
+          ),
           const SizedBox(height: 4),
           Text(subtitle, style: AppTextStyles.fitnessCaption),
           const SizedBox(height: 32),
@@ -314,21 +371,27 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
         itemBuilder: (context, index) {
           final user = _searchResults[index];
           final isAlreadyLinked = _myAthletes.any((a) => a['id'] == user['id']);
-          
+
           return ListTile(
-            title: Text(user['name'] ?? user['username'], style: const TextStyle(fontWeight: FontWeight.bold)),
+            title: Text(
+              user['name'] ?? user['username'],
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             subtitle: Text(user['email']),
-            trailing: isAlreadyLinked 
-              ? const Icon(Icons.check_circle_rounded, color: Colors.green)
-              : ElevatedButton(
-                  onPressed: () => _linkAthlete(user['id']),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    visualDensity: VisualDensity.compact,
+            trailing: isAlreadyLinked
+                ? const Icon(Icons.check_circle_rounded, color: Colors.green)
+                : ElevatedButton(
+                    onPressed: () => _linkAthlete(user['id']),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    child: const Text(
+                      "Vincular",
+                      style: TextStyle(color: Colors.white, fontSize: 12),
+                    ),
                   ),
-                  child: const Text("Vincular", style: TextStyle(color: Colors.white, fontSize: 12)),
-                ),
           );
         },
       ),
@@ -339,7 +402,7 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
     if (_isLoadingMyAthletes) {
       return const Center(child: CircularProgressIndicator());
     }
-    
+
     if (athletes.isEmpty) {
       return Center(
         child: Padding(
@@ -347,14 +410,18 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
           child: Column(
             children: [
               Icon(
-                isPending ? Icons.notification_important_rounded : Icons.fitness_center_rounded, 
-                size: 64, 
-                color: AppColors.textHint.withValues(alpha: 0.3)
+                isPending
+                    ? Icons.notification_important_rounded
+                    : Icons.fitness_center_rounded,
+                size: 64,
+                color: AppColors.textHint.withValues(alpha: 0.3),
               ),
               const SizedBox(height: 16),
               Text(
-                isPending ? "Todos tus atletas tienen planes." : "Aún no tienes atletas entrenando.", 
-                style: const TextStyle(color: AppColors.textSecondary)
+                isPending
+                    ? "Todos tus atletas tienen planes."
+                    : "Aún no tienes atletas entrenando.",
+                style: const TextStyle(color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -376,11 +443,25 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
           decoration: BoxDecoration(
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(24),
-            boxShadow: isPending 
-              ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.15), blurRadius: 20, offset: const Offset(0, 8))]
-              : [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 15, offset: const Offset(0, 5))],
+            boxShadow: isPending
+                ? [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.15),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ]
+                : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
             border: Border.all(
-              color: isPending ? AppColors.primary.withValues(alpha: 0.5) : Colors.transparent, 
+              color: isPending
+                  ? AppColors.primary.withValues(alpha: 0.5)
+                  : Colors.transparent,
               width: 1.5,
             ),
           ),
@@ -392,21 +473,27 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
-                    colors: isPending 
-                      ? [AppColors.primary.withValues(alpha: 0.8), AppColors.primary]
-                      : [AppColors.textHint.withValues(alpha: 0.2), AppColors.textHint.withValues(alpha: 0.5)],
+                    colors: isPending
+                        ? [
+                            AppColors.primary.withValues(alpha: 0.8),
+                            AppColors.primary,
+                          ]
+                        : [
+                            AppColors.textHint.withValues(alpha: 0.2),
+                            AppColors.textHint.withValues(alpha: 0.5),
+                          ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                 ),
                 child: Center(
                   child: Text(
-                    athlete['name']?[0]?.toUpperCase() ?? 'A', 
+                    athlete['name']?[0]?.toUpperCase() ?? 'A',
                     style: TextStyle(
-                      color: isPending ? Colors.white : AppColors.textSecondary, 
+                      color: isPending ? Colors.white : AppColors.textSecondary,
                       fontWeight: FontWeight.w900,
                       fontSize: 18,
-                    )
+                    ),
                   ),
                 ),
               ),
@@ -415,36 +502,68 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(athlete['name'] ?? athlete['username'], style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                    Text(
+                      athlete['name'] ?? athlete['username'],
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                      ),
+                    ),
                     const SizedBox(height: 4),
                     if (isPending)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Text("REQUIERE ACCIÓN", style: TextStyle(color: AppColors.primary, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+                        child: const Text(
+                          "REQUIERE ACCIÓN",
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
                       )
                     else
                       Text(
-                        "Plan Activo:\n$routineTitle", 
-                        style: TextStyle(color: AppColors.primary.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w600, height: 1.2)
+                        "Plan Activo:\n$routineTitle",
+                        style: TextStyle(
+                          color: AppColors.primary.withValues(alpha: 0.8),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          height: 1.2,
+                        ),
                       ),
                   ],
                 ),
               ),
               Container(
                 decoration: BoxDecoration(
-                  color: isPending ? AppColors.primary : AppColors.textHint.withValues(alpha: 0.1),
+                  color: isPending
+                      ? AppColors.primary
+                      : AppColors.textHint.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
-                  boxShadow: isPending 
-                    ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.4), blurRadius: 8, offset: const Offset(0, 4))]
-                    : [],
+                  boxShadow: isPending
+                      ? [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.4),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : [],
                 ),
                 child: IconButton(
                   icon: Icon(
-                    isPending ? Icons.add_rounded : Icons.arrow_forward_ios_rounded, 
+                    isPending
+                        ? Icons.add_rounded
+                        : Icons.arrow_forward_ios_rounded,
                     color: isPending ? Colors.white : AppColors.textSecondary,
                     size: isPending ? 24 : 16,
                   ),

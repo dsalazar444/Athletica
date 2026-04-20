@@ -145,7 +145,9 @@ class RoutineRepository {
         throw Exception('Fallo al eliminar la rutina.');
       }
     } on DioException catch (e) {
-      throw Exception('Error al eliminar la rutina: ${e.response?.data?['error'] ?? e.message}');
+      throw Exception(
+        'Error al eliminar la rutina: ${e.response?.data?['error'] ?? e.message}',
+      );
     }
   }
 

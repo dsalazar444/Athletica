@@ -103,7 +103,9 @@ class RoutineDetailSerializer(serializers.ModelSerializer):
     """Para leer una rutina con sus ejercicios completos."""
 
     exercises = serializers.SerializerMethodField()
-    assigned_athletes_count = serializers.IntegerField(source="assigned_athletes.count", read_only=True)
+    assigned_athletes_count = serializers.IntegerField(
+        source="assigned_athletes.count", read_only=True
+    )
     assigned_athletes_info = serializers.SerializerMethodField()
     creator_name = serializers.CharField(source="created_by.first_name", read_only=True)
 

@@ -4,7 +4,7 @@ import '../core/token_storage.dart';
 class ApiClient {
   //static const String baseUrl = 'http://127.0.0.1:8000/api/';
   //static const String baseUrl = 'http://172.XX.XX.XX:8000/api/';
-   static const String baseUrl = 'http://10.145.187.144:8000/api/';
+  static const String baseUrl = 'http://10.145.187.144:8000/api/';
 
   static final Dio dio = _createDio();
 

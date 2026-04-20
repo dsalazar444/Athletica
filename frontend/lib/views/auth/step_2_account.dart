@@ -3,7 +3,6 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_radius.dart';
 import '../../theme/app_text_styles.dart';
 
-
 class Step2Account extends StatefulWidget {
   final Function(String, String, String, String) onNext;
 
@@ -90,21 +89,34 @@ class _Step2AccountState extends State<Step2Account> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Crea tu cuenta',
-            style: AppTextStyles.sectionTitle,
-          ),
+          Text('Crea tu cuenta', style: AppTextStyles.sectionTitle),
           const SizedBox(height: 8),
           Text(
             'Ingresa tus datos de acceso para comenzar.',
             style: AppTextStyles.sectionSubtitle,
           ),
           const SizedBox(height: 32),
-          _input('Nombre de usuario', username, usernameError, icon: Icons.alternate_email_rounded),
+          _input(
+            'Nombre de usuario',
+            username,
+            usernameError,
+            icon: Icons.alternate_email_rounded,
+          ),
           const SizedBox(height: 20),
-          _input('Correo electrónico', email, emailError, icon: Icons.email_outlined),
+          _input(
+            'Correo electrónico',
+            email,
+            emailError,
+            icon: Icons.email_outlined,
+          ),
           const SizedBox(height: 20),
-          _input('Contraseña', password, passwordError, isPassword: true, icon: Icons.lock_outline_rounded),
+          _input(
+            'Contraseña',
+            password,
+            passwordError,
+            isPassword: true,
+            icon: Icons.lock_outline_rounded,
+          ),
           const SizedBox(height: 20),
           _input(
             'Confirmar contraseña',
@@ -120,19 +132,17 @@ class _Step2AccountState extends State<Step2Account> {
             child: ElevatedButton(
               onPressed: isValid
                   ? () => widget.onNext(
-                        username.text,
-                        email.text,
-                        password.text,
-                        password2.text,
-                      )
+                      username.text,
+                      email.text,
+                      password.text,
+                      password2.text,
+                    )
                   : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppRadius.button,
-                ),
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
               ),
               child: Text('Continuar', style: AppTextStyles.buttonPrimary),
             ),
@@ -167,4 +177,3 @@ class _Step2AccountState extends State<Step2Account> {
     );
   }
 }
-

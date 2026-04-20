@@ -173,14 +173,24 @@ class AthleteSearchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "name", "role", "active_routine_id", "active_routine_title"]
+        fields = [
+            "id",
+            "username",
+            "email",
+            "name",
+            "role",
+            "active_routine_id",
+            "active_routine_title",
+        ]
 
     def get_active_routine_id(self, obj):
         from routines.models import Routine
+
         routine = Routine.objects.filter(assigned_athletes=obj).first()
         return routine.id if routine else None
 
     def get_active_routine_title(self, obj):
         from routines.models import Routine
+
         routine = Routine.objects.filter(assigned_athletes=obj).first()
         return routine.title if routine else None

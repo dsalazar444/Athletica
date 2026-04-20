@@ -4,7 +4,6 @@ import '../../theme/app_radius.dart';
 import '../../theme/app_text_styles.dart';
 import '../../models/auth/register_model.dart';
 
-
 class Step3Goals extends StatefulWidget {
   final Function(UserGoal) onNext;
 
@@ -23,10 +22,7 @@ class _Step3GoalsState extends State<Step3Goals> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '¿Cuál es tu objetivo?',
-            style: AppTextStyles.sectionTitle,
-          ),
+          Text('¿Cuál es tu objetivo?', style: AppTextStyles.sectionTitle),
           const SizedBox(height: 8),
           Text(
             'Selecciona tu meta principal para que el coach pueda guiarte mejor.',
@@ -35,13 +31,29 @@ class _Step3GoalsState extends State<Step3Goals> {
           const SizedBox(height: 32),
           _card('Ganar Fuerza', UserGoal.fuerza, Icons.bolt_rounded),
           const SizedBox(height: 12),
-          _card('Resistencia Cardíaca', UserGoal.resistencia, Icons.favorite_rounded),
+          _card(
+            'Resistencia Cardíaca',
+            UserGoal.resistencia,
+            Icons.favorite_rounded,
+          ),
           const SizedBox(height: 12),
-          _card('Acondicionamiento y Salud', UserGoal.salud, Icons.health_and_safety_rounded),
+          _card(
+            'Acondicionamiento y Salud',
+            UserGoal.salud,
+            Icons.health_and_safety_rounded,
+          ),
           const SizedBox(height: 12),
-          _card('Estética y Tonificación', UserGoal.estetica, Icons.visibility_rounded),
+          _card(
+            'Estética y Tonificación',
+            UserGoal.estetica,
+            Icons.visibility_rounded,
+          ),
           const SizedBox(height: 12),
-          _card('Mantener Peso Actual', UserGoal.mantener, Icons.balance_rounded),
+          _card(
+            'Mantener Peso Actual',
+            UserGoal.mantener,
+            Icons.balance_rounded,
+          ),
           const SizedBox(height: 48),
           SizedBox(
             width: double.infinity,
@@ -54,11 +66,12 @@ class _Step3GoalsState extends State<Step3Goals> {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppRadius.button,
-                ),
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
               ),
-              child: const Text('Continuar', style: AppTextStyles.buttonPrimary),
+              child: const Text(
+                'Continuar',
+                style: AppTextStyles.buttonPrimary,
+              ),
             ),
           ),
         ],
@@ -79,7 +92,9 @@ class _Step3GoalsState extends State<Step3Goals> {
         curve: Curves.easeInOut,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : AppColors.surfaceVariant.withValues(alpha: 0.3),
+          color: isSelected
+              ? Colors.white
+              : AppColors.surfaceVariant.withValues(alpha: 0.3),
           borderRadius: AppRadius.card,
           border: Border.all(
             color: isSelected ? AppColors.primary : Colors.transparent,
@@ -109,19 +124,23 @@ class _Step3GoalsState extends State<Step3Goals> {
                 title,
                 style: AppTextStyles.goalLabel.copyWith(
                   fontSize: 16,
-                  color: isSelected ? AppColors.textPrimary : AppColors.textPrimary.withValues(alpha: 0.7),
+                  color: isSelected
+                      ? AppColors.textPrimary
+                      : AppColors.textPrimary.withValues(alpha: 0.7),
                   fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                   letterSpacing: -0.2,
                 ),
               ),
             ),
             if (isSelected)
-              const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 26),
+              const Icon(
+                Icons.check_circle_rounded,
+                color: AppColors.primary,
+                size: 26,
+              ),
           ],
         ),
       ),
     );
   }
 }
-
-

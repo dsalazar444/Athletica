@@ -9,7 +9,7 @@ class HomeScreen extends StatefulWidget {
   final VoidCallback? onNotificationTap;
 
   const HomeScreen({
-    super.key, 
+    super.key,
     this.hasNotification = false,
     this.onNotificationTap,
   });
@@ -119,18 +119,29 @@ class _HomeScreenState extends State<HomeScreen> {
                               fontSize: 18,
                               fontWeight: FontWeight.w900,
                               shadows: [
-                                Shadow(blurRadius: 10, color: Colors.black.withValues(alpha: 0.8), offset: const Offset(0, 2))
+                                Shadow(
+                                  blurRadius: 10,
+                                  color: Colors.black.withValues(alpha: 0.8),
+                                  offset: const Offset(0, 2),
+                                ),
                               ],
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text("NO PAIN\nNO GAIN.", style: AppTextStyles.fitnessHero.copyWith(
-                            color: Colors.white, 
-                            height: 0.9,
-                            shadows: [
-                                Shadow(blurRadius: 10, color: Colors.black.withValues(alpha: 0.8), offset: const Offset(0, 2))
-                            ],
-                          )),
+                          Text(
+                            "NO PAIN\nNO GAIN.",
+                            style: AppTextStyles.fitnessHero.copyWith(
+                              color: Colors.white,
+                              height: 0.9,
+                              shadows: [
+                                Shadow(
+                                  blurRadius: 10,
+                                  color: Colors.black.withValues(alpha: 0.8),
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                       GestureDetector(
@@ -144,7 +155,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: Colors.white.withValues(alpha: 0.2),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.notifications_active_rounded, color: Colors.white),
+                              child: const Icon(
+                                Icons.notifications_active_rounded,
+                                color: Colors.white,
+                              ),
                             ),
                             if (widget.hasNotification)
                               Positioned(
@@ -156,7 +170,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   decoration: BoxDecoration(
                                     color: AppColors.error,
                                     shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.black, width: 2),
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 2,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -171,7 +188,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     decoration: BoxDecoration(
                       color: AppColors.whiteGlass,
                       borderRadius: AppRadius.card,
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Row(
                       children: [
@@ -181,15 +200,30 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: AppColors.primary,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(Icons.bolt_rounded, color: Colors.white),
+                          child: const Icon(
+                            Icons.bolt_rounded,
+                            color: Colors.white,
+                          ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text("EL ÉXITO COMIENZA AQUÍ", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
-                              Text("¡Listo para tu entrenamiento de hoy?", style: TextStyle(fontSize: 12, color: Colors.black.withValues(alpha: 0.7))),
+                              const Text(
+                                "EL ÉXITO COMIENZA AQUÍ",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              Text(
+                                "¡Listo para tu entrenamiento de hoy?",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.black.withValues(alpha: 0.7),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -303,7 +337,13 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(value, style: AppTextStyles.fitnessDisplay.copyWith(color: AppColors.textPrimary, letterSpacing: -1.5)),
+              Text(
+                value,
+                style: AppTextStyles.fitnessDisplay.copyWith(
+                  color: AppColors.textPrimary,
+                  letterSpacing: -1.5,
+                ),
+              ),
               const SizedBox(width: 4),
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
@@ -312,7 +352,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const SizedBox(height: 4),
-          Text(title, style: AppTextStyles.fitnessCaption.copyWith(fontSize: 10, letterSpacing: 0.5)),
+          Text(
+            title,
+            style: AppTextStyles.fitnessCaption.copyWith(
+              fontSize: 10,
+              letterSpacing: 0.5,
+            ),
+          ),
         ],
       ),
     );
@@ -331,7 +377,11 @@ class _HomeScreenState extends State<HomeScreen> {
           Positioned(
             right: -20,
             bottom: -20,
-            child: Icon(Icons.fitness_center_rounded, size: 180, color: Colors.white.withValues(alpha: 0.1)),
+            child: Icon(
+              Icons.fitness_center_rounded,
+              size: 180,
+              color: Colors.white.withValues(alpha: 0.1),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(28),
@@ -339,27 +389,60 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.25),
                     borderRadius: BorderRadius.circular(30),
                   ),
-                  child: Text("PODER TOTAL", style: AppTextStyles.fitnessCaption.copyWith(color: Colors.white, fontSize: 10)),
+                  child: Text(
+                    "PODER TOTAL",
+                    style: AppTextStyles.fitnessCaption.copyWith(
+                      color: Colors.white,
+                      fontSize: 10,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 20),
-                Text("CSEP: LEGS & GLUTES", style: AppTextStyles.fitnessDisplay.copyWith(color: Colors.white)),
+                Text(
+                  "CSEP: LEGS & GLUTES",
+                  style: AppTextStyles.fitnessDisplay.copyWith(
+                    color: Colors.white,
+                  ),
+                ),
                 const SizedBox(height: 8),
-                const Text("45 MIN • ALTA INTENSIDAD", style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1.0)),
+                const Text(
+                  "45 MIN • ALTA INTENSIDAD",
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    letterSpacing: 1.0,
+                  ),
+                ),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: AppColors.primary,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                   ),
-                  child: const Text("COMENZAR AHORA", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                  child: const Text(
+                    "COMENZAR AHORA",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
                 ),
               ],
             ),

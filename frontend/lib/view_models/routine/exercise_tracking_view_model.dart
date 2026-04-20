@@ -83,7 +83,9 @@ class ExerciseTrackingViewModel extends ChangeNotifier {
         setsToLog = existingSets;
       } else {
         // Iniciamos con solo 1 serie sugerida o vacía (como solicitó el usuario).
-        final lastSet = lastSessionSets.isNotEmpty ? lastSessionSets.first : null;
+        final lastSet = lastSessionSets.isNotEmpty
+            ? lastSessionSets.first
+            : null;
         setsToLog = [
           SetLogModel(
             exerciseId: exerciseId,
@@ -91,7 +93,7 @@ class ExerciseTrackingViewModel extends ChangeNotifier {
             reps: lastSet?.reps ?? 10,
             weight: lastSet?.weight ?? 0.0,
             sessionId: currentSession?.id,
-          )
+          ),
         ];
       }
     } catch (e) {
@@ -128,7 +130,7 @@ class ExerciseTrackingViewModel extends ChangeNotifier {
       SetLogModel(
         exerciseId: exerciseId,
         setNumber: setsToLog.length + 1,
-        reps: lastSet?.reps ?? 10,  // Copia la serie anterior
+        reps: lastSet?.reps ?? 10, // Copia la serie anterior
         weight: lastSet?.weight ?? 0.0, // Copia la serie anterior
         sessionId: currentSession?.id,
       ),

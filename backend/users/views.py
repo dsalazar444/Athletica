@@ -66,12 +66,16 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 # Vistas para el entrenador (coach)
 
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def AthleteSearchView(request):
     """Búsqueda global de atletas por username, primer nombre o email."""
     if request.user.role != "coach":
-        return Response({"detail": "Solo los entrenadores pueden buscar atletas."}, status=status.HTTP_403_FORBIDDEN)
+        return Response(
+            {"detail": "Solo los entrenadores pueden buscar atletas."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
 
     query = request.query_params.get("q", "")
     if len(query) < 2:
@@ -97,7 +101,9 @@ def CoachAthleteManagementView(request, athlete_id=None):
     try:
         coach_profile = CoachProfile.objects.get(user=request.user)
     except CoachProfile.DoesNotExist:
-        return Response({"detail": "Perfil de entrenador no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"detail": "Perfil de entrenador no encontrado."}, status=status.HTTP_404_NOT_FOUND
+        )
 
     if request.method == "GET":
         # Listar mis atletas
@@ -110,7 +116,9 @@ def CoachAthleteManagementView(request, athlete_id=None):
         try:
             athlete = User.objects.get(id=athlete_id, role="athlete")
             coach_profile.athletes.add(athlete)
-            return Response({"detail": "Atleta vinculado correctamente."}, status=status.HTTP_200_OK)
+            return Response(
+                {"detail": "Atleta vinculado correctamente."}, status=status.HTTP_200_OK
+            )
         except User.DoesNotExist:
             return Response({"detail": "Atleta no encontrado."}, status=status.HTTP_404_NOT_FOUND)
 

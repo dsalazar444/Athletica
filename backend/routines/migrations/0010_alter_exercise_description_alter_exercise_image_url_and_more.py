@@ -4,25 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('routines', '0009_alter_exercise_description_alter_exercise_image_url_and_more'),
+        ("routines", "0009_alter_exercise_description_alter_exercise_image_url_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='exercise',
-            name='description',
-            field=models.TextField(blank=True, default=''),
+            model_name="exercise",
+            name="description",
+            field=models.TextField(blank=True, default=""),
         ),
         migrations.AlterField(
-            model_name='exercise',
-            name='image_url',
-            field=models.TextField(blank=True, default=''),
+            model_name="exercise",
+            name="image_url",
+            field=models.TextField(blank=True, default=""),
         ),
         migrations.AlterField(
-            model_name='exercise',
-            name='muscle',
-            field=models.CharField(blank=True, default='', max_length=100),
+            model_name="exercise",
+            name="muscle",
+            field=models.CharField(blank=True, default="", max_length=100),
         ),
     ]

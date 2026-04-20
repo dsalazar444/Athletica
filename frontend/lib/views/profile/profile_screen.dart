@@ -41,21 +41,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
             scale: anim1,
             child: AlertDialog(
               backgroundColor: AppColors.surface.withValues(alpha: 0.9),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-              title: const Text('¿Cerrar Sesión?', style: TextStyle(fontWeight: FontWeight.w900)),
-              content: const Text('Tu progreso se mantendrá a salvo hasta que vuelvas.'),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              title: const Text(
+                '¿Cerrar Sesión?',
+                style: TextStyle(fontWeight: FontWeight.w900),
+              ),
+              content: const Text(
+                'Tu progreso se mantendrá a salvo hasta que vuelvas.',
+              ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx, false),
-                  child: const Text('CANCELAR', style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'CANCELAR',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(ctx, true),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.error,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  child: const Text('CERRAR SESIÓN', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'CERRAR SESIÓN',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ],
             ),

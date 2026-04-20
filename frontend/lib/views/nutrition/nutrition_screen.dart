@@ -185,7 +185,12 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 120),
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: 16,
+                      bottom: 120,
+                    ),
                     itemCount: _meals.length,
                     itemBuilder: (context, index) {
                       final meal = _meals[index];

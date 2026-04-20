@@ -32,7 +32,9 @@ class ExerciseListItem extends StatelessWidget {
               color: AppColors.surface,
               borderRadius: AppRadius.card,
               boxShadow: AppColors.softShadow,
-              border: Border.all(color: AppColors.border.withValues(alpha: 0.3)),
+              border: Border.all(
+                color: AppColors.border.withValues(alpha: 0.3),
+              ),
             ),
             padding: const EdgeInsets.all(20),
             child: Row(
@@ -43,9 +45,17 @@ class ExerciseListItem extends StatelessWidget {
                 if (isOwner && onDelete != null)
                   IconButton(
                     onPressed: onDelete,
-                    icon: const Icon(Icons.remove_circle_outline_rounded, color: AppColors.error, size: 24),
+                    icon: const Icon(
+                      Icons.remove_circle_outline_rounded,
+                      color: AppColors.error,
+                      size: 24,
+                    ),
                   ),
-                const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.textHint, size: 16),
+                const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: AppColors.textHint,
+                  size: 16,
+                ),
               ],
             ),
           ),

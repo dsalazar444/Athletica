@@ -24,9 +24,17 @@ class RoutineHeader extends StatelessWidget {
         children: [
           Row(
             children: [
-              _buildTag(routine.category, Colors.white.withValues(alpha: 0.25), Colors.white),
+              _buildTag(
+                routine.category,
+                Colors.white.withValues(alpha: 0.25),
+                Colors.white,
+              ),
               const SizedBox(width: 8),
-              _buildTag(routine.difficulty, Colors.white.withValues(alpha: 0.25), Colors.white),
+              _buildTag(
+                routine.difficulty,
+                Colors.white.withValues(alpha: 0.25),
+                Colors.white,
+              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -44,11 +52,16 @@ class RoutineHeader extends StatelessWidget {
               ),
             ),
           ],
-          if (routine.creatorName != null && routine.creatorName!.isNotEmpty) ...[
+          if (routine.creatorName != null &&
+              routine.creatorName!.isNotEmpty) ...[
             const SizedBox(height: 14),
             Row(
               children: [
-                const Icon(Icons.person_rounded, color: Colors.white70, size: 16),
+                const Icon(
+                  Icons.person_rounded,
+                  color: Colors.white70,
+                  size: 16,
+                ),
                 const SizedBox(width: 6),
                 Text(
                   'Asignado por: ${routine.creatorName}',
@@ -76,7 +89,10 @@ class RoutineHeader extends StatelessWidget {
       ),
       child: Text(
         text.toUpperCase(),
-        style: AppTextStyles.fitnessCaption.copyWith(color: textColor, fontSize: 10),
+        style: AppTextStyles.fitnessCaption.copyWith(
+          color: textColor,
+          fontSize: 10,
+        ),
       ),
     );
   }

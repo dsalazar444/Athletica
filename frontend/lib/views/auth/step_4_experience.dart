@@ -4,7 +4,6 @@ import '../../theme/app_radius.dart';
 import '../../theme/app_text_styles.dart';
 import '../../models/auth/register_model.dart';
 
-
 class Step4Experience extends StatefulWidget {
   final Future<void> Function(ActivityLevel) onNext;
   const Step4Experience({super.key, required this.onNext});
@@ -22,21 +21,30 @@ class _Step4ExperienceState extends State<Step4Experience> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Nivel de experiencia",
-            style: AppTextStyles.sectionTitle,
-          ),
+          Text("Nivel de experiencia", style: AppTextStyles.sectionTitle),
           const SizedBox(height: 8),
           Text(
             "Selecciona tu nivel actual para ajustar la intensidad de tus rutinas.",
             style: AppTextStyles.sectionSubtitle,
           ),
           const SizedBox(height: 32),
-          _card("Principiante", ActivityLevel.low, "Estoy empezando o tengo poca experiencia."),
+          _card(
+            "Principiante",
+            ActivityLevel.low,
+            "Estoy empezando o tengo poca experiencia.",
+          ),
           const SizedBox(height: 12),
-          _card("Intermedio", ActivityLevel.medium, "Entreno regularmente y conozco las técnicas."),
+          _card(
+            "Intermedio",
+            ActivityLevel.medium,
+            "Entreno regularmente y conozco las técnicas.",
+          ),
           const SizedBox(height: 12),
-          _card("Avanzado", ActivityLevel.high, "Tengo años entrenando y domino movimientos complejos."),
+          _card(
+            "Avanzado",
+            ActivityLevel.high,
+            "Tengo años entrenando y domino movimientos complejos.",
+          ),
           const SizedBox(height: 48),
           SizedBox(
             width: double.infinity,
@@ -49,9 +57,7 @@ class _Step4ExperienceState extends State<Step4Experience> {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppRadius.button,
-                ),
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
               ),
               child: const Text(
                 "Finalizar Registro",
@@ -77,7 +83,9 @@ class _Step4ExperienceState extends State<Step4Experience> {
         curve: Curves.easeInOut,
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : AppColors.surfaceVariant.withValues(alpha: 0.3),
+          color: isSelected
+              ? Colors.white
+              : AppColors.surfaceVariant.withValues(alpha: 0.3),
           borderRadius: AppRadius.cardLarge,
           border: Border.all(
             color: isSelected ? AppColors.primary : Colors.transparent,
@@ -96,7 +104,9 @@ class _Step4ExperienceState extends State<Step4Experience> {
                     style: AppTextStyles.cardTitle.copyWith(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
-                      color: isSelected ? AppColors.textPrimary : AppColors.textPrimary.withValues(alpha: 0.7),
+                      color: isSelected
+                          ? AppColors.textPrimary
+                          : AppColors.textPrimary.withValues(alpha: 0.7),
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -114,12 +124,14 @@ class _Step4ExperienceState extends State<Step4Experience> {
             ),
             const SizedBox(width: 12),
             if (isSelected)
-              const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 30),
+              const Icon(
+                Icons.check_circle_rounded,
+                color: AppColors.primary,
+                size: 30,
+              ),
           ],
         ),
       ),
     );
   }
 }
-
-

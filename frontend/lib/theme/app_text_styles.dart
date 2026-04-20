@@ -62,7 +62,6 @@ class AppTextStyles {
     color: Colors.white70,
   );
 
-
   static const TextStyle stepCounter = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w700,
@@ -244,9 +243,7 @@ class AppTextStyles {
     color: AppColors.textSecondary,
     letterSpacing: 2.0,
   );
-
 }
-
 
 // ─── Spacing ───────────────────────────────────────────────────────────────────
 

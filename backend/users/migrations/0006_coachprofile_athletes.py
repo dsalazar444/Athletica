@@ -5,15 +5,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0005_alter_goal_description'),
+        ("users", "0005_alter_goal_description"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='coachprofile',
-            name='athletes',
-            field=models.ManyToManyField(blank=True, related_name='managed_by_coaches', to=settings.AUTH_USER_MODEL),
+            model_name="coachprofile",
+            name="athletes",
+            field=models.ManyToManyField(
+                blank=True, related_name="managed_by_coaches", to=settings.AUTH_USER_MODEL
+            ),
         ),
     ]

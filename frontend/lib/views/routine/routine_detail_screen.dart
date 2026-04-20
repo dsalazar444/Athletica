@@ -18,7 +18,11 @@ class RoutineDetailScreen extends StatelessWidget {
   final RoutineModel routine;
   final bool isOwner;
 
-  const RoutineDetailScreen({super.key, required this.routine, this.isOwner = true});
+  const RoutineDetailScreen({
+    super.key,
+    required this.routine,
+    this.isOwner = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +38,10 @@ class RoutineDetailScreen extends StatelessWidget {
           return Scaffold(
             backgroundColor: AppColors.background,
             appBar: AppBar(
-              title: const Text('Detalle de Rutina', style: AppTextStyles.screenTitle),
+              title: const Text(
+                'Detalle de Rutina',
+                style: AppTextStyles.screenTitle,
+              ),
               backgroundColor: AppColors.background,
               elevation: 0,
               iconTheme: const IconThemeData(color: AppColors.textPrimary),
@@ -42,12 +49,20 @@ class RoutineDetailScreen extends StatelessWidget {
                 if (viewModel.isLoading)
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
                   )
                 else if (isOwner)
                   IconButton(
-                    icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
-                    onPressed: () => _showDeleteRoutineConfirmation(context, viewModel),
+                    icon: const Icon(
+                      Icons.delete_outline_rounded,
+                      color: AppColors.error,
+                    ),
+                    onPressed: () =>
+                        _showDeleteRoutineConfirmation(context, viewModel),
                   ),
               ],
             ),
@@ -55,7 +70,10 @@ class RoutineDetailScreen extends StatelessWidget {
               onRefresh: viewModel.refreshRoutine,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.md,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -82,7 +100,9 @@ class RoutineDetailScreen extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle("ATLETAS ACTIVOS (${viewModel.routine.assignedAthletesInfo.length})"),
+              _buildSectionTitle(
+                "ATLETAS ACTIVOS (${viewModel.routine.assignedAthletesInfo.length})",
+              ),
               const SizedBox(height: AppSpacing.md),
               _buildActiveAthletesList(viewModel.routine.assignedAthletesInfo),
               const SizedBox(height: AppSpacing.xxl),
@@ -94,21 +114,26 @@ class RoutineDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildExercisesSection(BuildContext context, RoutineDetailViewModel viewModel) {
+  Widget _buildExercisesSection(
+    BuildContext context,
+    RoutineDetailViewModel viewModel,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildSectionTitle("EJERCICIOS (${viewModel.routine.exercises.length})"),
+            _buildSectionTitle(
+              "EJERCICIOS (${viewModel.routine.exercises.length})",
+            ),
             if (isOwner)
               TextButton.icon(
                 onPressed: () => _showAddExerciseSheet(context, viewModel),
                 icon: const Icon(Icons.add_circle_outline_rounded, size: 18),
                 label: const Text("Añadir"),
                 style: TextButton.styleFrom(foregroundColor: AppColors.primary),
-              )
+              ),
           ],
         ),
         const SizedBox(height: AppSpacing.md),
@@ -120,22 +145,38 @@ class RoutineDetailScreen extends StatelessWidget {
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 4),
-      child: Text(title, style: AppTextStyles.fitnessBold.copyWith(color: AppColors.textPrimary, letterSpacing: 1.0)),
+      child: Text(
+        title,
+        style: AppTextStyles.fitnessBold.copyWith(
+          color: AppColors.textPrimary,
+          letterSpacing: 1.0,
+        ),
+      ),
     );
   }
 
-  Widget _buildExercisesList(BuildContext context, RoutineDetailViewModel viewModel) {
+  Widget _buildExercisesList(
+    BuildContext context,
+    RoutineDetailViewModel viewModel,
+  ) {
     if (viewModel.routine.exercises.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 40),
           child: Column(
             children: [
-              Icon(Icons.fitness_center_outlined, size: 64, color: AppColors.textHint.withValues(alpha: 0.3)),
+              Icon(
+                Icons.fitness_center_outlined,
+                size: 64,
+                color: AppColors.textHint.withValues(alpha: 0.3),
+              ),
               const SizedBox(height: 16),
               const Text(
                 'Esta rutina no tiene ejercicios asignados.',
-                style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
@@ -163,35 +204,51 @@ class RoutineDetailScreen extends StatelessWidget {
               ),
             ).then((_) => viewModel.refreshRoutine());
           },
-          onDelete: () => _showDeleteConfirmation(context, viewModel, routineExercise),
+          onDelete: () =>
+              _showDeleteConfirmation(context, viewModel, routineExercise),
         );
       },
     );
   }
 
-  void _showDeleteRoutineConfirmation(BuildContext context, RoutineDetailViewModel viewModel) {
+  void _showDeleteRoutineConfirmation(
+    BuildContext context,
+    RoutineDetailViewModel viewModel,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Borrar Rutina", style: AppTextStyles.fitnessBold),
-        content: const Text("¿Estás seguro de que quieres borrar esta rutina? Esta acción no se puede deshacer."),
+        content: const Text(
+          "¿Estás seguro de que quieres borrar esta rutina? Esta acción no se puede deshacer.",
+        ),
         shape: RoundedRectangleBorder(borderRadius: AppRadius.card),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar", style: TextStyle(color: AppColors.textSecondary)),
+            child: const Text(
+              "Cancelar",
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
               try {
-                await viewModel.routineRepository.deleteRoutine(viewModel.routine.id!);
+                await viewModel.routineRepository.deleteRoutine(
+                  viewModel.routine.id!,
+                );
                 if (context.mounted) {
                   Navigator.pop(context, true);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Rutina eliminada.")));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Rutina eliminada.")),
+                  );
                 }
               } catch (e) {
-                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+                if (context.mounted)
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(e.toString())));
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
@@ -202,7 +259,10 @@ class RoutineDetailScreen extends StatelessWidget {
     );
   }
 
-  void _showAddExerciseSheet(BuildContext context, RoutineDetailViewModel viewModel) {
+  void _showAddExerciseSheet(
+    BuildContext context,
+    RoutineDetailViewModel viewModel,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -216,23 +276,41 @@ class RoutineDetailScreen extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, RoutineDetailViewModel viewModel, RoutineExerciseModel re) {
+  void _showDeleteConfirmation(
+    BuildContext context,
+    RoutineDetailViewModel viewModel,
+    RoutineExerciseModel re,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: AppRadius.card),
-        title: const Text('Quitar Ejercicio', style: TextStyle(fontWeight: FontWeight.w800)),
-        content: Text('¿Estás seguro de que quieres remover "${re.exercise.name}" de esta rutina?'),
+        title: const Text(
+          'Quitar Ejercicio',
+          style: TextStyle(fontWeight: FontWeight.w800),
+        ),
+        content: Text(
+          '¿Estás seguro de que quieres remover "${re.exercise.name}" de esta rutina?',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCELAR', style: TextStyle(color: AppColors.textSecondary))),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'CANCELAR',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
+          ),
           TextButton(
             onPressed: () {
               viewModel.removeExercise(re.exercise.id);
               Navigator.pop(context);
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('REMOVER', style: TextStyle(fontWeight: FontWeight.w800)),
+            child: const Text(
+              'REMOVER',
+              style: TextStyle(fontWeight: FontWeight.w800),
+            ),
           ),
         ],
       ),
@@ -254,7 +332,11 @@ class RoutineDetailScreen extends StatelessWidget {
                 backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                 child: Text(
                   athlete['first_name']?[0] ?? 'A',
-                  style: const TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               label: Text(athlete['first_name'] ?? 'Atleta'),
@@ -273,7 +355,8 @@ class RoutineDetailScreenFromId extends StatefulWidget {
   const RoutineDetailScreenFromId({super.key, required this.routineId});
 
   @override
-  State<RoutineDetailScreenFromId> createState() => _RoutineDetailScreenFromIdState();
+  State<RoutineDetailScreenFromId> createState() =>
+      _RoutineDetailScreenFromIdState();
 }
 
 class _RoutineDetailScreenFromIdState extends State<RoutineDetailScreenFromId> {
@@ -310,7 +393,11 @@ class _RoutineDetailScreenFromIdState extends State<RoutineDetailScreenFromId> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppColors.primary)));
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
     }
 
     if (_error != null || _routine == null) {

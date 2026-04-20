@@ -53,42 +53,43 @@ class AppColors {
   static const Color error = Color(0xFFFA5252);
   static const Color deleteRed = Color(0xFFFA5252);
   static const Color success = Color(0xFF40C057);
-  static const Color intensityNeon = Color(0xFFFFA500); // Electric fitness accent
+  static const Color intensityNeon = Color(
+    0xFFFFA500,
+  ); // Electric fitness accent
 
   // ─── Sombras (Shadows) ─────────────────────────────────────────────────────
   static List<BoxShadow> get softShadow => [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.04),
-          blurRadius: 10,
-          offset: const Offset(0, 4),
-        ),
-      ];
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.04),
+      blurRadius: 10,
+      offset: const Offset(0, 4),
+    ),
+  ];
 
   static List<BoxShadow> get mediumShadow => [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.06),
-          blurRadius: 20,
-          offset: const Offset(0, 8),
-        ),
-      ];
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.06),
+      blurRadius: 20,
+      offset: const Offset(0, 8),
+    ),
+  ];
 
   // Sombras por capas para profundidad extrema (Premium)
   static List<BoxShadow> get deepShadow => [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.04),
-          blurRadius: 4,
-          offset: const Offset(0, 2),
-        ),
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.04),
-          blurRadius: 16,
-          offset: const Offset(0, 8),
-        ),
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.02),
-          blurRadius: 32,
-          offset: const Offset(0, 16),
-        ),
-      ];
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.04),
+      blurRadius: 4,
+      offset: const Offset(0, 2),
+    ),
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.04),
+      blurRadius: 16,
+      offset: const Offset(0, 8),
+    ),
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.02),
+      blurRadius: 32,
+      offset: const Offset(0, 16),
+    ),
+  ];
 }
-

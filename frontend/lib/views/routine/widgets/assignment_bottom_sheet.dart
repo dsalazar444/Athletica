@@ -50,7 +50,7 @@ class _AssignmentBottomSheetState extends State<AssignmentBottomSheet> {
         'routines/${widget.routine.id}/assign/',
         data: {'athlete_ids': _selectedAthletes.toList()},
       );
-      
+
       if (mounted) {
         Navigator.pop(context);
         widget.onSuccess();
@@ -80,7 +80,10 @@ class _AssignmentBottomSheetState extends State<AssignmentBottomSheet> {
         children: [
           _buildHeader(),
           const SizedBox(height: 8),
-          Text("Selecciona los atletas para: ${widget.routine.title}", style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+          Text(
+            "Selecciona los atletas para: ${widget.routine.title}",
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+          ),
           const SizedBox(height: 24),
           _buildAthletesList(),
           const SizedBox(height: 24),
@@ -96,16 +99,24 @@ class _AssignmentBottomSheetState extends State<AssignmentBottomSheet> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text("ASIGNAR RUTINA", style: AppTextStyles.fitnessBold),
-        IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close_rounded)),
+        IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.close_rounded),
+        ),
       ],
     );
   }
 
   Widget _buildAthletesList() {
     if (_isLoading) {
-      return const Center(child: Padding(padding: EdgeInsets.all(40), child: CircularProgressIndicator()));
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(40),
+          child: CircularProgressIndicator(),
+        ),
+      );
     }
-    
+
     if (_athletes.isEmpty) {
       return const Center(
         child: Padding(
@@ -147,11 +158,16 @@ class _AssignmentBottomSheetState extends State<AssignmentBottomSheet> {
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
-        onPressed: _selectedAthletes.isEmpty || _isAssigning ? null : _assignRoutine,
-        style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
-        child: _isAssigning 
-          ? const CircularProgressIndicator(color: Colors.white)
-          : Text("CONFIRMAR ASIGNACIÓN (${_selectedAthletes.length})"),
+        onPressed: _selectedAthletes.isEmpty || _isAssigning
+            ? null
+            : _assignRoutine,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+        ),
+        child: _isAssigning
+            ? const CircularProgressIndicator(color: Colors.white)
+            : Text("CONFIRMAR ASIGNACIÓN (${_selectedAthletes.length})"),
       ),
     );
   }

@@ -3,7 +3,6 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_radius.dart';
 import '../../theme/app_text_styles.dart';
 
-
 class Step2Personal extends StatefulWidget {
   final Function(
     String name,
@@ -103,10 +102,7 @@ class _Step2PersonalState extends State<Step2Personal> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Datos personales',
-            style: AppTextStyles.sectionTitle,
-          ),
+          Text('Datos personales', style: AppTextStyles.sectionTitle),
           const SizedBox(height: 8),
           Text(
             'Cuéntanos un poco sobre ti para ajustar tus cálculos.',
@@ -114,12 +110,25 @@ class _Step2PersonalState extends State<Step2Personal> {
           ),
           const SizedBox(height: 32),
 
-          _input('Nombre completo', name, nameError, icon: Icons.person_pin_outlined),
+          _input(
+            'Nombre completo',
+            name,
+            nameError,
+            icon: Icons.person_pin_outlined,
+          ),
           const SizedBox(height: 20),
 
           Row(
             children: [
-              Expanded(child: _input('Edad', age, ageError, isNumber: true, icon: Icons.calendar_today_outlined)),
+              Expanded(
+                child: _input(
+                  'Edad',
+                  age,
+                  ageError,
+                  isNumber: true,
+                  icon: Icons.calendar_today_outlined,
+                ),
+              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -131,14 +140,27 @@ class _Step2PersonalState extends State<Step2Personal> {
                       isExpanded: true,
                       initialValue: selectedGender,
                       decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.wc_outlined, color: AppColors.textHint, size: 18),
+                        prefixIcon: const Icon(
+                          Icons.wc_outlined,
+                          color: AppColors.textHint,
+                          size: 18,
+                        ),
                         errorText: genderError,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 16,
+                        ),
                       ),
                       style: AppTextStyles.inputText.copyWith(fontSize: 13),
                       items: const [
-                        DropdownMenuItem(value: 'male', child: Text('Masculino')),
-                        DropdownMenuItem(value: 'female', child: Text('Femenino')),
+                        DropdownMenuItem(
+                          value: 'male',
+                          child: Text('Masculino'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'female',
+                          child: Text('Femenino'),
+                        ),
                         DropdownMenuItem(value: 'other', child: Text('Otro')),
                       ],
                       onChanged: (value) {
@@ -155,9 +177,25 @@ class _Step2PersonalState extends State<Step2Personal> {
 
           Row(
             children: [
-              Expanded(child: _input('Peso (kg)', weight, weightError, isDecimal: true, icon: Icons.monitor_weight_outlined)),
+              Expanded(
+                child: _input(
+                  'Peso (kg)',
+                  weight,
+                  weightError,
+                  isDecimal: true,
+                  icon: Icons.monitor_weight_outlined,
+                ),
+              ),
               const SizedBox(width: 16),
-              Expanded(child: _input('Altura (cm)', height, heightError, isDecimal: true, icon: Icons.height_outlined)),
+              Expanded(
+                child: _input(
+                  'Altura (cm)',
+                  height,
+                  heightError,
+                  isDecimal: true,
+                  icon: Icons.height_outlined,
+                ),
+              ),
             ],
           ),
 
@@ -180,11 +218,12 @@ class _Step2PersonalState extends State<Step2Personal> {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppRadius.button,
-                ),
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
               ),
-              child: const Text('Continuar', style: AppTextStyles.buttonPrimary),
+              child: const Text(
+                'Continuar',
+                style: AppTextStyles.buttonPrimary,
+              ),
             ),
           ),
           const SizedBox(height: 48),
@@ -223,4 +262,3 @@ class _Step2PersonalState extends State<Step2Personal> {
     );
   }
 }
-

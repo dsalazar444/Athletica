@@ -38,12 +38,8 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
       body: Stack(
         children: [
           // Solid Background
-          Positioned.fill(
-            child: Container(
-              color: AppColors.primary,
-            ),
-          ),
-          
+          Positioned.fill(child: Container(color: AppColors.primary)),
+
           // Gradient Overlay
           Positioned.fill(
             child: Container(
@@ -61,7 +57,7 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
               ),
             ),
           ),
-          
+
           Column(
             children: [
               // Header
@@ -71,17 +67,28 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('ATHLETICA', style: AppTextStyles.fitnessHero.copyWith(color: Colors.white)),
+                    Text(
+                      'ATHLETICA',
+                      style: AppTextStyles.fitnessHero.copyWith(
+                        color: Colors.white,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         'CONFIGURA TU PERFIL',
-                        style: AppTextStyles.fitnessCaption.copyWith(color: Colors.white, fontSize: 10),
+                        style: AppTextStyles.fitnessCaption.copyWith(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -97,11 +104,20 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                             height: 6,
                             margin: const EdgeInsets.symmetric(horizontal: 4),
                             decoration: BoxDecoration(
-                              color: isActive ? Colors.white : Colors.white.withValues(alpha: 0.25),
+                              color: isActive
+                                  ? Colors.white
+                                  : Colors.white.withValues(alpha: 0.25),
                               borderRadius: BorderRadius.circular(100),
-                              boxShadow: isActive 
-                                ? [BoxShadow(color: Colors.white.withValues(alpha: 0.5), blurRadius: 10)] 
-                                : null,
+                              boxShadow: isActive
+                                  ? [
+                                      BoxShadow(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.5,
+                                        ),
+                                        blurRadius: 10,
+                                      ),
+                                    ]
+                                  : null,
                             ),
                           ),
                         );
@@ -118,7 +134,9 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                   padding: const EdgeInsets.all(28),
                   decoration: BoxDecoration(
                     color: AppColors.surface,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(48)),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(48),
+                    ),
                     boxShadow: AppColors.deepShadow,
                   ),
                   child: _buildCurrentStep(),
@@ -130,7 +148,6 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
       ),
     );
   }
-
 
   Widget _buildCurrentStep() {
     if (vm.step == 0) {
@@ -216,7 +233,11 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                 color: AppColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 80),
+              child: const Icon(
+                Icons.check_circle_rounded,
+                color: AppColors.primary,
+                size: 80,
+              ),
             ),
             const SizedBox(height: 32),
             Text('¡Registro completado!', style: AppTextStyles.h2),
@@ -224,7 +245,9 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
             Text(
               'Tu cuenta ha sido creada con éxito.\nYa puedes empezar a entrenar.',
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodyText1.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodyText1.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
             const SizedBox(height: 48),
             SizedBox(
@@ -232,7 +255,9 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
               height: 60,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+                  Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil('/', (route) => false);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
@@ -241,7 +266,10 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                   shadowColor: AppColors.primary.withValues(alpha: 0.3),
                   shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
                 ),
-                child: const Text('Ir al Inicio', style: AppTextStyles.buttonPrimary),
+                child: const Text(
+                  'Ir al Inicio',
+                  style: AppTextStyles.buttonPrimary,
+                ),
               ),
             ),
           ],

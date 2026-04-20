@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0004_alter_athleteprofile_id_alter_coachprofile_id_and_more'),
+        ("users", "0004_alter_athleteprofile_id_alter_coachprofile_id_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='goal',
-            name='description',
+            model_name="goal",
+            name="description",
             field=models.TextField(blank=True, null=True),
         ),
     ]
