@@ -175,12 +175,13 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
                               );
                             }
                           } catch (e) {
-                            if (context.mounted)
+                            if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text("Error al asignar rutina."),
                                 ),
                               );
+                            }
                           }
                         },
                       );
@@ -193,10 +194,11 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
         },
       );
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Error al cargar rutinas.")),
         );
+      }
     }
   }
 

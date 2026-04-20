@@ -199,7 +199,10 @@ class WorkoutSessionViewSet(viewsets.ModelViewSet):
 
         from rest_framework.pagination import PageNumberPagination
 
-        paginator = PageNumberPagination()
+        class CustomPagination(PageNumberPagination):
+            page_size_query_param = "page_size"
+
+        paginator = CustomPagination()
         paginator.page_size = 10
         page = paginator.paginate_queryset(sessions, request)
         serializer = WorkoutHistorySerializer(page, many=True)

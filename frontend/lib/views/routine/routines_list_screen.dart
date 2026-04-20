@@ -151,13 +151,15 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
   }
 
   Widget _buildContent() {
-    if (_viewModel.isLoading)
+    if (_viewModel.isLoading) {
       return const Center(
         child: CircularProgressIndicator(color: AppColors.primary),
       );
+    }
     if (_viewModel.errorMessage != null) return _buildErrorState();
-    if (_userRole == 'athlete' && !_showPersonalRoutines)
+    if (_userRole == 'athlete' && !_showPersonalRoutines) {
       return _buildAthleteHub();
+    }
     return _buildRoutineList();
   }
 

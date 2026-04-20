@@ -245,10 +245,11 @@ class RoutineDetailScreen extends StatelessWidget {
                   );
                 }
               } catch (e) {
-                if (context.mounted)
+                if (context.mounted) {
                   ScaffoldMessenger.of(
                     context,
                   ).showSnackBar(SnackBar(content: Text(e.toString())));
+                }
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),

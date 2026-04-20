@@ -1,8 +1,12 @@
+import logging
+
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .models import AthleteProfile, CoachProfile, Goal, User, WeightLog
+
+logger = logging.getLogger(__name__)
 
 
 # Serializer para las metas de un atleta.
@@ -158,8 +162,9 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                     data["athlete_id"] = None
             else:
                 data["athlete_id"] = None
-        except Exception:
+        except Exception as e:
             # If for some reason extra field logic fails, don't block the login
+            logger.error(f"Error adding extra fields to login data: {e}", exc_info=True)
             pass
 
         return data
