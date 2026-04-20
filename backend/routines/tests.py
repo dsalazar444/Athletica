@@ -219,9 +219,7 @@ class ExerciseRegistrationTests(TestCase):
 
         # Verificar que ya no existe la relación
         self.assertFalse(
-            RoutineExercise.objects.filter(
-                routine=self.routine, exercise=self.exercise
-            ).exists()
+            RoutineExercise.objects.filter(routine=self.routine, exercise=self.exercise).exists()
         )
 
 
@@ -323,4 +321,3 @@ class RoutineAssignmentTests(TestCase):
             {"athlete_ids": [self.athlete.id]},
         )
         self.assertEqual(response.status_code, 404)
-
