@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_radius.dart';
+import '../../theme/app_text_styles.dart';
+
 
 class Step2Account extends StatefulWidget {
   final Function(String, String, String, String) onNext;
@@ -87,48 +90,51 @@ class _Step2AccountState extends State<Step2Account> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Crea tu cuenta',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+            style: AppTextStyles.sectionTitle,
           ),
-          const SizedBox(height: 10),
-          const Text(
-            'Ingresa tus datos de acceso',
-            style: TextStyle(color: Colors.grey),
+          const SizedBox(height: 8),
+          Text(
+            'Ingresa tus datos de acceso para comenzar.',
+            style: AppTextStyles.sectionSubtitle,
           ),
+          const SizedBox(height: 32),
+          _input('Nombre de usuario', username, usernameError, icon: Icons.alternate_email_rounded),
           const SizedBox(height: 20),
-          _input('Username', username, usernameError),
-          const SizedBox(height: 15),
-          _input('Email', email, emailError),
-          const SizedBox(height: 15),
-          _input('Password', password, passwordError, isPassword: true),
-          const SizedBox(height: 15),
+          _input('Correo electrónico', email, emailError, icon: Icons.email_outlined),
+          const SizedBox(height: 20),
+          _input('Contraseña', password, passwordError, isPassword: true, icon: Icons.lock_outline_rounded),
+          const SizedBox(height: 20),
           _input(
-            'Confirmar Password',
+            'Confirmar contraseña',
             password2,
             password2Error,
             isPassword: true,
+            icon: Icons.lock_outline_rounded,
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 48),
           SizedBox(
             width: double.infinity,
+            height: 58,
             child: ElevatedButton(
               onPressed: isValid
                   ? () => widget.onNext(
-                      username.text,
-                      email.text,
-                      password.text,
-                      password2.text,
-                    )
+                        username.text,
+                        email.text,
+                        password.text,
+                        password2.text,
+                      )
                   : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                foregroundColor: Colors.white,
+                elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.button,
                 ),
               ),
-              child: const Text('Continuar'),
+              child: Text('Continuar', style: AppTextStyles.buttonPrimary),
             ),
           ),
         ],
@@ -141,21 +147,24 @@ class _Step2AccountState extends State<Step2Account> {
     TextEditingController c,
     String? errorText, {
     bool isPassword = false,
+    required IconData icon,
   }) {
-    return TextField(
-      controller: c,
-      obscureText: isPassword,
-      onChanged: (_) => validate(),
-      decoration: InputDecoration(
-        labelText: label,
-        errorText: errorText,
-        filled: true,
-        fillColor: AppColors.surfaceVariant,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide.none,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: AppTextStyles.inputLabel),
+        const SizedBox(height: 8),
+        TextField(
+          controller: c,
+          obscureText: isPassword,
+          onChanged: (_) => validate(),
+          decoration: InputDecoration(
+            prefixIcon: Icon(icon, color: AppColors.textHint, size: 22),
+            errorText: errorText,
+          ),
         ),
-      ),
+      ],
     );
   }
 }
+

@@ -14,10 +14,10 @@ ATRIBUTES:Exercise
 
 
 class Exercise(models.Model):
-    external_id = models.IntegerField(default=-1, unique=True)
-    name = models.CharField(max_length=100)
+    external_id = models.BigIntegerField(default=-1, unique=True)
+    name = models.CharField(max_length=255)
     description = models.TextField(blank=True, default="")
-    muscle = models.CharField(max_length=50, blank=True, default="")
+    muscle = models.CharField(max_length=100, blank=True, default="")
     image_url = models.TextField(blank=True, default="")
 
     def __str__(self):

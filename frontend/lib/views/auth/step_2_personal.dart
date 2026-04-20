@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_radius.dart';
+import '../../theme/app_text_styles.dart';
+
 
 class Step2Personal extends StatefulWidget {
   final Function(
@@ -100,57 +103,69 @@ class _Step2PersonalState extends State<Step2Personal> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Datos personales',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+            style: AppTextStyles.sectionTitle,
           ),
-          const SizedBox(height: 10),
-          const Text(
-            'Cuentanos un poco sobre ti',
-            style: TextStyle(color: Colors.grey),
+          const SizedBox(height: 8),
+          Text(
+            'Cuéntanos un poco sobre ti para ajustar tus cálculos.',
+            style: AppTextStyles.sectionSubtitle,
+          ),
+          const SizedBox(height: 32),
+
+          _input('Nombre completo', name, nameError, icon: Icons.person_pin_outlined),
+          const SizedBox(height: 20),
+
+          Row(
+            children: [
+              Expanded(child: _input('Edad', age, ageError, isNumber: true, icon: Icons.calendar_today_outlined)),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Género', style: AppTextStyles.inputLabel),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      initialValue: selectedGender,
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.wc_outlined, color: AppColors.textHint, size: 18),
+                        errorText: genderError,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
+                      ),
+                      style: AppTextStyles.inputText.copyWith(fontSize: 13),
+                      items: const [
+                        DropdownMenuItem(value: 'male', child: Text('Masculino')),
+                        DropdownMenuItem(value: 'female', child: Text('Femenino')),
+                        DropdownMenuItem(value: 'other', child: Text('Otro')),
+                      ],
+                      onChanged: (value) {
+                        setState(() => selectedGender = value);
+                        validate();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 20),
 
-          _input('Nombre', name, nameError),
-          const SizedBox(height: 15),
-
-          _input('Edad', age, ageError, isNumber: true),
-          const SizedBox(height: 15),
-
-          _input('Peso (kg)', weight, weightError, isDecimal: true),
-          const SizedBox(height: 15),
-
-          _input('Altura (cm)', height, heightError, isDecimal: true),
-          const SizedBox(height: 15),
-
-          // Dropdown para seleccion de genero.
-          DropdownButtonFormField<String>(
-            initialValue: selectedGender,
-            decoration: InputDecoration(
-              labelText: 'Genero',
-              filled: true,
-              fillColor: AppColors.surfaceVariant,
-              errorText: genderError,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide.none,
-              ),
-            ),
-            items: const [
-              DropdownMenuItem(value: 'male', child: Text('Masculino')),
-              DropdownMenuItem(value: 'female', child: Text('Femenino')),
-              DropdownMenuItem(value: 'other', child: Text('Otro')),
+          Row(
+            children: [
+              Expanded(child: _input('Peso (kg)', weight, weightError, isDecimal: true, icon: Icons.monitor_weight_outlined)),
+              const SizedBox(width: 16),
+              Expanded(child: _input('Altura (cm)', height, heightError, isDecimal: true, icon: Icons.height_outlined)),
             ],
-            onChanged: (value) {
-              setState(() => selectedGender = value);
-              validate();
-            },
           ),
 
-          const SizedBox(height: 30),
+          const SizedBox(height: 48),
 
           SizedBox(
             width: double.infinity,
+            height: 58,
             child: ElevatedButton(
               onPressed: isValid
                   ? () => widget.onNext(
@@ -163,14 +178,16 @@ class _Step2PersonalState extends State<Step2Personal> {
                   : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                foregroundColor: Colors.white,
+                elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadius.button,
                 ),
               ),
-              child: const Text('Continuar'),
+              child: const Text('Continuar', style: AppTextStyles.buttonPrimary),
             ),
           ),
+          const SizedBox(height: 48),
         ],
       ),
     );
@@ -182,25 +199,28 @@ class _Step2PersonalState extends State<Step2Personal> {
     String? errorText, {
     bool isNumber = false,
     bool isDecimal = false,
+    required IconData icon,
   }) {
-    return TextField(
-      controller: c,
-      keyboardType: isDecimal
-          ? const TextInputType.numberWithOptions(decimal: true)
-          : isNumber
-          ? TextInputType.number
-          : TextInputType.text,
-      onChanged: (_) => validate(),
-      decoration: InputDecoration(
-        labelText: label,
-        errorText: errorText,
-        filled: true,
-        fillColor: AppColors.surfaceVariant,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide.none,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: AppTextStyles.inputLabel),
+        const SizedBox(height: 8),
+        TextField(
+          controller: c,
+          keyboardType: isDecimal
+              ? const TextInputType.numberWithOptions(decimal: true)
+              : isNumber
+              ? TextInputType.number
+              : TextInputType.text,
+          onChanged: (_) => validate(),
+          decoration: InputDecoration(
+            prefixIcon: Icon(icon, color: AppColors.textHint, size: 22),
+            errorText: errorText,
+          ),
         ),
-      ),
+      ],
     );
   }
 }
+

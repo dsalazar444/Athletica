@@ -77,8 +77,11 @@ class RoutineCreateSerializer(serializers.ModelSerializer):
         if not user:
             raise serializers.ValidationError("Authentication required to create a routine.")
 
+        # Pop created_by if it was passed from perform_create to avoid duplicate argument error
+        created_by = validated_data.pop("created_by", user)
+
         # Crea la rutina primero
-        routine = Routine.objects.create(created_by=user, **validated_data)
+        routine = Routine.objects.create(created_by=created_by, **validated_data)
         routine.assigned_athletes.add(user)  # para poner como rutina asignada a él mismo
 
         # Luego crea las relaciones con los ejercicios
@@ -99,13 +102,27 @@ class RoutineCreateSerializer(serializers.ModelSerializer):
 class RoutineDetailSerializer(serializers.ModelSerializer):
     """Para leer una rutina con sus ejercicios completos."""
 
-    exercises = serializers.SerializerMethodField()  # serializers.SerializerMethodField() le dice a DRF que, al serializar una rutina, debe llamar al método get_exercises para obtener el valor del campo exercises.
+    exercises = serializers.SerializerMethodField()
+    assigned_athletes_count = serializers.IntegerField(source="assigned_athletes.count", read_only=True)
+    assigned_athletes_info = serializers.SerializerMethodField()
+    creator_name = serializers.CharField(source="created_by.first_name", read_only=True)
 
     class Meta:
         model = Routine
-        fields = ["id", "title", "description", "category", "difficulty", "created_by", "exercises"]
+        fields = [
+            "id",
+            "title",
+            "description",
+            "category",
+            "difficulty",
+            "created_by",
+            "creator_name",
+            "exercises",
+            "assigned_athletes_count",
+            "assigned_athletes_info",
+        ]
 
-    def get_exercises(self, routine):  # recibe la unstancia de routine
+    def get_exercises(self, routine):
         routine_exercises = routine.routine_exercises.select_related("exercise").all()
         return [
             {
@@ -113,4 +130,11 @@ class RoutineDetailSerializer(serializers.ModelSerializer):
                 "exercise": ExerciseSerializer(re.exercise).data,
             }
             for re in routine_exercises
+        ]
+
+    def get_assigned_athletes_info(self, routine):
+        """Devuelve nombres y IDs de los atletas asignados."""
+        return [
+            {"id": athlete.id, "first_name": athlete.first_name or athlete.username}
+            for athlete in routine.assigned_athletes.all()
         ]

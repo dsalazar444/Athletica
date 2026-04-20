@@ -82,19 +82,17 @@ class ExerciseTrackingViewModel extends ChangeNotifier {
         // Editamos registros ya existentes.
         setsToLog = existingSets;
       } else {
-        // Pre-llenamos con 4 series sugeridas o vacías.
-        setsToLog = List.generate(4, (index) {
-          final lastSet = index < lastSessionSets.length
-              ? lastSessionSets[index]
-              : (lastSessionSets.isNotEmpty ? lastSessionSets.last : null);
-          return SetLogModel(
+        // Iniciamos con solo 1 serie sugerida o vacía (como solicitó el usuario).
+        final lastSet = lastSessionSets.isNotEmpty ? lastSessionSets.first : null;
+        setsToLog = [
+          SetLogModel(
             exerciseId: exerciseId,
-            setNumber: index + 1,
+            setNumber: 1,
             reps: lastSet?.reps ?? 10,
             weight: lastSet?.weight ?? 0.0,
             sessionId: currentSession?.id,
-          );
-        });
+          )
+        ];
       }
     } catch (e) {
       errorMessage = "Error al inicializar el registro del ejercicio.";
@@ -130,8 +128,8 @@ class ExerciseTrackingViewModel extends ChangeNotifier {
       SetLogModel(
         exerciseId: exerciseId,
         setNumber: setsToLog.length + 1,
-        reps: lastSet?.reps ?? 10,
-        weight: lastSet?.weight ?? 0.0,
+        reps: lastSet?.reps ?? 10,  // Copia la serie anterior
+        weight: lastSet?.weight ?? 0.0, // Copia la serie anterior
         sessionId: currentSession?.id,
       ),
     );

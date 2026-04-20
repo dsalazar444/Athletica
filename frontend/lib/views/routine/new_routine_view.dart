@@ -132,70 +132,91 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _RoutineScreenHeader(onClose: () => Navigator.of(context).pop()),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.lg,
-                  vertical: AppSpacing.md,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Formulario de datos básicos.
-                    _BasicInfoCard(
-                      titleController: _titleController,
-                      descriptionController: _descriptionController,
-                      selectedCategory: _selectedCategory,
-                      selectedDifficulty: _selectedDifficulty,
-                      onCategoryChanged: (value) =>
-                          setState(() => _selectedCategory = value),
-                      onDifficultyChanged: (value) =>
-                          setState(() => _selectedDifficulty = value),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    // Gestión de la lista de ejercicios.
-                    _ExerciseListSection(
-                      exercises: _selectedExercises,
-                      onAddExercise: _openExerciseSelector,
-                      onRemoveExercise: _removeExercise,
-                    ),
-                    const SizedBox(height: AppSpacing.xxl),
-                  ],
-                ),
+      body: Column(
+        children: [
+          _buildHeroHeader(context),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Information Section
+                  _BasicInfoCard(
+                    titleController: _titleController,
+                    descriptionController: _descriptionController,
+                    selectedCategory: _selectedCategory,
+                    selectedDifficulty: _selectedDifficulty,
+                    onCategoryChanged: (value) =>
+                        setState(() => _selectedCategory = value),
+                    onDifficultyChanged: (value) =>
+                        setState(() => _selectedDifficulty = value),
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  // Exercise Section
+                  _ExerciseListSection(
+                    exercises: _selectedExercises,
+                    onAddExercise: _openExerciseSelector,
+                    onRemoveExercise: _removeExercise,
+                  ),
+                  const SizedBox(height: 20),
+                ],
               ),
             ),
-            // Panel inferior con botones de acción.
-            _RoutineActionButtons(
-              onCancel: () => Navigator.of(context).pop(),
-              onSave: _handleSave,
-            ),
-          ],
-        ),
+          ),
+          _RoutineActionButtons(
+            onCancel: () => Navigator.of(context).pop(),
+            onSave: _handleSave,
+          ),
+        ],
       ),
     );
   }
-}
 
-/// Cabecera minimalista con botón de cierre.
-class _RoutineScreenHeader extends StatelessWidget {
-  final VoidCallback onClose;
-  const _RoutineScreenHeader({required this.onClose});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildHeroHeader(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: AppColors.primaryGradient,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(32),
+          bottomRight: Radius.circular(32),
+        ),
+        boxShadow: AppColors.mediumShadow,
+      ),
+      padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 20, 24, 40),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Nueva Rutina', style: AppTextStyles.screenTitle),
-          IconButton(
-            onPressed: onClose,
-            icon: const Icon(Icons.close, color: AppColors.textSecondary),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+                ),
+              ),
+              Text(
+                'ATHLETICA',
+                style: AppTextStyles.fitnessCaption.copyWith(color: Colors.white70, fontSize: 12),
+              ),
+              const SizedBox(width: 40), // Balance
+            ],
+          ),
+          const SizedBox(height: 32),
+          Text(
+            'DISEÑA TU'.toUpperCase(),
+            style: AppTextStyles.fitnessCaption.copyWith(color: Colors.white.withValues(alpha: 0.8), letterSpacing: 2),
+          ),
+          Text(
+            'PROPIA RUTINA',
+            style: AppTextStyles.fitnessDisplay.copyWith(color: Colors.white, fontSize: 32),
           ),
         ],
       ),
@@ -203,7 +224,8 @@ class _RoutineScreenHeader extends StatelessWidget {
   }
 }
 
-/// Tarjeta que agrupa los campos principales del formulario (Título, Descripción, etc).
+
+/// Tarjeta Bento-Style para información básica.
 class _BasicInfoCard extends StatelessWidget {
   final TextEditingController titleController;
   final TextEditingController descriptionController;
@@ -223,75 +245,93 @@ class _BasicInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: AppRadius.card,
-        border: Border.all(color: AppColors.border),
-      ),
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Información Básica', style: AppTextStyles.sectionTitle),
-          const SizedBox(height: AppSpacing.lg),
-          const FormFieldLabel(label: 'Título de la rutina', isRequired: true),
-          const SizedBox(height: AppSpacing.sm),
-          StyledTextField(
-            controller: titleController,
-            hintText: 'Ej: Entrenamiento de Pierna A',
-          ),
-          const SizedBox(height: AppSpacing.md),
-          const FormFieldLabel(label: 'Descripción (objetivos, notas)'),
-          const SizedBox(height: AppSpacing.sm),
-          StyledTextField(
-            controller: descriptionController,
-            hintText: 'Escribe una breve descripción...',
-            maxLines: 3,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const FormFieldLabel(label: 'Categoría'),
-                    const SizedBox(height: AppSpacing.sm),
-                    StyledDropdown<CategoryType>(
-                      value: selectedCategory,
-                      items: CategoryType.values,
-                      labelBuilder: categoryTypeToString,
-                      onChanged: onCategoryChanged,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const FormFieldLabel(label: 'Dificultad'),
-                    const SizedBox(height: AppSpacing.sm),
-                    StyledDropdown<DifficultyLevel>(
-                      value: selectedDifficulty,
-                      items: DifficultyLevel.values,
-                      labelBuilder: difficultyLevelToString,
-                      onChanged: onDifficultyChanged,
-                    ),
-                  ],
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.edit_note_rounded, color: AppColors.primary, size: 28),
+            const SizedBox(width: 8),
+            Text('DEFINICIÓN', style: AppTextStyles.fitnessBold.copyWith(fontSize: 20)),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: AppRadius.cardLarge,
+            border: Border.all(color: AppColors.border),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
-        ],
-      ),
+          padding: const EdgeInsets.all(AppSpacing.xxl),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const FormFieldLabel(label: 'Título de la rutina', isRequired: true),
+              const SizedBox(height: AppSpacing.sm),
+              StyledTextField(
+                controller: titleController,
+                hintText: 'Ej: Entrenamiento de Pierna A',
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              const FormFieldLabel(label: 'Descripción'),
+              const SizedBox(height: AppSpacing.sm),
+              StyledTextField(
+                controller: descriptionController,
+                hintText: 'Objetivos o notas...',
+                maxLines: 2,
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const FormFieldLabel(label: 'Categoría'),
+                        const SizedBox(height: AppSpacing.sm),
+                        StyledDropdown<CategoryType>(
+                          value: selectedCategory,
+                          items: CategoryType.values,
+                          labelBuilder: categoryTypeToString,
+                          onChanged: onCategoryChanged,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const FormFieldLabel(label: 'Dificultad'),
+                        const SizedBox(height: AppSpacing.sm),
+                        StyledDropdown<DifficultyLevel>(
+                          value: selectedDifficulty,
+                          items: DifficultyLevel.values,
+                          labelBuilder: difficultyLevelToString,
+                          onChanged: onDifficultyChanged,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
 
-/// Sección que lista los ejercicios añadidos y ofrece el botón para agregar más.
+/// Sección de ejercicios con estética refinada.
 class _ExerciseListSection extends StatelessWidget {
   final List<SelectedExercise> exercises;
   final VoidCallback onAddExercise;
@@ -306,54 +346,81 @@ class _ExerciseListSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
-              child: Text(
-                'Ejercicios seleccionados (${exercises.length})',
-                style: AppTextStyles.sectionTitle,
-                overflow: TextOverflow.ellipsis,
-              ),
+            Row(
+              children: [
+                const Icon(Icons.fitness_center_rounded, color: AppColors.primary, size: 28),
+                const SizedBox(width: 8),
+                Text('EJERCICIOS', style: AppTextStyles.fitnessBold.copyWith(fontSize: 20)),
+              ],
             ),
-            const SizedBox(width: 8),
-            TextButton.icon(
-              onPressed: onAddExercise,
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Añadir', style: AppTextStyles.addExerciseLink),
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            GestureDetector(
+              onTap: onAddExercise,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.add_circle_outline_rounded, color: AppColors.primary, size: 18),
+                    const SizedBox(width: 6),
+                    const Text('Añadir', style: AppTextStyles.addExerciseLink),
+                  ],
+                ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.lg),
         if (exercises.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
-            child: Text(
-              'No has seleccionado ejercicios todavía.',
-              style: TextStyle(color: AppColors.textHint),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(AppSpacing.xxl),
+            decoration: BoxDecoration(
+              color: AppColors.surface.withValues(alpha: 0.5),
+              borderRadius: AppRadius.cardLarge,
+              border: Border.all(color: AppColors.border, style: BorderStyle.none),
             ),
-          ),
-        ...exercises.map(
-          (entry) => Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-            child: _ExerciseListItem(
-              selectedExercise: entry,
-              onRemove: () => onRemoveExercise(entry.exercise.id),
+            child: Column(
+              children: [
+                Icon(Icons.layers_clear_rounded, color: AppColors.textHint.withValues(alpha: 0.5), size: 48),
+                const SizedBox(height: 12),
+                Text(
+                  'Tu lista de ejercicios está vacía',
+                  style: AppTextStyles.cardSubtitle.copyWith(color: AppColors.textHint),
+                ),
+              ],
             ),
+          )
+        else
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: exercises.length,
+            itemBuilder: (context, index) {
+              final entry = exercises[index];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: _ExerciseListItem(
+                  selectedExercise: entry,
+                  onRemove: () => onRemoveExercise(entry.exercise.id),
+                ),
+              );
+            },
           ),
-        ),
       ],
     );
   }
 }
 
-/// Elemento individual de la lista de ejercicios seleccionados.
+/// Item de ejercicio modernizado.
 class _ExerciseListItem extends StatelessWidget {
   final SelectedExercise selectedExercise;
   final VoidCallback onRemove;
@@ -371,50 +438,60 @@ class _ExerciseListItem extends StatelessWidget {
         borderRadius: AppRadius.card,
         border: Border.all(color: AppColors.border),
       ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.drag_indicator, color: AppColors.textHint, size: 20),
-          const SizedBox(width: AppSpacing.sm),
-          // Burbuja con el número de orden.
-          CircleAvatar(
-            radius: 12,
-            backgroundColor: AppColors.primary,
-            child: Text(
-              '${selectedExercise.order}',
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+      clipBehavior: Clip.antiAlias,
+      child: IntrinsicHeight(
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              color: AppColors.primary.withValues(alpha: 0.1),
+              child: Center(
+                child: Text(
+                  '#${selectedExercise.order}',
+                  style: AppTextStyles.fitnessBold.copyWith(
+                    color: AppColors.primary,
+                    fontSize: 14,
+                  ),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Text(
-              selectedExercise.exercise.name,
-              style: AppTextStyles.exerciseName.copyWith(fontSize: 15),
-              overflow: TextOverflow.ellipsis,
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      selectedExercise.exercise.name.toUpperCase(),
+                      style: AppTextStyles.fitnessBold.copyWith(fontSize: 15),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      selectedExercise.exercise.primaryMuscleName,
+                      style: AppTextStyles.cardSubtitle.copyWith(fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-          IconButton(
-            onPressed: onRemove,
-            icon: const Icon(
-              Icons.delete_outline,
-              color: AppColors.deleteRed,
-              size: 22,
+            IconButton(
+              onPressed: onRemove,
+              icon: const Icon(
+                Icons.remove_circle_outline_rounded,
+                color: AppColors.deleteRed,
+                size: 24,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(width: 8),
+          ],
+        ),
       ),
     );
   }
 }
 
-/// Botones inferiores para confirmar o descartar la creación de la rutina.
+/// Botones de acción finales con estilo premium.
 class _RoutineActionButtons extends StatelessWidget {
   final VoidCallback onCancel;
   final VoidCallback onSave;
@@ -425,30 +502,23 @@ class _RoutineActionButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.md,
-        AppSpacing.lg,
-        MediaQuery.of(context).padding.bottom + AppSpacing.md,
+        AppSpacing.xl,
+        AppSpacing.xl,
+        AppSpacing.xl,
+        MediaQuery.of(context).padding.bottom + AppSpacing.xl,
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.border)),
+      decoration: BoxDecoration(
+        color: AppColors.background.withValues(alpha: 0.95),
+        border: const Border(top: BorderSide(color: AppColors.border)),
       ),
       child: Row(
         children: [
           Expanded(
-            child: OutlinedButton(
+            child: TextButton(
               onPressed: onCancel,
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.border),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: AppRadius.button,
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              child: const Text(
-                'Descartar',
-                style: AppTextStyles.buttonSecondary,
+              child: Text(
+                'DESCARTAR',
+                style: AppTextStyles.fitnessCaption.copyWith(color: AppColors.textHint),
               ),
             ),
           ),
@@ -460,15 +530,20 @@ class _RoutineActionButtons extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.surface,
-                elevation: 0,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: AppRadius.button,
+                elevation: 10,
+                shadowColor: AppColors.primary.withValues(alpha: 0.4),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: const EdgeInsets.symmetric(vertical: 18),
               ),
-              child: const Text(
-                'Crear Rutina',
-                style: AppTextStyles.buttonPrimary,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.check_circle_rounded, size: 20),
+                  const SizedBox(width: 8),
+                  Text('CREAR RUTINA', style: AppTextStyles.buttonPrimary.copyWith(letterSpacing: 1.5)),
+                ],
               ),
             ),
           ),

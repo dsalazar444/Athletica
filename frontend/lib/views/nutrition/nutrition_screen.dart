@@ -28,17 +28,24 @@ class _NutritionScreenState extends State<NutritionScreen> {
       '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}';
 
   Future<void> _fetchMeals() async {
+    if (_isLoading) return;
     setState(() => _isLoading = true);
     try {
       final meals = await _service.getMeals(
         date: _formattedDate,
         athleteId: widget.athleteId,
       );
-      setState(() => _meals = meals);
+      if (mounted) {
+        setState(() {
+          _meals = meals;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      _showError('No se pudieron cargar los registros.');
-    } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+        _showError('No se pudieron cargar los registros.');
+      }
     }
   }
 
@@ -178,7 +185,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 120),
                     itemCount: _meals.length,
                     itemBuilder: (context, index) {
                       final meal = _meals[index];

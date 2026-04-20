@@ -138,6 +138,17 @@ class RoutineRepository {
     }
   }
 
+  Future<void> deleteRoutine(int routineId) async {
+    try {
+      final response = await _dio.delete('routines/$routineId/');
+      if (response.statusCode != 204 && response.statusCode != 200) {
+        throw Exception('Fallo al eliminar la rutina.');
+      }
+    } on DioException catch (e) {
+      throw Exception('Error al eliminar la rutina: ${e.response?.data?['error'] ?? e.message}');
+    }
+  }
+
   /// Elimina la relación entre un ejercicio y una rutina específica.
   Future<void> deleteRoutineExercise(int routineId, int exerciseId) async {
     try {
@@ -149,6 +160,27 @@ class RoutineRepository {
       }
     } on DioException catch (e) {
       throw Exception('Error al eliminar ejercicio de rutina: ${e.message}');
+    }
+  }
+
+  /// Obtiene la rutina activa (asignada por un coach) para un atleta específico.
+  Future<RoutineModel> fetchAthleteActiveRoutine(int athleteId) async {
+    try {
+      final response = await _dio.get('athletes/$athleteId/routine/');
+      if (response.statusCode == 200) {
+        final routine = RoutineModel.fromJson(response.data);
+        // Traducir ejercicios si es necesario
+        await _translateExercises(
+          routine.exercises.map((re) => re.exercise).toList(),
+        );
+        return routine;
+      }
+      throw Exception('El atleta no tiene una rutina activa.');
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        throw Exception('Sin rutina activa.');
+      }
+      throw Exception('Error al recuperar rutina activa: ${e.message}');
     }
   }
 }

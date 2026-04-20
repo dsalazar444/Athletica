@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_radius.dart';
+import '../../theme/app_text_styles.dart';
 import '../../core/api_client.dart';
 import '../../core/token_storage.dart';
 import '../main_screen.dart';
 import 'register_flow_screen.dart';
 
-// Pantalla de login — permite al usuario autenticarse con username y contrasena.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -23,18 +24,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool isLoading = false;
   bool isValid = false;
+  bool _obscurePassword = true;
 
   void validate() {
     setState(() {
       usernameError = username.text.isEmpty ? 'El username es requerido' : null;
-      passwordError = password.text.isEmpty
-          ? 'La contrasena es requerida'
-          : null;
+      passwordError = password.text.isEmpty ? 'La contraseña es requerida' : null;
       isValid = usernameError == null && passwordError == null;
     });
   }
 
-  // Envia las credenciales al backend y guarda los tokens si el login es exitoso.
   Future<void> login() async {
     validate();
     if (!isValid) return;
@@ -54,7 +53,9 @@ class _LoginScreenState extends State<LoginScreen> {
         access: response.data['access'],
         refresh: response.data['refresh'],
         athleteId: response.data['athlete_id'],
+        userId: response.data['user_id'],
         name: response.data['first_name'],
+        role: response.data['role'],
       );
 
       if (mounted) {
@@ -64,166 +65,245 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
-      setState(() {
-        generalError = 'Usuario o contrasena incorrectos';
-      });
+      if (mounted) {
+        setState(() {
+          generalError = 'Usuario o contraseña incorrectos';
+        });
+      }
     } finally {
-      setState(() => isLoading = false);
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Column(
+      backgroundColor: Colors.black,
+      body: Stack(
         children: [
-          // Cabecera
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(20, 60, 20, 30),
-            color: AppColors.primary,
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Athletica',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 26,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                SizedBox(height: 5),
-                Text(
-                  'Bienvenido de vuelta',
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
-                ),
-              ],
+          // Solid Background
+          Positioned.fill(
+            child: Container(
+              color: AppColors.primary, // Naranja
             ),
           ),
-
-          // Formulario
-          Expanded(
+          // Gradient Overlay
+          Positioned.fill(
             child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.primary.withValues(alpha: 0.2),
+                    AppColors.primary.withValues(alpha: 0.8),
+                    AppColors.background,
+                  ],
+                  stops: const [0.0, 0.4, 0.65],
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Inicia sesion',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Mensaje de error general (credenciales incorrectas)
-                  if (generalError != null)
+            ),
+          ),
+          Column(
+            children: [
+              // Header
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(24, 100, 24, 60),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('ATHLETICA', style: AppTextStyles.fitnessHero.copyWith(color: Colors.white)),
+                    const SizedBox(height: 8),
                     Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: AppColors.error.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(10),
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        generalError!,
-                        style: const TextStyle(color: AppColors.error),
+                        'TU PROGRESO COMIENZA AQUÍ',
+                        style: AppTextStyles.fitnessCaption.copyWith(color: Colors.white, fontSize: 10),
                       ),
                     ),
-
-                  TextField(
-                    controller: username,
-                    onChanged: (_) => validate(),
-                    decoration: InputDecoration(
-                      labelText: 'Username',
-                      errorText: usernameError,
-                      filled: true,
-                      fillColor: AppColors.surfaceVariant,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-
-                  TextField(
-                    controller: password,
-                    obscureText: true,
-                    onChanged: (_) => validate(),
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      errorText: passwordError,
-                      filled: true,
-                      fillColor: AppColors.surfaceVariant,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-
-                  // Boton de login
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: isLoading ? null : login,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text('Iniciar sesion'),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Enlace para ir al registro
-                  Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const RegisterFlowScreen(),
-                          ),
-                        );
-                      },
-                      child: const Text.rich(
-                        TextSpan(
-                          text: 'No tienes cuenta? ',
-                          style: TextStyle(color: Colors.grey),
-                          children: [
-                            TextSpan(
-                              text: 'Registrate',
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              // Form
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(48)),
+                    boxShadow: AppColors.deepShadow,
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('BIENVENIDO', style: AppTextStyles.fitnessDisplay.copyWith(color: AppColors.textPrimary)),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Inicia sesión para continuar tu entrenamiento.',
+                          style: AppTextStyles.sectionSubtitle,
+                        ),
+                        const SizedBox(height: 40),
+                        if (generalError != null) _buildErrorMessage(),
+                        _buildInput(
+                          label: 'Usuario o Email',
+                          controller: username,
+                          errorText: usernameError,
+                          icon: Icons.person_outline_rounded,
+                        ),
+                        const SizedBox(height: 24),
+                        _buildInput(
+                          label: 'Contraseña',
+                          controller: password,
+                          errorText: passwordError,
+                          icon: Icons.lock_outline_rounded,
+                          isPassword: _obscurePassword,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                              color: AppColors.textHint,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 48),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 60,
+                          child: ElevatedButton(
+                            onPressed: isLoading ? null : login,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              elevation: 8,
+                              shadowColor: AppColors.primary.withValues(alpha: 0.3),
+                              shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+                            ),
+                            child: isLoading
+                                ? const CircularProgressIndicator(color: Colors.white)
+                                : const Text('Entrar a mi cuenta', style: AppTextStyles.buttonPrimary),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        _buildRegisterLink(),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorMessage() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      margin: const EdgeInsets.only(bottom: 32),
+      decoration: BoxDecoration(
+        color: AppColors.error.withValues(alpha: 0.08),
+        borderRadius: AppRadius.input,
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              generalError!,
+              style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.w600, fontSize: 13),
             ),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildRegisterLink() {
+    return Center(
+      child: GestureDetector(
+        onTap: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const RegisterFlowScreen()),
+          );
+        },
+        child: Text.rich(
+          TextSpan(
+            text: '¿No tienes cuenta? ',
+            style: AppTextStyles.bodyText1.copyWith(color: AppColors.textSecondary),
+            children: const [
+              TextSpan(
+                text: 'Regístrate aquí',
+                style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInput({
+    required String label,
+    required TextEditingController controller,
+    String? errorText,
+    required IconData icon,
+    bool isPassword = false,
+    Widget? suffixIcon,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4),
+          child: Text(label, style: AppTextStyles.inputLabel),
+        ),
+        const SizedBox(height: 10),
+        TextField(
+          controller: controller,
+          obscureText: isPassword,
+          onChanged: (_) => validate(),
+          style: AppTextStyles.inputText,
+          decoration: InputDecoration(
+            prefixIcon: Icon(icon, color: AppColors.textHint, size: 22),
+            suffixIcon: suffixIcon,
+            errorText: errorText,
+            filled: true,
+            fillColor: AppColors.background.withValues(alpha: 0.5),
+            contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+            border: OutlineInputBorder(
+              borderRadius: AppRadius.input,
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: AppRadius.input,
+              borderSide: BorderSide(color: AppColors.border.withValues(alpha: 0.5), width: 1),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: AppRadius.input,
+              borderSide: const BorderSide(color: AppColors.primary, width: 2),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
+
+
+
