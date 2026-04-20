@@ -28,7 +28,10 @@ class ExerciseRepository {
       "language": "2", // 2: Español
     });
 
-    final response = await http.get(uri);
+    final response = await http.get(
+      uri,
+      headers: {'User-Agent': 'AthleticaApp/1.0 (contact@athletica.com)'},
+    );
 
     if (response.statusCode != 200) {
       throw Exception("Error al cargar la lista de ejercicios de Wger.");
@@ -83,7 +86,10 @@ class ExerciseRepository {
       "limit": "1",
     });
 
-    final response = await http.get(uri);
+    final response = await http.get(
+      uri,
+      headers: {'User-Agent': 'AthleticaApp/1.0 (contact@athletica.com)'},
+    );
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body)['results'] as List;

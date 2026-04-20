@@ -58,6 +58,8 @@ class AthleteProfile(Profile):
 class CoachProfile(Profile):
     gym_name = models.CharField(max_length=255)
     business_address = models.CharField(max_length=255)
+    # Lista de atletas vinculados al coach (independiente de los grupos)
+    athletes = models.ManyToManyField(User, related_name="managed_by_coaches", blank=True)
 
     def __str__(self):
         return f"{self.user.username} — {self.gym_name}"
@@ -78,7 +80,7 @@ class Goal(models.Model):
     # Relación con el atleta dueño de la meta.
     athlete = models.ForeignKey(AthleteProfile, on_delete=models.CASCADE, related_name="goals")
 
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, default="")
 
     # Valor objetivo de la meta, por ejemplo: 70kg para pérdida de peso.
     target_value = models.FloatField(null=True, blank=True)

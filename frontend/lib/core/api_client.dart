@@ -2,7 +2,9 @@ import 'package:dio/dio.dart';
 import '../core/token_storage.dart';
 
 class ApiClient {
-  static const String baseUrl = 'http://127.0.0.1:8000/api/';
+  //static const String baseUrl = 'http://127.0.0.1:8000/api/';
+  //static const String baseUrl = 'http://172.XX.XX.XX:8000/api/';
+  static const String baseUrl = 'http://10.145.187.144:8000/api/';
 
   static final Dio dio = _createDio();
 
@@ -24,6 +26,9 @@ class ApiClient {
 
 class _AuthInterceptor extends Interceptor {
   final Dio dio;
+  bool _isRefreshing = false;
+  Future<void>? _refreshFuture;
+
   _AuthInterceptor(this.dio);
 
   // 1. Agrega el token a cada request automáticamente
@@ -39,43 +44,65 @@ class _AuthInterceptor extends Interceptor {
     handler.next(options);
   }
 
-  // 2. Si el servidor responde 401, renueva el token y reintenta
+  // 2. Si el servidor responde 401, renueva el token (sincronizado) y reintenta
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == 401) {
+      // Si el request ya era un intento de login o de refresh, no hacemos nada más
+      if (err.requestOptions.path.contains('auth/login') ||
+          err.requestOptions.path.contains('auth/refresh')) {
+        handler.next(err);
+        return;
+      }
+
       try {
-        final refreshToken = await TokenStorage.getRefreshToken();
-        if (refreshToken == null) {
-          handler.next(err);
-          return;
+        if (!_isRefreshing) {
+          _isRefreshing = true;
+          _refreshFuture = _performRefresh();
         }
 
-        // Llama a auth/refresh/ con un Dio limpio (sin interceptor para evitar loop)
-        final refreshDio = Dio(BaseOptions(baseUrl: ApiClient.baseUrl));
-        final response = await refreshDio.post(
-          'auth/refresh/',
-          data: {'refresh': refreshToken},
-        );
+        // Esperamos a que la operación de refresco termine (la lanzada por el primero o la que ya esté en curso)
+        await _refreshFuture;
+        _isRefreshing = false;
 
-        // Guarda el nuevo access token
-        await TokenStorage.saveTokens(
-          access: response.data['access'],
-          refresh: refreshToken,
-        );
+        // Reintentamos con el nuevo token obtenido
+        final newToken = await TokenStorage.getAccessToken();
+        if (newToken != null) {
+          final retryOptions = err.requestOptions;
+          retryOptions.headers['Authorization'] = 'Bearer $newToken';
 
-        // Reintenta el request original con el nuevo token
-        final retryOptions = err.requestOptions;
-        retryOptions.headers['Authorization'] =
-            'Bearer ${response.data['access']}';
-        final retryResponse = await dio.fetch(retryOptions);
-        handler.resolve(retryResponse);
-      } catch (_) {
-        // Si el refresh también falla → limpiar tokens (logout automático)
+          // Usamos la misma instancia de dio para reintentar (pasará por onRequest de nuevo si es fetch)
+          // pero aquí ya inyectamos el header manualmente para mayor seguridad
+          final response = await dio.fetch(retryOptions);
+          handler.resolve(response);
+          return;
+        }
+      } catch (e) {
+        // Si el refresh falla definitivamente
+        _isRefreshing = false;
         await TokenStorage.clearTokens();
         handler.next(err);
+        return;
       }
-    } else {
-      handler.next(err);
     }
+    handler.next(err);
+  }
+
+  Future<void> _performRefresh() async {
+    final refreshToken = await TokenStorage.getRefreshToken();
+    if (refreshToken == null) throw Exception('No refresh token');
+
+    final refreshDio = Dio(BaseOptions(baseUrl: ApiClient.baseUrl));
+    final response = await refreshDio.post(
+      'auth/refresh/',
+      data: {'refresh': refreshToken},
+    );
+
+    // Guardamos los nuevos tokens (asumimos que el backend puede rotarlos o no)
+    // Nota: SimpleJWT por defecto devuelve un nuevo 'access'.
+    await TokenStorage.saveTokens(
+      access: response.data['access'],
+      refresh: response.data['refresh'] ?? refreshToken,
+    );
   }
 }

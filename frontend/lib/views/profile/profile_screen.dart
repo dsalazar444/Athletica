@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../core/token_storage.dart';
 import '../../theme/app_colors.dart';
@@ -28,26 +29,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _logout() async {
-    final confirm = await showDialog<bool>(
+    final confirm = await showGeneralDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: const Text('Cerrar sesión'),
-        content: const Text('¿Seguro que quieres cerrar sesión?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
-              'Cerrar sesión',
-              style: TextStyle(color: AppColors.error),
+      barrierDismissible: true,
+      barrierLabel: '',
+      pageBuilder: (ctx, anim1, anim2) => Container(),
+      transitionBuilder: (ctx, anim1, anim2, child) {
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: ScaleTransition(
+            scale: anim1,
+            child: AlertDialog(
+              backgroundColor: AppColors.surface.withValues(alpha: 0.9),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              title: const Text(
+                '¿Cerrar Sesión?',
+                style: TextStyle(fontWeight: FontWeight.w900),
+              ),
+              content: const Text(
+                'Tu progreso se mantendrá a salvo hasta que vuelvas.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text(
+                    'CANCELAR',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.error,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'CERRAR SESIÓN',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 300),
     );
 
     if (confirm == true) {
@@ -129,6 +165,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: AppColors.error,
                     onTap: _logout,
                   ),
+                  const SizedBox(height: 120),
                 ],
               ),
             ),

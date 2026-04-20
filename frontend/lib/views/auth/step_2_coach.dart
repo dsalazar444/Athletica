@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_radius.dart';
+import '../../theme/app_text_styles.dart';
 
 class Step2Coach extends StatefulWidget {
   final Future<void> Function(String specialty, String yearsExperience) onNext;
@@ -30,22 +32,29 @@ class _Step2CoachState extends State<Step2Coach> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Datos del entrenador",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+          Text("Datos del entrenador", style: AppTextStyles.sectionTitle),
+          const SizedBox(height: 8),
+          Text(
+            "Cuéntanos sobre tu especialidad y experiencia profesional.",
+            style: AppTextStyles.sectionSubtitle,
           ),
-          const SizedBox(height: 10),
-          const Text(
-            "Cuéntanos sobre tu experiencia",
-            style: TextStyle(color: Colors.grey),
+          const SizedBox(height: 32),
+          _input(
+            "Especialidad",
+            specialtyController,
+            icon: Icons.workspace_premium_outlined,
           ),
           const SizedBox(height: 20),
-          _input("Especialidad", specialtyController),
-          const SizedBox(height: 15),
-          _input("Años de experiencia", yearsController, isNumber: true),
-          const SizedBox(height: 30),
+          _input(
+            "Años de experiencia",
+            yearsController,
+            isNumber: true,
+            icon: Icons.history_toggle_off_rounded,
+          ),
+          const SizedBox(height: 48),
           SizedBox(
             width: double.infinity,
+            height: 58,
             child: ElevatedButton(
               onPressed: isValid
                   ? () async => await widget.onNext(
@@ -55,12 +64,11 @@ class _Step2CoachState extends State<Step2Coach> {
                   : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
               ),
-              child: const Text("Continuar"),
+              child: Text("Continuar", style: AppTextStyles.buttonPrimary),
             ),
           ),
         ],
@@ -72,20 +80,22 @@ class _Step2CoachState extends State<Step2Coach> {
     String label,
     TextEditingController controller, {
     bool isNumber = false,
+    required IconData icon,
   }) {
-    return TextField(
-      controller: controller,
-      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-      onChanged: (_) => validate(),
-      decoration: InputDecoration(
-        labelText: label,
-        filled: true,
-        fillColor: AppColors.surfaceVariant,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide.none,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: AppTextStyles.inputLabel),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+          onChanged: (_) => validate(),
+          decoration: InputDecoration(
+            prefixIcon: Icon(icon, color: AppColors.textHint, size: 22),
+          ),
         ),
-      ),
+      ],
     );
   }
 }
