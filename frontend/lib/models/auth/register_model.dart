@@ -66,7 +66,7 @@ class RegisterModel {
           'goals': [
             {
               'goal_type': _mapGoal(),
-              'description': null,
+              'description': '',
               'target_value': null,
             },
           ],

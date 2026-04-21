@@ -25,7 +25,11 @@ class AuthRepository {
         userId: response.data['user_id'],
       );
     } on DioException catch (e) {
-      throw e.response?.data;
+      final data = e.response?.data;
+      if (data is String && data.contains('<html')) {
+        throw 'Error del servidor. Por favor, inténtalo más tarde.';
+      }
+      throw data ?? 'Error de conexión';
     }
   }
 }
