@@ -62,12 +62,6 @@ class RoutineRepository {
       }
       throw Exception('Error al crear rutina: Código ${response.statusCode}');
     } on DioException catch (e) {
-
-      print('=== ERROR EXERCISE ===');
-      print('Status: ${e.response?.statusCode}');
-      print('Response: ${e.response?.data}');
-      print('======================');
-
       String errorMsg = 'Error al crear rutina';
       final errorData = e.response?.data;
       if (errorData is Map && errorData.isNotEmpty) {
