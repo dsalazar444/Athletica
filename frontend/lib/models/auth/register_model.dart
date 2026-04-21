@@ -64,11 +64,7 @@ class RegisterModel {
           'gender': gender,
           'activity_level': _mapActivityLevel(),
           'goals': [
-            {
-              'goal_type': _mapGoal(),
-              'description': '',
-              'target_value': null,
-            },
+            {'goal_type': _mapGoal(), 'description': '', 'target_value': null},
           ],
           'weight_logs': [
             {'weight': weight, 'body_fat': null},
