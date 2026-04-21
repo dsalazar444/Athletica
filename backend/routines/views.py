@@ -39,6 +39,10 @@ class ExerciseViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             serializer.save()
             return Response({"created": True}, status=status.HTTP_201_CREATED)
+        print("=== EXERCISE SERIALIZER ERRORS ===")
+        print(f"Data: {request.data}")
+        print(f"Errors: {serializer.errors}")
+        print("===================================")
         return Response(
             {"created": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
         )
