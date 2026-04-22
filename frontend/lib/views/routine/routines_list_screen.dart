@@ -12,6 +12,7 @@ import 'workout_history_screen.dart';
 import '../../core/token_storage.dart';
 import '../../components/routine_card.dart';
 import 'widgets/assignment_bottom_sheet.dart';
+import 'active_workout_screen.dart';
 
 class RoutinesListScreen extends StatefulWidget {
   const RoutinesListScreen({super.key});
@@ -348,6 +349,9 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
                 routine: r,
                 isCoach: false,
                 onTap: () => _openDetail(r),
+                onStartTraining: () {
+                  _startTraining(r);
+                },      
               ),
             ),
       ],
@@ -377,6 +381,9 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
             isCoach: _userRole == 'coach',
             onTap: () => _openDetail(r),
             onAssign: () => _openAssignDialog(r),
+            onStartTraining: () {
+              _startTraining(r);
+            },
           ),
         ),
       ],
@@ -431,5 +438,36 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
         onSuccess: () => _viewModel.loadRoutines(),
       ),
     );
+  }
+
+  void _startTraining(RoutineModel routine) {
+    if (routine.id == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Esta rutina aún no tiene ID válido para iniciar entrenamiento.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ActiveWorkoutScreen(
+          routineId: routine.id!,
+          routineName: routine.title,
+          exercises: routine.exercises,
+        ),
+      ),
+    ).then((saved) {
+      if (saved == true && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Entrenamiento guardado con éxito'),
+          ),
+        );
+      }
+    });
   }
 }
