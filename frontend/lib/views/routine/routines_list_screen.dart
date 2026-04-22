@@ -442,22 +442,32 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
 
   void _startTraining(RoutineModel routine) {
     if (routine.id == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Esta rutina aún no tiene ID válido para iniciar entrenamiento.'),
-      ),
-    );
-    return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Esta rutina aún no tiene ID válido para iniciar entrenamiento.',
+          ),
+        ),
+      );
+      return;
     }
 
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ActiveWorkoutScreen(
-            routineId: routine.id!,
-            routineName: routine.title,
-            exercises: routine.exercises,
+          routineId: routine.id!,
+          routineName: routine.title,
+          exercises: routine.exercises,
         ),
       ),
-    );
+    ).then((saved) {
+      if (saved == true && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Entrenamiento guardado con éxito'),
+          ),
+        );
+      }
+    });
   }
 }
