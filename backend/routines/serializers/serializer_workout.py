@@ -2,9 +2,6 @@ from rest_framework import serializers
 
 from routines.models import SetLog, WorkoutSession
 
-# from users.models import User
-
-
 class SetLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = SetLog

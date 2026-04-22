@@ -348,6 +348,10 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
                 routine: r,
                 isCoach: false,
                 onTap: () => _openDetail(r),
+                onStartTraining: () {
+                // acción del botón sin lógica
+                  //_startTraining(r);
+                },      
               ),
             ),
       ],
@@ -377,6 +381,10 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
             isCoach: _userRole == 'coach',
             onTap: () => _openDetail(r),
             onAssign: () => _openAssignDialog(r),
+            onStartTraining: () {
+              // acción del botón sin lógica
+              //_startTraining(r);
+            },
           ),
         ),
       ],

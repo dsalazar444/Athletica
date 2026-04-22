@@ -29,18 +29,18 @@ class WorkoutRepository {
       if (response.statusCode == 201 || response.statusCode == 200) {
         return WorkoutSessionModel.fromJson(response.data);
       }
-      throw Exception('Error al iniciar sesión: Código ${response.statusCode}');
+      throw Exception('Error al iniciar entrenamiento: Código ${response.statusCode}');
     } on DioException catch (e) {
-      throw Exception('Error al iniciar o recuperar la sesión: ${e.message}');
+      throw Exception('Error al iniciar o recuperar entrenamiento: ${e.message}');
     }
   }
 
   /// Registra una nueva serie (set) en el backend.
-  Future<SetLogModel> saveSet(SetLogModel setLog) async {
+  Future<LogSetModel> saveSet(LogSetModel setLog) async {
     try {
       final response = await _dio.post('sets/', data: setLog.toJson());
       if (response.statusCode == 201) {
-        return SetLogModel.fromJson(response.data);
+        return LogSetModel.fromJson(response.data);
       }
       throw Exception('Error al guardar serie: Código ${response.statusCode}');
     } on DioException catch (e) {
@@ -49,14 +49,14 @@ class WorkoutRepository {
   }
 
   /// Actualiza una serie (set) existente en el backend.
-  Future<SetLogModel> updateSet(SetLogModel setLog) async {
+  Future<LogSetModel> updateSet(LogSetModel setLog) async {
     try {
       final response = await _dio.put(
         'sets/${setLog.id}/',
         data: setLog.toJson(),
       );
       if (response.statusCode == 200) {
-        return SetLogModel.fromJson(response.data);
+        return LogSetModel.fromJson(response.data);
       }
       throw Exception(
         'Error al actualizar serie: Código ${response.statusCode}',
@@ -84,12 +84,12 @@ class WorkoutRepository {
 
   /// Obtiene las series del último entrenamiento realizado para un ejercicio específico.
   /// Útil para pre-llenar sugerencias de peso y repeticiones.
-  Future<List<SetLogModel>> fetchLastExerciseLogs(int exerciseId) async {
+  Future<List<LogSetModel>> fetchLastExerciseLogs(int exerciseId) async {
     try {
       final response = await _dio.get('exercises/$exerciseId/last/');
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
-        return data.map((e) => SetLogModel.fromJson(e)).toList();
+        return data.map((e) => LogSetModel.fromJson(e)).toList();
       }
       return [];
     } on DioException catch (e) {
