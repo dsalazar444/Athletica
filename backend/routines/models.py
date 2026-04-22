@@ -123,7 +123,6 @@ class WorkoutSession(models.Model):
 
 
 """
-Workout set log model
 ATRIBUTES:SetLog
 - session -> ForeignKey -> workout session associated
 - exercise -> ForeignKey -> exercise performed

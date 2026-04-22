@@ -12,6 +12,7 @@ import 'workout_history_screen.dart';
 import '../../core/token_storage.dart';
 import '../../components/routine_card.dart';
 import 'widgets/assignment_bottom_sheet.dart';
+import 'active_workout_screen.dart';
 
 class RoutinesListScreen extends StatefulWidget {
   const RoutinesListScreen({super.key});
@@ -349,8 +350,7 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
                 isCoach: false,
                 onTap: () => _openDetail(r),
                 onStartTraining: () {
-                // acción del botón sin lógica
-                  //_startTraining(r);
+                  _startTraining(r);
                 },      
               ),
             ),
@@ -382,8 +382,7 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
             onTap: () => _openDetail(r),
             onAssign: () => _openAssignDialog(r),
             onStartTraining: () {
-              // acción del botón sin lógica
-              //_startTraining(r);
+              _startTraining(r);
             },
           ),
         ),
@@ -437,6 +436,17 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
       builder: (context) => AssignmentBottomSheet(
         routine: routine,
         onSuccess: () => _viewModel.loadRoutines(),
+      ),
+    );
+  }
+
+  void _startTraining(RoutineModel routine) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ActiveWorkoutScreen(
+            routineName: routine.title,
+            exercises: routine.exercises,
+        ),
       ),
     );
   }

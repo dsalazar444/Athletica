@@ -3,6 +3,13 @@ import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_radius.dart';
 import '../../theme/app_text_styles.dart';
+import '../../models/routine/workout_set_ui_model.dart';
+import '../../models/routine/active_exercise_model.dart';
+import '../../models/routine/routine__exercise_model.dart';
+import '../../view_models/routine/active_workout_view_model.dart';
+
+// WorkoutSetEntry -> WorkoutSetUiModel
+// ACtiveWorkout -> stays
 
 // ─────────────────────────────────────────────
 //  LOCAL STYLE VARIABLES
@@ -59,145 +66,74 @@ const TextStyle _setFieldValueStyle = TextStyle(
 );
 
 // ─────────────────────────────────────────────
-//  DATA MODELS
-// ─────────────────────────────────────────────
-class WorkoutSetEntry {
-  int reps;
-  double weightKg;
-  bool isCompleted;
-
-  WorkoutSetEntry({
-    required this.reps,
-    required this.weightKg,
-    this.isCompleted = false,
-  });
-
-  WorkoutSetEntry copyWith({int? reps, double? weightKg, bool? isCompleted}) =>
-      WorkoutSetEntry(
-        reps: reps ?? this.reps,
-        weightKg: weightKg ?? this.weightKg,
-        isCompleted: isCompleted ?? this.isCompleted,
-      );
-}
-
-class ActiveExerciseModel {
-  final String id;
-  final String name;
-  final int targetSets;
-  final String targetRepsRange;
-  final int restSeconds;
-  final String initials;
-  final String? lastRecordDate;
-  final String? lastRecordSummary;
-  final List<WorkoutSetEntry> sets;
-
-  const ActiveExerciseModel({
-    required this.id,
-    required this.name,
-    required this.targetSets,
-    required this.targetRepsRange,
-    required this.restSeconds,
-    required this.initials,
-    this.lastRecordDate,
-    this.lastRecordSummary,
-    required this.sets,
-  });
-}
-
-// ─────────────────────────────────────────────
 //  SAMPLE DATA
 // ─────────────────────────────────────────────
-List<ActiveExerciseModel> buildSampleExercises() => [
-      ActiveExerciseModel(
-        id: '1',
-        name: 'Press de Banca',
-        targetSets: 4,
-        targetRepsRange: '8-10',
-        restSeconds: 120,
-        initials: 'PB',
-        lastRecordDate: '2026-04-18',
-        lastRecordSummary: '80 kg × 10 reps',
-        sets: [
-          WorkoutSetEntry(reps: 5,  weightKg: 5),
-          WorkoutSetEntry(reps: 10, weightKg: 80),
-          WorkoutSetEntry(reps: 10, weightKg: 80),
-          WorkoutSetEntry(reps: 10, weightKg: 80),
-        ],
-      ),
-      ActiveExerciseModel(
-        id: '2',
-        name: 'Press Militar',
-        targetSets: 3,
-        targetRepsRange: '10-12',
-        restSeconds: 90,
-        initials: 'PM',
-        lastRecordDate: '2026-04-18',
-        lastRecordSummary: '50 kg × 10 reps',
-        sets: [
-          WorkoutSetEntry(reps: 10, weightKg: 50),
-          WorkoutSetEntry(reps: 10, weightKg: 50),
-          WorkoutSetEntry(reps: 10, weightKg: 50),
-        ],
-      ),
-      ActiveExerciseModel(
-        id: '3',
-        name: 'Fondos',
-        targetSets: 3,
-        targetRepsRange: '12-15',
-        restSeconds: 60,
-        initials: 'FD',
-        sets: [
-          WorkoutSetEntry(reps: 12, weightKg: 0),
-          WorkoutSetEntry(reps: 12, weightKg: 0),
-          WorkoutSetEntry(reps: 12, weightKg: 0),
-        ],
-      ),
-      ActiveExerciseModel(
-        id: '4',
-        name: 'Curl Bíceps',
-        targetSets: 3,
-        targetRepsRange: '10-12',
-        restSeconds: 60,
-        initials: 'CB',
-        sets: [
-          WorkoutSetEntry(reps: 10, weightKg: 20),
-          WorkoutSetEntry(reps: 10, weightKg: 20),
-          WorkoutSetEntry(reps: 10, weightKg: 20),
-        ],
-      ),
-    ];
-
-// ─────────────────────────────────────────────
-//  ENTRY POINT
-// ─────────────────────────────────────────────
-void main() => runApp(const WorkoutApp());
-
-class WorkoutApp extends StatelessWidget {
-  const WorkoutApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Workout Session',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
-        scaffoldBackgroundColor: AppColors.background,
-      ),
-      home: ActiveWorkoutScreen(
-        routineName: 'Rutina Fuerza Superior',
-        exercises: buildSampleExercises(),
-      ),
-    );
-  }
-}
+// List<ActiveExerciseModel> buildSampleExercises() => [
+//       ActiveExerciseModel(
+//         id: '1',
+//         name: 'Press de Banca',
+//         targetSets: 4,
+//         targetRepsRange: '8-10',
+//         restSeconds: 120,
+//         initials: 'PB',
+//         lastRecordDate: '2026-04-18',
+//         lastRecordSummary: '80 kg × 10 reps',
+//         sets: [
+//           WorkoutSetUiModel(reps: 5,  weightKg: 5),
+//           WorkoutSetUiModel(reps: 10, weightKg: 80),
+//           WorkoutSetUiModel(reps: 10, weightKg: 80),
+//           WorkoutSetUiModel(reps: 10, weightKg: 80),
+//         ],
+//       ),
+//       ActiveExerciseModel(
+//         id: '2',
+//         name: 'Press Militar',
+//         targetSets: 3,
+//         targetRepsRange: '10-12',
+//         restSeconds: 90,
+//         initials: 'PM',
+//         lastRecordDate: '2026-04-18',
+//         lastRecordSummary: '50 kg × 10 reps',
+//         sets: [
+//           WorkoutSetEntry(reps: 10, weightKg: 50),
+//           WorkoutSetEntry(reps: 10, weightKg: 50),
+//           WorkoutSetEntry(reps: 10, weightKg: 50),
+//         ],
+//       ),
+//       ActiveExerciseModel(
+//         id: '3',
+//         name: 'Fondos',
+//         targetSets: 3,
+//         targetRepsRange: '12-15',
+//         restSeconds: 60,
+//         initials: 'FD',
+//         sets: [
+//           WorkoutSetEntry(reps: 12, weightKg: 0),
+//           WorkoutSetEntry(reps: 12, weightKg: 0),
+//           WorkoutSetEntry(reps: 12, weightKg: 0),
+//         ],
+//       ),
+//       ActiveExerciseModel(
+//         id: '4',
+//         name: 'Curl Bíceps',
+//         targetSets: 3,
+//         targetRepsRange: '10-12',
+//         restSeconds: 60,
+//         initials: 'CB',
+//         sets: [
+//           WorkoutSetEntry(reps: 10, weightKg: 20),
+//           WorkoutSetEntry(reps: 10, weightKg: 20),
+//           WorkoutSetEntry(reps: 10, weightKg: 20),
+//         ],
+//       ),
+//     ];
 
 // ─────────────────────────────────────────────
 //  ACTIVE WORKOUT SCREEN
 // ─────────────────────────────────────────────
 class ActiveWorkoutScreen extends StatefulWidget {
   final String routineName;
-  final List<ActiveExerciseModel> exercises;
+  final List<RoutineExerciseModel> exercises;
 
   const ActiveWorkoutScreen({
     super.key,
@@ -211,18 +147,23 @@ class ActiveWorkoutScreen extends StatefulWidget {
 
 class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   int _currentExerciseIndex = 0;
-  late final List<List<WorkoutSetEntry>> _allSets;
+  late final List<List<WorkoutSetUiModel>> _allSets;
   int _elapsedSeconds = 0;
   late final Timer _timer;
+  late final ActiveWorkoutViewModel _viewModel;
+  late final List<ActiveExerciseModel> _activeExercises;
 
   @override
   void initState() {
     super.initState();
-    _allSets = widget.exercises
-        .map((e) => e.sets
-            .map((s) => WorkoutSetEntry(reps: s.reps, weightKg: s.weightKg))
-            .toList())
-        .toList();
+
+    _viewModel = ActiveWorkoutViewModel();
+    _activeExercises = _viewModel.toActiveExercises(widget.exercises);
+
+    _allSets = _activeExercises
+         .map((e) => e.sets.map((s) => s.copyWith()).toList())
+         .toList();
+
     _timer = Timer.periodic(
       const Duration(seconds: 1),
       (_) => setState(() => _elapsedSeconds++),
@@ -236,12 +177,12 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   }
 
   ActiveExerciseModel get _currentExercise =>
-      widget.exercises[_currentExerciseIndex];
+    _activeExercises[_currentExerciseIndex];
 
-  List<WorkoutSetEntry> get _currentSets => _allSets[_currentExerciseIndex];
+  List<WorkoutSetUiModel> get _currentSets => _allSets[_currentExerciseIndex];
 
   bool get _isLastExercise =>
-      _currentExerciseIndex == widget.exercises.length - 1;
+      _currentExerciseIndex == _activeExercises.length - 1;
 
   void _goToNextExercise() {
     if (_isLastExercise) {
@@ -261,16 +202,20 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   void _updateSetReps(int setIndex, int delta) {
     setState(() {
       final current = _currentSets[setIndex].reps;
-      _currentSets[setIndex] =
-          _currentSets[setIndex].copyWith(reps: (current + delta).clamp(0, 999));
+      final updatedBase = _currentSets[setIndex].base.copyWith(
+        reps: (current + delta).clamp(0, 999),
+      );
+      _currentSets[setIndex] = _currentSets[setIndex].copyWith(base: updatedBase);
     });
   }
 
   void _updateSetWeight(int setIndex, double delta) {
     setState(() {
       final current = _currentSets[setIndex].weightKg;
-      _currentSets[setIndex] =
-          _currentSets[setIndex].copyWith(weightKg: (current + delta).clamp(0, 9999));
+      final updatedBase = _currentSets[setIndex].base.copyWith(
+        weight: (current + delta).clamp(0, 9999),
+      );
+      _currentSets[setIndex] = _currentSets[setIndex].copyWith(base: updatedBase);
     });
   }
 
@@ -282,7 +227,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final total = widget.exercises.length;
+    final total = _activeExercises.length;
     final progress = (_currentExerciseIndex + 1) / total;
 
     return Scaffold(
@@ -299,7 +244,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               onCancel: () => Navigator.of(context).pop(),
             ),
             _ExerciseTabRow(
-              exercises: widget.exercises,
+              exercises: _activeExercises,
               currentIndex: _currentExerciseIndex,
               onTabSelected: (i) => setState(() => _currentExerciseIndex = i),
             ),
@@ -517,7 +462,7 @@ class _ExerciseInfoCard extends StatelessWidget {
                     Text(exercise.name, style: AppTextStyles.exerciseName),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      '${exercise.targetSets} series  •  ${exercise.targetRepsRange} reps  •  $_restLabel',
+                      '${exercise.sets.length} series  •  ${ActiveWorkoutViewModel.defaultReps} reps base  •  $_restLabel',
                       style: _exerciseMetaStyle,
                     ),
                   ],
@@ -526,40 +471,36 @@ class _ExerciseInfoCard extends StatelessWidget {
             ],
           ),
 
-          // Last record — naranja suave
-          if (exercise.lastRecordDate != null &&
-              exercise.lastRecordSummary != null) ...[
-            const SizedBox(height: AppSpacing.md),
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF4EE),
-                borderRadius: AppRadius.input,
-                border: Border.all(
-                  color: const Color(0xFFFF8C5A),
-                  width: 1.2,
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: AppSpacing.sm,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Último registro (${exercise.lastRecordDate})',
-                    style: _lastRecordDateStyle,
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    exercise.lastRecordSummary!,
-                    style: _lastRecordValueStyle,
-                  ),
-                ],
+          const SizedBox(height: AppSpacing.md),
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF4EE),
+              borderRadius: AppRadius.input,
+              border: Border.all(
+                color: const Color(0xFFFF8C5A),
+                width: 1.2,
               ),
             ),
-          ],
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Sin registro previo (valor por defecto)',
+                  style: _lastRecordDateStyle,
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  '${ActiveWorkoutViewModel.defaultWeight.toStringAsFixed(0)} kg × ${ActiveWorkoutViewModel.defaultReps} reps',
+                  style: _lastRecordValueStyle,
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -600,7 +541,7 @@ class _ExerciseAvatar extends StatelessWidget {
 // ─────────────────────────────────────────────
 class _SetRow extends StatelessWidget {
   final int setNumber;
-  final WorkoutSetEntry setEntry;
+  final WorkoutSetUiModel setEntry;
   final VoidCallback onToggleComplete;
   final ValueChanged<int> onRepsChanged;
   final ValueChanged<double> onWeightChanged;
