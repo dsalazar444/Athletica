@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../core/config/api_config.dart';
+import '../../repositories/routine/workout_repository.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_radius.dart';
 import '../../theme/app_text_styles.dart';
@@ -132,11 +134,13 @@ const TextStyle _setFieldValueStyle = TextStyle(
 //  ACTIVE WORKOUT SCREEN
 // ─────────────────────────────────────────────
 class ActiveWorkoutScreen extends StatefulWidget {
+  final int routineId;
   final String routineName;
   final List<RoutineExerciseModel> exercises;
 
   const ActiveWorkoutScreen({
     super.key,
+    required this.routineId,
     required this.routineName,
     required this.exercises,
   });
@@ -157,17 +161,34 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   void initState() {
     super.initState();
 
-    _viewModel = ActiveWorkoutViewModel();
+    _viewModel = ActiveWorkoutViewModel(
+      workoutRepository: WorkoutRepository(baseUrl: ApiConfig.baseUrl),
+    );
     _activeExercises = _viewModel.toActiveExercises(widget.exercises);
 
     _allSets = _activeExercises
          .map((e) => e.sets.map((s) => s.copyWith()).toList())
          .toList();
 
+    _initializeSession();
+
     _timer = Timer.periodic(
       const Duration(seconds: 1),
       (_) => setState(() => _elapsedSeconds++),
     );
+  }
+
+  Future<void> _initializeSession() async {
+    try {
+      await _viewModel.initSession(routineId: widget.routineId);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No se pudo iniciar la sesión de entrenamiento.'),
+        ),
+      );
+    }
   }
 
   @override
@@ -184,9 +205,25 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   bool get _isLastExercise =>
       _currentExerciseIndex == _activeExercises.length - 1;
 
-  void _goToNextExercise() {
+  Future<void> _goToNextExercise() async {
+    if (_viewModel.isSaving) return;
+
     if (_isLastExercise) {
-      Navigator.of(context).pop();
+      try {
+        await _viewModel.finishWorkout(
+          routineId: widget.routineId,
+          allSets: _allSets,
+        );
+        if (!mounted) return;
+        Navigator.of(context).pop(true);
+      } catch (_) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No se pudieron guardar los datos del entrenamiento.'),
+          ),
+        );
+      }
     } else {
       setState(() => _currentExerciseIndex++);
     }
@@ -278,7 +315,8 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
             ),
             _NextExerciseButton(
               label: _isLastExercise ? 'Finalizar' : 'Siguiente',
-              onPressed: _goToNextExercise,
+              isLoading: _viewModel.isSaving,
+              onPressed: _viewModel.isSaving ? null : _goToNextExercise,
             ),
           ],
         ),
@@ -700,9 +738,14 @@ class _StepperArrow extends StatelessWidget {
 // ─────────────────────────────────────────────
 class _NextExerciseButton extends StatelessWidget {
   final String label;
-  final VoidCallback onPressed;
+  final bool isLoading;
+  final VoidCallback? onPressed;
 
-  const _NextExerciseButton({required this.label, required this.onPressed});
+  const _NextExerciseButton({
+    required this.label,
+    required this.onPressed,
+    this.isLoading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -725,7 +768,16 @@ class _NextExerciseButton extends StatelessWidget {
             shape: const RoundedRectangleBorder(borderRadius: AppRadius.button),
             padding: const EdgeInsets.symmetric(vertical: 16),
           ),
-          child: Text(label, style: AppTextStyles.buttonPrimary),
+          child: isLoading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.white,
+                  ),
+                )
+              : Text(label, style: AppTextStyles.buttonPrimary),
         ),
       ),
     );
