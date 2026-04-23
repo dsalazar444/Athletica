@@ -445,7 +445,7 @@ class _ExerciseTabRow extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           itemCount: exercises.length,
-          separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
+          separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
           itemBuilder: (_, index) {
             final isActive = index == currentIndex;
             return GestureDetector(
