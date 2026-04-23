@@ -1,6 +1,6 @@
 /// Modelo que representa el registro de una serie (set) individual de un ejercicio.
 /// Contiene la información de repeticiones y peso para una sesión específica.
-class SetLogModel {
+class LogSetModel {
   /// ID único del registro asignado por la base de datos.
   final int? id;
 
@@ -19,7 +19,7 @@ class SetLogModel {
   /// Peso utilizado en la serie (en kilogramos o libras según configuración).
   final double weight;
 
-  SetLogModel({
+  LogSetModel({
     this.id,
     this.sessionId,
     required this.exerciseId,
@@ -28,9 +28,9 @@ class SetLogModel {
     required this.weight,
   });
 
-  /// Crea un [SetLogModel] a partir de un mapa JSON del servidor.
-  factory SetLogModel.fromJson(Map<String, dynamic> json) {
-    return SetLogModel(
+  /// Crea un [WorkoutSetModel] a partir de un mapa JSON del servidor.
+  factory LogSetModel.fromJson(Map<String, dynamic> json) {
+    return LogSetModel(
       id: json['id'],
       sessionId: json['session'],
       exerciseId: json['exercise'],
@@ -53,7 +53,7 @@ class SetLogModel {
   }
 
   /// Crea una copia del modelo con algunos campos modificados, manteniendo la inmutabilidad.
-  SetLogModel copyWith({
+  LogSetModel copyWith({
     int? id,
     int? sessionId,
     int? exerciseId,
@@ -61,7 +61,7 @@ class SetLogModel {
     int? reps,
     double? weight,
   }) {
-    return SetLogModel(
+    return LogSetModel(
       id: id ?? this.id,
       sessionId: sessionId ?? this.sessionId,
       exerciseId: exerciseId ?? this.exerciseId,

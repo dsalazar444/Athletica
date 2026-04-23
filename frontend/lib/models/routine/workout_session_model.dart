@@ -1,7 +1,7 @@
 import 'set_log_model.dart';
 
 /// Modelo que representa una sesión de entrenamiento completa.
-/// Una sesión agrupa múltiples registros de series ([SetLogModel]) para una rutina y fecha específicas.
+/// Una sesión agrupa múltiples registros de series ([WorkoutSetModel]) para una rutina y fecha específicas.
 class WorkoutSessionModel {
   /// Identificador único de la sesión generado por el backend.
   final int? id;
@@ -13,7 +13,7 @@ class WorkoutSessionModel {
   final DateTime? date;
 
   /// Lista de todas las series de ejercicios registradas durante esta sesión.
-  final List<SetLogModel> setLogs;
+  final List<LogSetModel> setLogs;
 
   WorkoutSessionModel({
     this.id,
@@ -29,7 +29,7 @@ class WorkoutSessionModel {
       routineId: json['routine'],
       date: json['date'] != null ? DateTime.parse(json['date']) : null,
       setLogs: (json['set_logs'] as List? ?? [])
-          .map((e) => SetLogModel.fromJson(e))
+          .map((e) => LogSetModel.fromJson(e))
           .toList(),
     );
   }

@@ -9,6 +9,7 @@ class RoutineCard extends StatelessWidget {
   final bool isCoach;
   final VoidCallback onTap;
   final VoidCallback? onAssign;
+  final VoidCallback? onStartTraining;
 
   const RoutineCard({
     super.key,
@@ -16,6 +17,7 @@ class RoutineCard extends StatelessWidget {
     this.isCoach = false,
     required this.onTap,
     this.onAssign,
+    this.onStartTraining,
   });
 
   @override
@@ -97,6 +99,33 @@ class RoutineCard extends StatelessWidget {
               ],
             ),
           ),
+
+          // 'Iniciar entrenamiento' button
+          if (onStartTraining != null) ...[
+            const SizedBox(width: 12),
+            ElevatedButton.icon(
+              onPressed: onStartTraining,
+              icon: const Icon(Icons.play_arrow_rounded, size: 16),
+              label: Text(
+                "Iniciar entrenamiento",
+                style: AppTextStyles.buttonPrimary.copyWith(
+                  fontSize: 14,
+                  letterSpacing: 0.5,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 30,
+                  vertical: 16,
+                ),
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
+              ),
+            ),
+          ],
         ],
       ),
     );
