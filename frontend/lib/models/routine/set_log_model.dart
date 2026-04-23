@@ -18,7 +18,7 @@ class LogSetModel {
 
   /// Peso utilizado en la serie (en kilogramos o libras según configuración).
   final double weight;
-  
+
   LogSetModel({
     this.id,
     this.sessionId,

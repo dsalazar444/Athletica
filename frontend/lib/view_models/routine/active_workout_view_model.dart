@@ -21,7 +21,7 @@ class ActiveWorkoutViewModel extends ChangeNotifier {
 
   ActiveWorkoutViewModel({required this.workoutRepository});
 
-  // Usamos valores predeterminados de setcount (porque actualmente no se guarda en bd, mejora para siguiente sprint -> pedir dato al crear rutina) 
+  // Usamos valores predeterminados de setcount (porque actualmente no se guarda en bd, mejora para siguiente sprint -> pedir dato al crear rutina)
   // y de defaultReps y defaultWeight para en siguiente sprint que estos se tomen desde backend y se muestre el ultimo valor de sus registros.
   List<ActiveExerciseModel> toActiveExercises(
     List<RoutineExerciseModel> routineExercises, {
@@ -30,7 +30,8 @@ class ActiveWorkoutViewModel extends ChangeNotifier {
     int defaultReps = ActiveWorkoutViewModel.defaultReps,
     double defaultWeight = ActiveWorkoutViewModel.defaultWeight,
   }) {
-    final ordered = [...routineExercises]..sort((a, b) => a.order.compareTo(b.order));
+    final ordered = [...routineExercises]
+      ..sort((a, b) => a.order.compareTo(b.order));
 
     return ordered.map((re) {
       final sets = List.generate(
@@ -53,13 +54,13 @@ class ActiveWorkoutViewModel extends ChangeNotifier {
     }).toList();
   }
 
-  Future<void> initSession({
-    required int routineId,
-    DateTime? date,
-  }) async {
+  Future<void> initSession({required int routineId, DateTime? date}) async {
     errorMessage = null;
     try {
-      currentSession = await workoutRepository.startSession(routineId, date: date);
+      currentSession = await workoutRepository.startSession(
+        routineId,
+        date: date,
+      );
     } catch (e) {
       errorMessage = 'No se pudo iniciar la sesión de entrenamiento.';
       rethrow;
@@ -68,9 +69,7 @@ class ActiveWorkoutViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> saveAll({
-    required List<List<WorkoutSetUiModel>> allSets,
-  }) async {
+  Future<void> saveAll({required List<List<WorkoutSetUiModel>> allSets}) async {
     final sessionId = currentSession?.id;
     if (sessionId == null) {
       throw Exception('No hay sesión activa para guardar.');
@@ -81,7 +80,6 @@ class ActiveWorkoutViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-
       // 1) Guardar/actualizar sets actuales
       final flatSets = allSets.expand((group) => group).toList();
 

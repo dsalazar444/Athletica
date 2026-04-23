@@ -109,23 +109,23 @@ class RoutineCard extends StatelessWidget {
               label: Text(
                 "Iniciar entrenamiento",
                 style: AppTextStyles.buttonPrimary.copyWith(
-                  fontSize: 14, 
+                  fontSize: 14,
                   letterSpacing: 0.5,
-                  fontWeight: FontWeight.w800, 
+                  fontWeight: FontWeight.w800,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary, 
-                foregroundColor: AppColors.white,   
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.white,
                 elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppRadius.button,   
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 30,
+                  vertical: 16,
                 ),
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
               ),
             ),
           ],
-
         ],
       ),
     );

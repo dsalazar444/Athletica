@@ -351,7 +351,7 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
                 onTap: () => _openDetail(r),
                 onStartTraining: () {
                   _startTraining(r);
-                },      
+                },
               ),
             ),
       ],
@@ -452,22 +452,22 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
       return;
     }
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ActiveWorkoutScreen(
-          routineId: routine.id!,
-          routineName: routine.title,
-          exercises: routine.exercises,
-        ),
-      ),
-    ).then((saved) {
-      if (saved == true && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Entrenamiento guardado con éxito'),
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (_) => ActiveWorkoutScreen(
+              routineId: routine.id!,
+              routineName: routine.title,
+              exercises: routine.exercises,
+            ),
           ),
-        );
-      }
-    });
+        )
+        .then((saved) {
+          if (saved == true && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Entrenamiento guardado con éxito')),
+            );
+          }
+        });
   }
 }

@@ -167,8 +167,8 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     _activeExercises = _viewModel.toActiveExercises(widget.exercises);
 
     _allSets = _activeExercises
-         .map((e) => e.sets.map((s) => s.copyWith()).toList())
-         .toList();
+        .map((e) => e.sets.map((s) => s.copyWith()).toList())
+        .toList();
 
     _initializeSession();
 
@@ -198,7 +198,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   }
 
   ActiveExerciseModel get _currentExercise =>
-    _activeExercises[_currentExerciseIndex];
+      _activeExercises[_currentExerciseIndex];
 
   List<WorkoutSetUiModel> get _currentSets => _allSets[_currentExerciseIndex];
 
@@ -220,7 +220,9 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('No se pudieron guardar los datos del entrenamiento.'),
+            content: Text(
+              'No se pudieron guardar los datos del entrenamiento.',
+            ),
           ),
         );
       }
@@ -242,7 +244,9 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       final updatedBase = _currentSets[setIndex].base.copyWith(
         reps: (current + delta).clamp(0, 999),
       );
-      _currentSets[setIndex] = _currentSets[setIndex].copyWith(base: updatedBase);
+      _currentSets[setIndex] = _currentSets[setIndex].copyWith(
+        base: updatedBase,
+      );
     });
   }
 
@@ -252,7 +256,9 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       final updatedBase = _currentSets[setIndex].base.copyWith(
         weight: (current + delta).clamp(0, 9999),
       );
-      _currentSets[setIndex] = _currentSets[setIndex].copyWith(base: updatedBase);
+      _currentSets[setIndex] = _currentSets[setIndex].copyWith(
+        base: updatedBase,
+      );
     });
   }
 
@@ -294,20 +300,25 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                     const SizedBox(height: AppSpacing.lg),
                     _ExerciseInfoCard(exercise: _currentExercise),
                     const SizedBox(height: AppSpacing.lg),
-                    const Text('Registrar Series', style: AppTextStyles.sectionTitle),
+                    const Text(
+                      'Registrar Series',
+                      style: AppTextStyles.sectionTitle,
+                    ),
                     const SizedBox(height: AppSpacing.md),
                     ..._currentSets.asMap().entries.map(
-                          (entry) => Padding(
-                            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                            child: _SetRow(
-                              setNumber: entry.key + 1,
-                              setEntry: entry.value,
-                              onToggleComplete: () => _toggleSetCompleted(entry.key),
-                              onRepsChanged: (d) => _updateSetReps(entry.key, d),
-                              onWeightChanged: (d) => _updateSetWeight(entry.key, d),
-                            ),
-                          ),
+                      (entry) => Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                        child: _SetRow(
+                          setNumber: entry.key + 1,
+                          setEntry: entry.value,
+                          onToggleComplete: () =>
+                              _toggleSetCompleted(entry.key),
+                          onRepsChanged: (d) => _updateSetReps(entry.key, d),
+                          onWeightChanged: (d) =>
+                              _updateSetWeight(entry.key, d),
                         ),
+                      ),
+                    ),
                     const SizedBox(height: AppSpacing.xxl),
                   ],
                 ),
@@ -398,8 +409,9 @@ class _WorkoutTopBar extends StatelessWidget {
               value: progress,
               minHeight: 6,
               backgroundColor: AppColors.border,
-              valueColor:
-                  const AlwaysStoppedAnimation<Color>(AppColors.primary),
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                AppColors.primary,
+              ),
             ),
           ),
         ],
@@ -445,7 +457,9 @@ class _ExerciseTabRow extends StatelessWidget {
                   vertical: AppSpacing.sm,
                 ),
                 decoration: BoxDecoration(
-                  color: isActive ? AppColors.primary : AppColors.surfaceVariant,
+                  color: isActive
+                      ? AppColors.primary
+                      : AppColors.surfaceVariant,
                   borderRadius: AppRadius.chip,
                 ),
                 child: Text(
@@ -515,10 +529,7 @@ class _ExerciseInfoCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: const Color(0xFFFFF4EE),
               borderRadius: AppRadius.input,
-              border: Border.all(
-                color: const Color(0xFFFF8C5A),
-                width: 1.2,
-              ),
+              border: Border.all(color: const Color(0xFFFF8C5A), width: 1.2),
             ),
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.md,
@@ -601,7 +612,9 @@ class _SetRow extends StatelessWidget {
             : AppColors.surface,
         borderRadius: AppRadius.card,
         border: Border.all(
-          color: setEntry.isCompleted ? AppColors.borderSelected : AppColors.border,
+          color: setEntry.isCompleted
+              ? AppColors.borderSelected
+              : AppColors.border,
           width: setEntry.isCompleted ? 1.5 : 1,
         ),
         boxShadow: AppColors.softShadow,
@@ -652,7 +665,9 @@ class _SetRow extends StatelessWidget {
               child: Icon(
                 Icons.check,
                 size: 18,
-                color: setEntry.isCompleted ? AppColors.white : AppColors.textHint,
+                color: setEntry.isCompleted
+                    ? AppColors.white
+                    : AppColors.textHint,
               ),
             ),
           ),
@@ -694,15 +709,19 @@ class _SetStepperField extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: Center(
-                  child: Text(value, style: _setFieldValueStyle),
-                ),
+                child: Center(child: Text(value, style: _setFieldValueStyle)),
               ),
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _StepperArrow(icon: Icons.keyboard_arrow_up, onTap: onIncrement),
-                  _StepperArrow(icon: Icons.keyboard_arrow_down, onTap: onDecrement),
+                  _StepperArrow(
+                    icon: Icons.keyboard_arrow_up,
+                    onTap: onIncrement,
+                  ),
+                  _StepperArrow(
+                    icon: Icons.keyboard_arrow_down,
+                    onTap: onDecrement,
+                  ),
                 ],
               ),
               const SizedBox(width: AppSpacing.xs),

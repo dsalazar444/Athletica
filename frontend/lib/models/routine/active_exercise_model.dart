@@ -5,7 +5,7 @@ class ActiveExerciseModel {
   final ExerciseModel exercise;
   final int restSeconds;
   final List<WorkoutSetUiModel> sets;
- 
+
   const ActiveExerciseModel({
     required this.exercise,
     required this.restSeconds,

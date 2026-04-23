@@ -29,9 +29,13 @@ class WorkoutRepository {
       if (response.statusCode == 201 || response.statusCode == 200) {
         return WorkoutSessionModel.fromJson(response.data);
       }
-      throw Exception('Error al iniciar entrenamiento: Código ${response.statusCode}');
+      throw Exception(
+        'Error al iniciar entrenamiento: Código ${response.statusCode}',
+      );
     } on DioException catch (e) {
-      throw Exception('Error al iniciar o recuperar entrenamiento: ${e.message}');
+      throw Exception(
+        'Error al iniciar o recuperar entrenamiento: ${e.message}',
+      );
     }
   }
 

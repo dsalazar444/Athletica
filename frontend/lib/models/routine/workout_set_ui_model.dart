@@ -44,11 +44,7 @@ class WorkoutSetUiModel {
     bool isCompleted = false,
     int? rir,
   }) {
-    return WorkoutSetUiModel(
-      base: set,
-      isCompleted: isCompleted,
-      rir: rir,
-    );
+    return WorkoutSetUiModel(base: set, isCompleted: isCompleted, rir: rir);
   }
 
   /// Para guardar en backend: solo devuelve el modelo persistente.
