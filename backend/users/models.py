@@ -64,7 +64,6 @@ class CoachProfile(Profile):
         ("wellness", "Wellness"),
     )
     speciality = models.CharField(max_length=255,choices=SPECIALITY_CHOICES)
-    
     years_experience = models.IntegerField()
     # Lista de atletas vinculados al coach (independiente de los grupos)
     athletes = models.ManyToManyField(User, related_name="managed_by_coaches", blank=True)
