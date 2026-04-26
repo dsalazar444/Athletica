@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
 from routines.models import TrainingGroup
-from users.serializers import UserSerializer
 from users.models import User
+from users.serializers import UserSerializer
 
 
 class TrainingGroupSerializer(serializers.ModelSerializer):

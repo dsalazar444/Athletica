@@ -2,14 +2,13 @@ from django.db import models
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 from rest_framework import decorators, status, viewsets
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.exceptions import PermissionDenied
 
 from users.models import User
 
-from .models import Exercise, Routine, RoutineExercise, SetLog, WorkoutSession, TrainingGroup
+from .models import Exercise, Routine, RoutineExercise, SetLog, TrainingGroup, WorkoutSession
 from .serializers.serializer_routine import (
     RoutineCreateSerializer,
     RoutineDetailSerializer,

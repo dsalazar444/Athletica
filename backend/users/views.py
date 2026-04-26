@@ -6,15 +6,15 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import AthleteProfile, CoachProfile, User
+from .models import AthleteProfile, CoachProfile, Goal, User, WeightLog
 from .serializers import (
     AthleteSearchSerializer,
+    GoalSerializer,
     MyTokenObtainPairSerializer,
     RegisterSerializer,
     UserSerializer,
+    WeightLogSerializer,
 )
-from .models import AthleteProfile, CoachProfile, User, Goal, WeightLog
-from .serializers import GoalSerializer, WeightLogSerializer
 
 
 @api_view(["POST"])

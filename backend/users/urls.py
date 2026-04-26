@@ -2,13 +2,13 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
+    AthleteDashboardView,
     AthleteSearchView,
     CoachAthleteManagementView,
+    CoachDashboardView,
     CustomTokenObtainPairView,
     RegisterView,
-    AthleteDashboardView,
     WeightLogView,
-    CoachDashboardView,
 )
 
 urlpatterns = [

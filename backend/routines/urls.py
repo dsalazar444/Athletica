@@ -5,8 +5,8 @@ from .views import (
     ExerciseViewSet,
     RoutineViewSet,
     SetLogViewSet,
-    WorkoutSessionViewSet,
     TrainingGroupViewSet,
+    WorkoutSessionViewSet,
 )
 
 router = DefaultRouter()
