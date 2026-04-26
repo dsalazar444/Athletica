@@ -54,7 +54,7 @@ class AthleteProfileSerializer(serializers.ModelSerializer):
 class CoachProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CoachProfile
-        fields = ["id", "gym_name", "business_address"]
+        fields = ["id", "speciality", "years_experience"]
 
 
 # Serializer para mostrar la informacion de un usuario existente.

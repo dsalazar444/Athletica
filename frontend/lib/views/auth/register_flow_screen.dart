@@ -170,8 +170,9 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
     } else if (vm.step == 2) {
       if (vm.data.role == UserRole.coach) {
         return Step2Coach(
-          onNext: (specialty, years) async {
-            vm.data.specialty = specialty;
+          onNext: (name, speciality, years) async {
+            vm.data.name = name;
+            vm.data.speciality = speciality;
             vm.data.yearsExperience = int.parse(years);
             final success = await vm.register();
             if (success) {
