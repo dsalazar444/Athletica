@@ -24,7 +24,7 @@ class RegisterModel {
   ActivityLevel? activityLevel;
 
   // Campos exclusivos del perfil de coach.
-  String? specialty;
+  String? speciality;
   int? yearsExperience;
 
   RegisterModel({
@@ -40,7 +40,7 @@ class RegisterModel {
     this.gender,
     this.goal,
     this.activityLevel,
-    this.specialty,
+    this.speciality,
     this.yearsExperience,
   });
 
@@ -74,7 +74,7 @@ class RegisterModel {
       // Solo se incluye coach_profile si el usuario es coach.
       if (role == UserRole.coach)
         'coach_profile': {
-          'specialty': specialty,
+          'speciality': speciality,
           'years_experience': yearsExperience,
         },
     };

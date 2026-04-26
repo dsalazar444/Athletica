@@ -56,13 +56,20 @@ class AthleteProfile(Profile):
 # Perfil específico para usuarios con rol 'coach'.
 # Almacena información del gimnasio o negocio del entrenador.
 class CoachProfile(Profile):
-    gym_name = models.CharField(max_length=255)
-    business_address = models.CharField(max_length=255)
+    SPECIALITY_CHOICES = (
+        ("lose_weight", "Lose_weight"),
+        ("gain_muscle", "Gain_muscle"),
+        ("maintain", "Maintain"),
+        ("endurance", "Endurance"),
+        ("wellness", "Wellness"),
+    )
+    speciality = models.CharField(max_length=255, choices=SPECIALITY_CHOICES)
+    years_experience = models.IntegerField()
     # Lista de atletas vinculados al coach (independiente de los grupos)
     athletes = models.ManyToManyField(User, related_name="managed_by_coaches", blank=True)
 
     def __str__(self):
-        return f"{self.user.username} — {self.gym_name}"
+        return f"{self.user.username} — {self.speciality}"
 
 
 # Representa una meta de entrenamiento asociada a un atleta.
