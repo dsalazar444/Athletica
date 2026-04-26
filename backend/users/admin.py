@@ -23,9 +23,18 @@ class CoachProfileAdmin(admin.ModelAdmin):
     search_fields = ("user__username", "speciality")
     filter_horizontal = ("athletes",)
 
+
 @admin.register(Goal)
 class GoalAdmin(admin.ModelAdmin):
-    list_display = ("athlete", "goal_type", "target_value", "current_value", "start_date", "deadline", "is_active")
+    list_display = (
+        "athlete",
+        "goal_type",
+        "target_value",
+        "current_value",
+        "start_date",
+        "deadline",
+        "is_active",
+    )
     list_filter = ("goal_type", "is_active")
     search_fields = ("athlete__user__username",)
 

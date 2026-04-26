@@ -4,30 +4,39 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0007_alter_goal_description'),
+        ("users", "0007_alter_goal_description"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='coachprofile',
-            name='business_address',
+            model_name="coachprofile",
+            name="business_address",
         ),
         migrations.RemoveField(
-            model_name='coachprofile',
-            name='gym_name',
+            model_name="coachprofile",
+            name="gym_name",
         ),
         migrations.AddField(
-            model_name='coachprofile',
-            name='experience',
+            model_name="coachprofile",
+            name="experience",
             field=models.IntegerField(default=0),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='coachprofile',
-            name='speciality',
-            field=models.CharField(choices=[('lose_weight', 'Lose_weight'), ('gain_muscle', 'Gain_muscle'), ('maintain', 'Maintain'), ('endurance', 'Endurance'), ('wellness', 'Wellness')], default='', max_length=255),
+            model_name="coachprofile",
+            name="speciality",
+            field=models.CharField(
+                choices=[
+                    ("lose_weight", "Lose_weight"),
+                    ("gain_muscle", "Gain_muscle"),
+                    ("maintain", "Maintain"),
+                    ("endurance", "Endurance"),
+                    ("wellness", "Wellness"),
+                ],
+                default="",
+                max_length=255,
+            ),
             preserve_default=False,
         ),
     ]
