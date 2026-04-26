@@ -13,17 +13,8 @@ from .serializers import (
     RegisterSerializer,
     UserSerializer,
 )
-
-
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def protected_test(request):
-    return Response(
-        {
-            "message": f"Hola {request.user.username}, estas autenticado",
-            "first_name": request.user.first_name or request.user.username,
-        }
-    )
+from .models import AthleteProfile, CoachProfile, User, Goal, WeightLog
+from .serializers import GoalSerializer, WeightLogSerializer
 
 
 @api_view(["POST"])
@@ -126,3 +117,81 @@ def CoachAthleteManagementView(request, athlete_id=None):
         # Desvincular atleta
         coach_profile.athletes.remove(athlete_id)
         return Response({"detail": "Atleta desvinculado."}, status=status.HTTP_204_NO_CONTENT)
+
+
+# ── Dashboard Atleta ──────────────────────────────────────────────────────────
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def AthleteDashboardView(request):
+    """Devuelve los datos del dashboard del atleta autenticado."""
+    try:
+        profile = AthleteProfile.objects.get(user=request.user)
+    except AthleteProfile.DoesNotExist:
+        return Response({"detail": "Perfil no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+    latest_weight = WeightLog.objects.filter(athlete=profile).order_by("-date").first()
+    active_goal = Goal.objects.filter(athlete=profile, is_active=True).first()
+
+    return Response(
+        {
+            "height": profile.height,
+            "age": profile.age,
+            "gender": profile.gender,
+            "activity_level": profile.activity_level,
+            "latest_weight": WeightLogSerializer(latest_weight).data if latest_weight else None,
+            "goal": GoalSerializer(active_goal).data if active_goal else None,
+        }
+    )
+
+
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
+def WeightLogView(request):
+    """Lista todos los pesos del atleta o agrega uno nuevo."""
+    try:
+        profile = AthleteProfile.objects.get(user=request.user)
+    except AthleteProfile.DoesNotExist:
+        return Response({"detail": "Perfil no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == "GET":
+        logs = WeightLog.objects.filter(athlete=profile).order_by("-date")
+        serializer = WeightLogSerializer(logs, many=True)
+        return Response(serializer.data)
+
+    elif request.method == "POST":
+        serializer = WeightLogSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(athlete=profile)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# ── Dashboard Coach ───────────────────────────────────────────────────────────
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def CoachDashboardView(request):
+    """Devuelve los datos del dashboard del coach autenticado."""
+    if request.user.role != "coach":
+        return Response({"detail": "Acceso denegado."}, status=status.HTTP_403_FORBIDDEN)
+
+    try:
+        profile = CoachProfile.objects.get(user=request.user)
+    except CoachProfile.DoesNotExist:
+        return Response({"detail": "Perfil no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+    from routines.models import TrainingGroup
+
+    groups = TrainingGroup.objects.filter(coach=request.user).values("id", "name")
+
+    return Response(
+        {
+            "name": request.user.first_name or request.user.username,
+            "speciality": profile.speciality,
+            "years_experience": profile.years_experience,
+            "groups": list(groups),
+        }
+    )

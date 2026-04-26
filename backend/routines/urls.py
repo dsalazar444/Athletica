@@ -1,13 +1,20 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import ExerciseViewSet, RoutineViewSet, SetLogViewSet, WorkoutSessionViewSet
+from .views import (
+    ExerciseViewSet,
+    RoutineViewSet,
+    SetLogViewSet,
+    WorkoutSessionViewSet,
+    TrainingGroupViewSet,
+)
 
 router = DefaultRouter()
 router.register(r"api/routines", RoutineViewSet, basename="routine")
 router.register(r"api/sessions", WorkoutSessionViewSet, basename="session")
 router.register(r"api/sets", SetLogViewSet, basename="set")
 router.register(r"api/exercises", ExerciseViewSet, basename="exercise")
+router.register(r"api/groups", TrainingGroupViewSet, basename="group")
 
 urlpatterns = [
     path("", include(router.urls)),

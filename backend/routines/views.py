@@ -4,10 +4,12 @@ from django.utils.dateparse import parse_date
 from rest_framework import decorators, status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.exceptions import PermissionDenied
 
 from users.models import User
 
-from .models import Exercise, Routine, RoutineExercise, SetLog, WorkoutSession
+from .models import Exercise, Routine, RoutineExercise, SetLog, WorkoutSession, TrainingGroup
 from .serializers.serializer_routine import (
     RoutineCreateSerializer,
     RoutineDetailSerializer,
@@ -19,6 +21,7 @@ from .serializers.serializer_workout import (
     WorkoutSessionSerializer,
 )
 from .serializers.serializers_exercise import ExerciseSerializer
+from .serializers.serializers_groups import TrainingGroupSerializer
 
 
 class ExerciseViewSet(viewsets.ViewSet):
@@ -242,3 +245,22 @@ class SetLogViewSet(viewsets.ModelViewSet):
                 history[date_str] = {"date": date_str, "sets": []}
             history[date_str]["sets"].append(SetLogSerializer(log).data)
         return Response(list(history.values()))
+
+
+class TrainingGroupViewSet(viewsets.ModelViewSet):
+    serializer_class = TrainingGroupSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Solo devuelve los grupos del coach autenticado
+        return TrainingGroup.objects.filter(coach=self.request.user)
+
+    def perform_create(self, serializer):
+        # Asigna automáticamente el coach al crear
+        serializer.save(coach=self.request.user)
+
+    def initial(self, request, *args, **kwargs):
+        # Verifica que el usuario sea coach antes de cualquier acción
+        super().initial(request, *args, **kwargs)
+        if request.user.role != "coach":
+            raise PermissionDenied("Solo los coaches pueden gestionar grupos.")
