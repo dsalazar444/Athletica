@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import (AthleteProfile, CoachProfile, Goal, User, WeightLog,
-)
+from .models import (AthleteProfile, CoachProfile, Goal, User, WeightLog,)
 
 
 @admin.register(User)
@@ -35,4 +34,3 @@ class WeightLogAdmin(admin.ModelAdmin):
     list_display = ("athlete", "weight", "body_fat", "date")
     list_filter = ("date",)
     search_fields = ("athlete__user__username",)
-    
