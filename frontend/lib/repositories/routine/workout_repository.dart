@@ -90,7 +90,7 @@ class WorkoutRepository {
   /// Útil para pre-llenar sugerencias de peso y repeticiones.
   Future<List<LogSetModel>> fetchLastExerciseLogs(int exerciseId) async {
     try {
-      final response = await _dio.get('exercises/$exerciseId/last/');
+      final response = await _dio.get('sets/exercise/$exerciseId/last/');
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
         return data.map((e) => LogSetModel.fromJson(e)).toList();
@@ -108,7 +108,7 @@ class WorkoutRepository {
     int exerciseId,
   ) async {
     try {
-      final response = await _dio.get('exercises/$exerciseId/history/');
+      final response = await _dio.get('sets/exercise/$exerciseId/history/');
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
         return data.cast<Map<String, dynamic>>();

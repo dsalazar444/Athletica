@@ -11,10 +11,22 @@ from .serializers import (
     AthleteSearchSerializer,
     GoalSerializer,
     MyTokenObtainPairSerializer,
+    ProfileSettingsSerializer,
     RegisterSerializer,
     UserSerializer,
     WeightLogSerializer,
 )
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def protected_test(request):
+    return Response(
+        {
+            "message": f"Hola {request.user.username}, estas autenticado",
+            "first_name": request.user.first_name or request.user.username,
+        }
+    )
 
 
 @api_view(["POST"])
@@ -117,6 +129,102 @@ def CoachAthleteManagementView(request, athlete_id=None):
         # Desvincular atleta
         coach_profile.athletes.remove(athlete_id)
         return Response({"detail": "Atleta desvinculado."}, status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(["GET", "PATCH"])
+@permission_classes([IsAuthenticated])
+def ProfileSettingsView(request):
+    user = request.user
+
+    def build_payload():
+        profile_data = {
+            "name": user.first_name or user.username,
+            "age": user.age,
+            "weight": user.weight,
+            "height": user.height,
+            "training_goal": user.training_goal or None,
+            "role": user.role,
+        }
+
+        if user.role == "athlete":
+            try:
+                athlete = AthleteProfile.objects.get(user=user)
+                profile_data["age"] = athlete.age
+                profile_data["height"] = athlete.height
+
+                latest_weight = athlete.weight.order_by("-date", "-id").first()
+                if latest_weight:
+                    profile_data["weight"] = latest_weight.weight
+
+                active_goal = athlete.goals.filter(is_active=True).order_by("-id").first()
+                if active_goal:
+                    profile_data["training_goal"] = active_goal.goal_type
+            except AthleteProfile.DoesNotExist:
+                pass
+
+        return profile_data
+
+    if request.method == "GET":
+        return Response(build_payload(), status=status.HTTP_200_OK)
+
+    serializer = ProfileSettingsSerializer(data=request.data, partial=True)
+    serializer.is_valid(raise_exception=True)
+    data = serializer.validated_data
+
+    if "name" in data:
+        user.first_name = data["name"]
+
+    if "age" in data:
+        user.age = data["age"]
+
+    if "height" in data:
+        user.height = data["height"]
+
+    if "weight" in data:
+        user.weight = data["weight"]
+
+    if "training_goal" in data:
+        user.training_goal = data["training_goal"]
+
+    user.save()
+
+    if user.role == "athlete":
+        athlete = AthleteProfile.objects.filter(user=user).first()
+        if athlete:
+            updated_fields = []
+            if "age" in data:
+                athlete.age = data["age"]
+                updated_fields.append("age")
+            if "height" in data:
+                athlete.height = data["height"]
+                updated_fields.append("height")
+            if updated_fields:
+                athlete.save(update_fields=updated_fields)
+
+            if "weight" in data:
+                from .models import WeightLog
+
+                WeightLog.objects.create(athlete=athlete, weight=data["weight"])
+
+            if "training_goal" in data:
+                from .models import Goal
+
+                Goal.objects.filter(athlete=athlete, is_active=True).exclude(
+                    goal_type=data["training_goal"]
+                ).update(is_active=False)
+                goal = Goal.objects.filter(athlete=athlete, is_active=True).first()
+                if goal:
+                    goal.goal_type = data["training_goal"]
+                    goal.save(update_fields=["goal_type"])
+                else:
+                    Goal.objects.create(
+                        athlete=athlete,
+                        goal_type=data["training_goal"],
+                        description="",
+                        is_active=True,
+                    )
+
+    return Response(build_payload(), status=status.HTTP_200_OK)
 
 
 # ── Dashboard Atleta ──────────────────────────────────────────────────────────

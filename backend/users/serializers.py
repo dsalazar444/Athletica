@@ -70,9 +70,21 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "first_name",
             "role",
+            "age",
+            "height",
+            "weight",
+            "training_goal",
             "athlete_profile",
             "coach_profile",
         ]
+
+
+class ProfileSettingsSerializer(serializers.Serializer):
+    name = serializers.CharField(required=False, max_length=150, allow_blank=False)
+    age = serializers.IntegerField(required=False, min_value=1, max_value=120)
+    weight = serializers.FloatField(required=False, min_value=1)
+    height = serializers.FloatField(required=False, min_value=1)
+    training_goal = serializers.ChoiceField(required=False, choices=Goal.GOAL_CHOICES)
 
 
 # Serializer para el registro de nuevos usuarios.

@@ -30,6 +30,20 @@ class MealRecordTestCase(TestCase):
             user=self.user, height=175.0, age=25, gender="male", activity_level="medium"
         )
 
+        self.other_user = User.objects.create_user(
+            username="otherathlete",
+            password="testpass456",
+            email="other@test.com",
+            role="athlete",  # nosec
+        )
+        self.other_athlete = AthleteProfile.objects.create(
+            user=self.other_user,
+            height=170.0,
+            age=28,
+            gender="female",
+            activity_level="high",
+        )
+
         self.meal_url = "/api/nutrition/meals/"
         self.today = datetime.date.today().isoformat()
 
@@ -141,3 +155,62 @@ class MealRecordTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["food_name"], "Granola")
+
+    def test_list_only_returns_authenticated_athlete_data(self):
+        """Un atleta solo visualiza sus propios registros de alimentación."""
+        MealRecord.objects.create(
+            athlete=self.athlete,
+            meal_type="breakfast",
+            food_name="Yogur",
+            portion_grams=120,
+            calories=95,
+            date=self.today,
+        )
+        MealRecord.objects.create(
+            athlete=self.other_athlete,
+            meal_type="lunch",
+            food_name="Pasta ajena",
+            portion_grams=250,
+            calories=430,
+            date=self.today,
+        )
+
+        response = self.client.get(self.meal_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["food_name"], "Yogur")
+
+    def test_filter_by_date_range_returns_only_records_in_range(self):
+        """El endpoint acepta start_date/end_date para consultar rangos."""
+        MealRecord.objects.create(
+            athlete=self.athlete,
+            meal_type="breakfast",
+            food_name="Avena",
+            portion_grams=100,
+            calories=250,
+            date="2026-03-01",
+        )
+        MealRecord.objects.create(
+            athlete=self.athlete,
+            meal_type="lunch",
+            food_name="Pollo",
+            portion_grams=180,
+            calories=320,
+            date="2026-03-10",
+        )
+        MealRecord.objects.create(
+            athlete=self.athlete,
+            meal_type="dinner",
+            food_name="Sopa",
+            portion_grams=200,
+            calories=150,
+            date="2026-03-20",
+        )
+
+        response = self.client.get(
+            self.meal_url,
+            {"start_date": "2026-03-05", "end_date": "2026-03-15"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["food_name"], "Pollo")

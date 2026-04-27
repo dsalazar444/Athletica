@@ -22,6 +22,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  int _homeRefreshTick = 0;
   int? _athleteId;
   String? _userRole;
   Timer? _pollingTimer;
@@ -135,6 +136,8 @@ class _MainScreenState extends State<MainScreen> {
   List<Widget> get _screens => [
     HomeScreen(
       hasNotification: _notifications.any((n) => !n.isRead),
+      athleteId: _athleteId,
+      refreshTick: _homeRefreshTick,
       onNotificationTap: () {
         Navigator.push(
           context,
@@ -253,7 +256,12 @@ class _MainScreenState extends State<MainScreen> {
     return GestureDetector(
       onTap: () {
         if (_currentIndex != index) {
-          setState(() => _currentIndex = index);
+          setState(() {
+            _currentIndex = index;
+            if (index == 0) {
+              _homeRefreshTick++;
+            }
+          });
           // Refresh logic when switching tabs
           if (index == 1) {
             _routinesKey.currentState?.refresh();

@@ -1,10 +1,11 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../core/token_storage.dart';
+import '../../models/profile/profile_settings_model.dart';
+import '../../repositories/profile/profile_repository.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_radius.dart';
 import '../../theme/app_text_styles.dart';
-import '../../view_models/dashboard/dashboard_view_model.dart';
 import '../auth/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -16,28 +17,299 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String _userName = '';
-  String _userRole = '';
-  final DashboardViewModel _vm = DashboardViewModel();
+  String _role = 'athlete';
+  int? _age;
+  double? _weight;
+  double? _height;
+  String? _trainingGoal;
+
+  final ProfileRepository _profileRepository = ProfileRepository();
+
+  final _nameCtrl = TextEditingController();
+  final _weightCtrl = TextEditingController();
+  final _heightCtrl = TextEditingController();
+  String? _selectedGoal;
+
+  bool _isProfileLoading = false;
+  bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    _loadUser();
+    _loadProfileSettings();
   }
 
-  Future<void> _loadUser() async {
-    final name = await TokenStorage.getUserName();
-    final role = await TokenStorage.getUserRole();
-    setState(() {
-      _userName = name ?? 'Usuario';
-      _userRole = role ?? '';
-    });
-    if (_userRole == 'athlete') {
-      await _vm.loadAthleteDashboard();
-    } else if (_userRole == 'coach') {
-      await _vm.loadCoachDashboard();
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _weightCtrl.dispose();
+    _heightCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadProfileSettings() async {
+    setState(() => _isProfileLoading = true);
+    try {
+      final profile = await _profileRepository.getProfileSettings();
+      if (!mounted) return;
+      setState(() {
+        _userName = profile.name;
+        _role = profile.role;
+        _age = profile.age;
+        _weight = profile.weight;
+        _height = profile.height;
+        _trainingGoal = profile.trainingGoal;
+        _nameCtrl.text = profile.name;
+        _weightCtrl.text = profile.weight?.toStringAsFixed(1) ?? '';
+        _heightCtrl.text = profile.height?.toStringAsFixed(1) ?? '';
+        _selectedGoal = profile.trainingGoal;
+        _isProfileLoading = false;
+      });
+    } catch (_) {
+      final fallbackName = await TokenStorage.getUserName();
+      if (!mounted) return;
+      setState(() {
+        _userName = fallbackName ?? 'Usuario';
+        _nameCtrl.text = _userName;
+        _isProfileLoading = false;
+      });
     }
-    if (mounted) setState(() {});
+  }
+
+  Future<void> _saveProfileSettings() async {
+    final name = _nameCtrl.text.trim();
+    final weight = double.tryParse(_weightCtrl.text.trim());
+    final height = double.tryParse(_heightCtrl.text.trim());
+
+    if (name.isEmpty ||
+        weight == null ||
+        height == null ||
+        _selectedGoal == null) {
+      _showMessage('Completa todos los campos con valores validos.');
+      return;
+    }
+
+    if (weight <= 0 || height <= 0) {
+      _showMessage('Peso y altura deben ser mayores que 0.');
+      return;
+    }
+
+    setState(() => _isSaving = true);
+    try {
+      final updated = await _profileRepository.updateProfileSettings(
+        ProfileSettingsModel(
+          name: name,
+          age: _age,
+          weight: weight,
+          height: height,
+          trainingGoal: _selectedGoal,
+          role: _role,
+        ),
+      );
+
+      await TokenStorage.saveUserName(updated.name);
+
+      if (!mounted) return;
+      setState(() {
+        _userName = updated.name;
+        _age = updated.age;
+        _weight = updated.weight;
+        _height = updated.height;
+        _trainingGoal = updated.trainingGoal;
+        _nameCtrl.text = updated.name;
+        _weightCtrl.text = updated.weight?.toStringAsFixed(1) ?? '';
+        _heightCtrl.text = updated.height?.toStringAsFixed(1) ?? '';
+        _selectedGoal = updated.trainingGoal;
+        _isSaving = false;
+      });
+
+      Navigator.pop(context);
+      _showMessage('Perfil actualizado correctamente.');
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+      _showMessage('No se pudieron guardar los cambios. Intenta de nuevo.');
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _openSettingsSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom,
+          ),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+            decoration: const BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Configuracion del perfil',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildInputField(
+                    controller: _nameCtrl,
+                    label: 'Nombre',
+                    keyboardType: TextInputType.name,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildInputField(
+                    controller: _weightCtrl,
+                    label: 'Peso (kg)',
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildInputField(
+                    controller: _heightCtrl,
+                    label: 'Altura (cm)',
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.background,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.cake_rounded,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Edad registrada: ${_age?.toString() ?? "Sin dato"}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Objetivo de entrenamiento',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    initialValue: _selectedGoal,
+                    decoration: _inputDecoration(),
+                    items: _goalOptions
+                        .map(
+                          (goal) => DropdownMenuItem<String>(
+                            value: goal.value,
+                            child: Text(goal.label),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) => setState(() => _selectedGoal = value),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _isSaving ? null : _saveProfileSettings,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: _isSaving
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.4,
+                              ),
+                            )
+                          : const Text(
+                              'Guardar cambios',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  InputDecoration _inputDecoration() {
+    return InputDecoration(
+      filled: true,
+      fillColor: AppColors.background,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    );
+  }
+
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String label,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          decoration: _inputDecoration(),
+        ),
+      ],
+    );
   }
 
   Future<void> _logout() async {
@@ -57,11 +329,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 borderRadius: BorderRadius.circular(24),
               ),
               title: const Text(
-                '¿Cerrar Sesión?',
+                'Cerrar sesion?',
                 style: TextStyle(fontWeight: FontWeight.w900),
               ),
               content: const Text(
-                'Tu progreso se mantendrá a salvo hasta que vuelvas.',
+                'Tu progreso se mantendra a salvo hasta que vuelvas.',
               ),
               actions: [
                 TextButton(
@@ -83,7 +355,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   child: const Text(
-                    'CERRAR SESIÓN',
+                    'CERRAR SESION',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -112,302 +384,157 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final nameDisplay = _userName.isNotEmpty ? _userName : 'Usuario';
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Header — igual que antes
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.only(
-                  left: 24,
-                  right: 24,
-                  top: 40,
-                  bottom: 40,
-                ),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.primary, Color(0xFFFF8A5C)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30),
-                  ),
-                ),
+        child: _isProfileLoading
+            ? const Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              )
+            : SingleChildScrollView(
                 child: Column(
                   children: [
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundColor: Colors.white.withValues(alpha: 0.3),
-                      child: Text(
-                        _userName.isNotEmpty ? _userName[0].toUpperCase() : '?',
-                        style: const TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.only(
+                        left: 24,
+                        right: 24,
+                        top: 40,
+                        bottom: 28,
+                      ),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [AppColors.primary, Color(0xFFFF8A5C)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(30),
+                          bottomRight: Radius.circular(30),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      _userName,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            radius: 40,
+                            backgroundColor: Colors.white.withValues(
+                              alpha: 0.3,
+                            ),
+                            child: Text(
+                              nameDisplay[0].toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 36,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            nameDisplay,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            _role == 'coach' ? 'Coach' : 'Athlete',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.white70,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _userRole == 'coach' ? 'Entrenador' : 'Atleta',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontSize: 14,
+                    const SizedBox(height: 24),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Tus datos',
+                            style: AppTextStyles.fitnessBold.copyWith(
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _ProfileStatCard(
+                                  label: 'Edad',
+                                  value: _age?.toString() ?? 'Sin dato',
+                                  icon: Icons.cake_rounded,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _ProfileStatCard(
+                                  label: 'Peso',
+                                  value: _weight != null
+                                      ? '${_weight!.toStringAsFixed(1)} kg'
+                                      : 'Sin dato',
+                                  icon: Icons.monitor_weight_rounded,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _ProfileStatCard(
+                                  label: 'Altura',
+                                  value: _height != null
+                                      ? '${_height!.toStringAsFixed(1)} cm'
+                                      : 'Sin dato',
+                                  icon: Icons.height_rounded,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _ProfileStatCard(
+                                  label: 'Objetivo',
+                                  value: _goalLabel(_trainingGoal),
+                                  icon: Icons.flag_rounded,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            'Configuracion',
+                            style: AppTextStyles.fitnessBold.copyWith(
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _buildOption(
+                            icon: Icons.settings,
+                            label: 'Editar perfil',
+                            onTap: _openSettingsSheet,
+                          ),
+                          const SizedBox(height: 14),
+                          _buildOption(
+                            icon: Icons.logout,
+                            label: 'Cerrar sesion',
+                            color: AppColors.error,
+                            onTap: _logout,
+                          ),
+                          const SizedBox(height: 36),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-
-              const SizedBox(height: 32),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Datos según el rol
-                    if (_userRole == 'athlete') _buildAthleteProfile(),
-                    if (_userRole == 'coach') _buildCoachProfile(),
-
-                    const SizedBox(height: 32),
-
-                    // Cerrar sesión
-                    _buildOption(
-                      icon: Icons.logout,
-                      label: 'Cerrar sesión',
-                      color: AppColors.error,
-                      onTap: _logout,
-                    ),
-                    const SizedBox(height: 120),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ── Perfil Atleta ──────────────────────────────────────────────────────────
-
-  Widget _buildAthleteProfile() {
-    final d = _vm.athleteDashboard;
-    if (_vm.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
-      );
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "MIS DATOS",
-          style: AppTextStyles.fitnessBold.copyWith(letterSpacing: 1.0),
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: _infoCard(
-                icon: Icons.height_rounded,
-                label: "Altura",
-                value: d != null
-                    ? "${(d.height * 100).toStringAsFixed(0)} cm"
-                    : "--",
-                color: const Color(0xFF448AFF),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _infoCard(
-                icon: Icons.cake_rounded,
-                label: "Edad",
-                value: d != null ? "${d.age} años" : "--",
-                color: const Color(0xFFFF5252),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _infoCard(
-                icon: Icons.wc_rounded,
-                label: "Género",
-                value: d != null ? _mapGender(d.gender) : "--",
-                color: const Color(0xFFFFD740),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _infoCard(
-                icon: Icons.bolt_rounded,
-                label: "Actividad",
-                value: d != null ? _mapActivity(d.activityLevel) : "--",
-                color: const Color(0xFF64FFDA),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        Text(
-          "MI META",
-          style: AppTextStyles.fitnessBold.copyWith(letterSpacing: 1.0),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: AppColors.primaryGradient,
-            borderRadius: AppRadius.card,
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.flag_rounded, color: Colors.white, size: 28),
-              const SizedBox(width: 16),
-              Text(
-                d?.goal != null
-                    ? _mapGoal(d!.goal!.goalType)
-                    : "Sin meta activa",
-                style: AppTextStyles.fitnessBold.copyWith(color: Colors.white),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-        Text(
-          "PESO ACTUAL",
-          style: AppTextStyles.fitnessBold.copyWith(letterSpacing: 1.0),
-        ),
-        const SizedBox(height: 16),
-        _buildOption(
-          icon: Icons.monitor_weight_rounded,
-          label: d?.latestWeight != null
-              ? "${d!.latestWeight!.weight} kg — ${d.latestWeight!.date}"
-              : "Sin registros de peso",
-          onTap: () {}, // navegar a historial de peso
-        ),
-      ],
-    );
-  }
-
-  // ── Perfil Coach ───────────────────────────────────────────────────────────
-
-  Widget _buildCoachProfile() {
-    final d = _vm.coachDashboard;
-    if (_vm.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
-      );
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "MI PERFIL",
-          style: AppTextStyles.fitnessBold.copyWith(letterSpacing: 1.0),
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: _infoCard(
-                icon: Icons.workspace_premium_rounded,
-                label: "Especialidad",
-                value: d != null ? _mapSpeciality(d.speciality) : "--",
-                color: const Color(0xFF448AFF),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _infoCard(
-                icon: Icons.history_toggle_off_rounded,
-                label: "Experiencia",
-                value: d != null ? "${d.yearsExperience} años" : "--",
-                color: const Color(0xFFFF5252),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        Text(
-          "MIS GRUPOS",
-          style: AppTextStyles.fitnessBold.copyWith(letterSpacing: 1.0),
-        ),
-        const SizedBox(height: 16),
-        if (d == null || d.groups.isEmpty)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: AppRadius.card,
-            ),
-            child: Text(
-              "Sin grupos creados",
-              style: AppTextStyles.sectionSubtitle,
-            ),
-          )
-        else
-          ...d.groups.map(
-            (group) => Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              child: _buildOption(
-                icon: Icons.group_rounded,
-                label: group.name,
-                onTap: () {}, // navegar a detalle del grupo
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  // ── Widgets compartidos ────────────────────────────────────────────────────
-
-  Widget _infoCard({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: AppRadius.card,
-        boxShadow: AppColors.deepShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(height: 12),
-          Text(value, style: AppTextStyles.fitnessBold),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: AppTextStyles.fitnessCaption.copyWith(fontSize: 10),
-          ),
-        ],
       ),
     );
   }
@@ -450,66 +577,75 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+}
 
-  // ── Mapeos ─────────────────────────────────────────────────────────────────
+class _ProfileStatCard extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
 
-  String _mapGender(String g) {
-    switch (g) {
-      case 'male':
-        return 'Masculino';
-      case 'female':
-        return 'Femenino';
-      case 'other':
-        return 'Otro';
-      default:
-        return g;
-    }
-  }
+  const _ProfileStatCard({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
 
-  String _mapActivity(String level) {
-    switch (level) {
-      case 'high':
-        return 'Alta';
-      case 'medium':
-        return 'Media';
-      case 'low':
-        return 'Baja';
-      default:
-        return level;
-    }
-  }
-
-  String _mapGoal(String goal) {
-    switch (goal) {
-      case 'lose_weight':
-        return 'Pérdida de peso';
-      case 'gain_muscle':
-        return 'Ganar músculo';
-      case 'maintain':
-        return 'Mantenimiento';
-      case 'endurance':
-        return 'Resistencia';
-      case 'wellness':
-        return 'Bienestar';
-      default:
-        return goal;
-    }
-  }
-
-  String _mapSpeciality(String s) {
-    switch (s) {
-      case 'lose_weight':
-        return 'Pérdida de peso';
-      case 'gain_muscle':
-        return 'Ganar músculo';
-      case 'maintain':
-        return 'Mantenimiento';
-      case 'endurance':
-        return 'Resistencia';
-      case 'wellness':
-        return 'Bienestar';
-      default:
-        return s;
-    }
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadius.card,
+        boxShadow: AppColors.softShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: AppColors.primary, size: 20),
+          const SizedBox(height: 14),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.cardTitle.copyWith(fontSize: 16),
+          ),
+          const SizedBox(height: 4),
+          Text(label, style: AppTextStyles.cardSubtitle),
+        ],
+      ),
+    );
   }
 }
+
+String _goalLabel(String? goal) {
+  switch (goal) {
+    case 'lose_weight':
+      return 'Perder peso';
+    case 'gain_muscle':
+      return 'Ganar musculo';
+    case 'maintain':
+      return 'Mantener';
+    case 'endurance':
+      return 'Resistencia';
+    case 'wellness':
+      return 'Bienestar';
+    default:
+      return 'Sin dato';
+  }
+}
+
+class _GoalOption {
+  final String value;
+  final String label;
+
+  const _GoalOption(this.value, this.label);
+}
+
+const List<_GoalOption> _goalOptions = [
+  _GoalOption('lose_weight', 'Perder peso'),
+  _GoalOption('gain_muscle', 'Ganar musculo'),
+  _GoalOption('maintain', 'Mantener estado'),
+  _GoalOption('endurance', 'Resistencia'),
+  _GoalOption('wellness', 'Bienestar'),
+];
