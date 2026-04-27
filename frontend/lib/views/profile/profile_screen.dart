@@ -6,6 +6,7 @@ import '../../repositories/profile/profile_repository.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_radius.dart';
 import '../../theme/app_text_styles.dart';
+import '../../view_models/dashboard/dashboard_view_model.dart';
 import '../auth/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -24,6 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _trainingGoal;
 
   final ProfileRepository _profileRepository = ProfileRepository();
+  final DashboardViewModel _vm = DashboardViewModel();
 
   final _nameCtrl = TextEditingController();
   final _weightCtrl = TextEditingController();
@@ -65,11 +67,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _selectedGoal = profile.trainingGoal;
         _isProfileLoading = false;
       });
+      // Cargar datos del dashboard según el rol
+      if (_role == 'athlete') {
+        await _vm.loadAthleteDashboard();
+      } else if (_role == 'coach') {
+        await _vm.loadCoachDashboard();
+      }
+      if (mounted) setState(() {});
     } catch (_) {
       final fallbackName = await TokenStorage.getUserName();
+      final fallbackRole = await TokenStorage.getUserRole();
       if (!mounted) return;
       setState(() {
         _userName = fallbackName ?? 'Usuario';
+        _role = fallbackRole ?? 'athlete';
         _nameCtrl.text = _userName;
         _isProfileLoading = false;
       });
@@ -88,7 +99,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _showMessage('Completa todos los campos con valores validos.');
       return;
     }
-
     if (weight <= 0 || height <= 0) {
       _showMessage('Peso y altura deben ser mayores que 0.');
       return;
@@ -106,9 +116,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           role: _role,
         ),
       );
-
       await TokenStorage.saveUserName(updated.name);
-
       if (!mounted) return;
       setState(() {
         _userName = updated.name;
@@ -122,7 +130,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _selectedGoal = updated.trainingGoal;
         _isSaving = false;
       });
-
       Navigator.pop(context);
       _showMessage('Perfil actualizado correctamente.');
     } catch (_) {
@@ -396,6 +403,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             : SingleChildScrollView(
                 child: Column(
                   children: [
+                    // Header
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.only(
@@ -442,7 +450,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            _role == 'coach' ? 'Coach' : 'Athlete',
+                            _role == 'coach' ? 'Entrenador' : 'Atleta',
                             style: const TextStyle(
                               fontSize: 13,
                               color: Colors.white70,
@@ -452,63 +460,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                     ),
+
                     const SizedBox(height: 24),
+
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Tus datos',
-                            style: AppTextStyles.fitnessBold.copyWith(
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _ProfileStatCard(
-                                  label: 'Edad',
-                                  value: _age?.toString() ?? 'Sin dato',
-                                  icon: Icons.cake_rounded,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _ProfileStatCard(
-                                  label: 'Peso',
-                                  value: _weight != null
-                                      ? '${_weight!.toStringAsFixed(1)} kg'
-                                      : 'Sin dato',
-                                  icon: Icons.monitor_weight_rounded,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _ProfileStatCard(
-                                  label: 'Altura',
-                                  value: _height != null
-                                      ? '${_height!.toStringAsFixed(1)} cm'
-                                      : 'Sin dato',
-                                  icon: Icons.height_rounded,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _ProfileStatCard(
-                                  label: 'Objetivo',
-                                  value: _goalLabel(_trainingGoal),
-                                  icon: Icons.flag_rounded,
-                                ),
-                              ),
-                            ],
-                          ),
+                          // Datos por rol
+                          if (_role == 'athlete') _buildAthleteProfile(),
+                          if (_role == 'coach') _buildCoachProfile(),
+
                           const SizedBox(height: 24),
+
+                          // Configuración
                           Text(
                             'Configuracion',
                             style: AppTextStyles.fitnessBold.copyWith(
@@ -538,6 +504,152 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+
+  // ── Perfil Atleta ──────────────────────────────────────────────────────────
+
+  Widget _buildAthleteProfile() {
+    final d = _vm.athleteDashboard;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Tus datos',
+          style: AppTextStyles.fitnessBold.copyWith(
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _ProfileStatCard(
+                label: 'Edad',
+                value: _age?.toString() ?? 'Sin dato',
+                icon: Icons.cake_rounded,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _ProfileStatCard(
+                label: 'Peso',
+                value: _weight != null
+                    ? '${_weight!.toStringAsFixed(1)} kg'
+                    : 'Sin dato',
+                icon: Icons.monitor_weight_rounded,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _ProfileStatCard(
+                label: 'Altura',
+                value: _height != null
+                    ? '${_height!.toStringAsFixed(1)} cm'
+                    : 'Sin dato',
+                icon: Icons.height_rounded,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _ProfileStatCard(
+                label: 'Actividad',
+                value: d != null ? _mapActivity(d.activityLevel) : 'Sin dato',
+                icon: Icons.bolt_rounded,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _ProfileStatCard(
+          label: 'Objetivo',
+          value: _goalLabel(_trainingGoal),
+          icon: Icons.flag_rounded,
+        ),
+        const SizedBox(height: 12),
+        _buildOption(
+          icon: Icons.monitor_weight_rounded,
+          label: d?.latestWeight != null
+              ? 'Peso reciente: ${d!.latestWeight!.weight} kg — ${d.latestWeight!.date}'
+              : 'Ver historial de peso',
+          onTap: () {}, // navegar a historial de peso
+        ),
+      ],
+    );
+  }
+
+  // ── Perfil Coach ───────────────────────────────────────────────────────────
+
+  Widget _buildCoachProfile() {
+    final d = _vm.coachDashboard;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Tus datos',
+          style: AppTextStyles.fitnessBold.copyWith(
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _ProfileStatCard(
+                label: 'Especialidad',
+                value: d != null ? _mapSpeciality(d.speciality) : 'Sin dato',
+                icon: Icons.workspace_premium_rounded,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _ProfileStatCard(
+                label: 'Experiencia',
+                value: d != null ? '${d.yearsExperience} años' : 'Sin dato',
+                icon: Icons.history_toggle_off_rounded,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        Text(
+          'Mis grupos',
+          style: AppTextStyles.fitnessBold.copyWith(
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (d == null || d.groups.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: AppRadius.card,
+            ),
+            child: Text(
+              'Sin grupos creados',
+              style: AppTextStyles.sectionSubtitle,
+            ),
+          )
+        else
+          ...d.groups.map(
+            (group) => Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: _buildOption(
+                icon: Icons.group_rounded,
+                label: group.name,
+                onTap: () {}, // navegar a detalle del grupo
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  // ── Widgets compartidos ────────────────────────────────────────────────────
 
   Widget _buildOption({
     required IconData icon,
@@ -577,7 +689,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+
+  // ── Mapeos ─────────────────────────────────────────────────────────────────
+
+  String _mapActivity(String level) {
+    switch (level) {
+      case 'high':
+        return 'Alta';
+      case 'medium':
+        return 'Media';
+      case 'low':
+        return 'Baja';
+      default:
+        return level;
+    }
+  }
+
+  String _mapSpeciality(String s) {
+    switch (s) {
+      case 'lose_weight':
+        return 'Pérdida de peso';
+      case 'gain_muscle':
+        return 'Ganar músculo';
+      case 'maintain':
+        return 'Mantenimiento';
+      case 'endurance':
+        return 'Resistencia';
+      case 'wellness':
+        return 'Bienestar';
+      default:
+        return s;
+    }
+  }
 }
+
+// ── Widgets externos ───────────────────────────────────────────────────────
 
 class _ProfileStatCard extends StatelessWidget {
   final String label;
@@ -638,7 +784,6 @@ String _goalLabel(String? goal) {
 class _GoalOption {
   final String value;
   final String label;
-
   const _GoalOption(this.value, this.label);
 }
 
