@@ -5,6 +5,7 @@ from .views import (
     AthleteSearchView,
     CoachAthleteManagementView,
     CustomTokenObtainPairView,
+    ProfileSettingsView,
     RegisterView,
     protected_test,
 )
@@ -14,6 +15,7 @@ urlpatterns = [
     path("api/auth/login/", CustomTokenObtainPairView.as_view(), name="login"),
     path("api/auth/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/auth/me/", protected_test, name="me"),
+    path("api/users/profile/settings/", ProfileSettingsView, name="profile_settings"),
     # Coach - Athlete management
     path("api/users/athletes/search/", AthleteSearchView, name="athlete_search"),
     path("api/users/coach/athletes/", CoachAthleteManagementView, name="coach_athletes"),

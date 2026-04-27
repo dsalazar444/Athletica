@@ -13,6 +13,10 @@ class User(AbstractUser):
 
     # Sobreescribe el email para hacerlo único — no puede haber dos usuarios con el mismo email.
     email = models.EmailField(unique=True)
+    age = models.IntegerField(null=True, blank=True)
+    height = models.FloatField(null=True, blank=True)
+    weight = models.FloatField(null=True, blank=True)
+    training_goal = models.CharField(max_length=30, blank=True, default="")
 
     def __str__(self):
         return f"{self.username} ({self.get_role_display()})"

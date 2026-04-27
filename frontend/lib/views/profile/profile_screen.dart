@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../core/token_storage.dart';
+import '../../models/profile/profile_settings_model.dart';
+import '../../repositories/profile/profile_repository.dart';
 import '../../theme/app_colors.dart';
 import '../auth/login_screen.dart';
 
@@ -14,18 +16,258 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String _userName = '';
+  String _role = 'athlete';
+  final ProfileRepository _profileRepository = ProfileRepository();
+
+  final _nameCtrl = TextEditingController();
+  final _ageCtrl = TextEditingController();
+  final _weightCtrl = TextEditingController();
+  final _heightCtrl = TextEditingController();
+  String? _selectedGoal;
+
+  bool _isProfileLoading = false;
+  bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    _loadUser();
+    _loadProfileSettings();
   }
 
-  Future<void> _loadUser() async {
-    final name = await TokenStorage.getUserName();
-    setState(() {
-      _userName = name ?? 'Usuario';
-    });
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _ageCtrl.dispose();
+    _weightCtrl.dispose();
+    _heightCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadProfileSettings() async {
+    setState(() => _isProfileLoading = true);
+    try {
+      final profile = await _profileRepository.getProfileSettings();
+      if (!mounted) return;
+      setState(() {
+        _userName = profile.name;
+        _role = profile.role;
+        _nameCtrl.text = profile.name;
+        _ageCtrl.text = profile.age?.toString() ?? '';
+        _weightCtrl.text = profile.weight?.toStringAsFixed(1) ?? '';
+        _heightCtrl.text = profile.height?.toStringAsFixed(1) ?? '';
+        _selectedGoal = profile.trainingGoal;
+        _isProfileLoading = false;
+      });
+    } catch (_) {
+      final fallbackName = await TokenStorage.getUserName();
+      if (!mounted) return;
+      setState(() {
+        _userName = fallbackName ?? 'Usuario';
+        _nameCtrl.text = _userName;
+        _isProfileLoading = false;
+      });
+    }
+  }
+
+  Future<void> _saveProfileSettings() async {
+    final name = _nameCtrl.text.trim();
+    final age = int.tryParse(_ageCtrl.text.trim());
+    final weight = double.tryParse(_weightCtrl.text.trim());
+    final height = double.tryParse(_heightCtrl.text.trim());
+
+    if (name.isEmpty || age == null || weight == null || height == null || _selectedGoal == null) {
+      _showMessage('Completa todos los campos con valores válidos.');
+      return;
+    }
+
+    if (age <= 0 || weight <= 0 || height <= 0) {
+      _showMessage('Edad, peso y altura deben ser mayores que 0.');
+      return;
+    }
+
+    setState(() => _isSaving = true);
+    try {
+      final updated = await _profileRepository.updateProfileSettings(
+        ProfileSettingsModel(
+          name: name,
+          age: age,
+          weight: weight,
+          height: height,
+          trainingGoal: _selectedGoal,
+          role: _role,
+        ),
+      );
+
+      await TokenStorage.saveUserName(updated.name);
+
+      if (!mounted) return;
+      setState(() {
+        _userName = updated.name;
+        _nameCtrl.text = updated.name;
+        _ageCtrl.text = updated.age?.toString() ?? '';
+        _weightCtrl.text = updated.weight?.toStringAsFixed(1) ?? '';
+        _heightCtrl.text = updated.height?.toStringAsFixed(1) ?? '';
+        _selectedGoal = updated.trainingGoal;
+        _isSaving = false;
+      });
+
+      Navigator.pop(context);
+      _showMessage('Perfil actualizado correctamente.');
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+      _showMessage('No se pudieron guardar los cambios. Intenta de nuevo.');
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _openSettingsSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+            decoration: const BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Configuración del perfil',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildInputField(
+                    controller: _nameCtrl,
+                    label: 'Nombre',
+                    keyboardType: TextInputType.name,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildInputField(
+                    controller: _ageCtrl,
+                    label: 'Edad',
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildInputField(
+                    controller: _weightCtrl,
+                    label: 'Peso (kg)',
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildInputField(
+                    controller: _heightCtrl,
+                    label: 'Altura (cm)',
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Objetivo de entrenamiento',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    initialValue: _selectedGoal,
+                    decoration: _inputDecoration(),
+                    items: _goalOptions
+                        .map(
+                          (goal) => DropdownMenuItem<String>(
+                            value: goal.value,
+                            child: Text(goal.label),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) => setState(() => _selectedGoal = value),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _isSaving ? null : _saveProfileSettings,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: _isSaving
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.4,
+                              ),
+                            )
+                          : const Text(
+                              'Guardar cambios',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  InputDecoration _inputDecoration() {
+    return InputDecoration(
+      filled: true,
+      fillColor: AppColors.background,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    );
+  }
+
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String label,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          decoration: _inputDecoration(),
+        ),
+      ],
+    );
   }
 
   Future<void> _logout() async {
@@ -100,10 +342,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final nameDisplay = _userName.isNotEmpty ? _userName : 'Usuario';
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Column(
+        child: _isProfileLoading
+            ? const Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              )
+            : Column(
           children: [
             // Header
             Container(
@@ -131,7 +379,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     radius: 40,
                     backgroundColor: Colors.white.withValues(alpha: 0.3),
                     child: Text(
-                      _userName.isNotEmpty ? _userName[0].toUpperCase() : '?',
+                      nameDisplay[0].toUpperCase(),
                       style: const TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
@@ -141,11 +389,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    _userName,
+                    nameDisplay,
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    _role == 'coach' ? 'Coach' : 'Athlete',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -159,6 +416,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
+                  _buildOption(
+                    icon: Icons.settings,
+                    label: 'Configuración',
+                    onTap: _openSettingsSheet,
+                  ),
+                  const SizedBox(height: 14),
                   _buildOption(
                     icon: Icons.logout,
                     label: 'Cerrar sesión',
@@ -213,3 +476,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
+
+class _GoalOption {
+  final String value;
+  final String label;
+
+  const _GoalOption(this.value, this.label);
+}
+
+const List<_GoalOption> _goalOptions = [
+  _GoalOption('lose_weight', 'Perder peso'),
+  _GoalOption('gain_muscle', 'Ganar músculo'),
+  _GoalOption('maintain', 'Mantener estado'),
+  _GoalOption('endurance', 'Resistencia'),
+  _GoalOption('wellness', 'Bienestar'),
+];

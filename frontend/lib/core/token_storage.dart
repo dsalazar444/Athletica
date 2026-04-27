@@ -54,6 +54,11 @@ class TokenStorage {
     return prefs.getString(_nameKey);
   }
 
+  static Future<void> saveUserName(String name) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_nameKey, name);
+  }
+
   static Future<String?> getUserRole() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_roleKey);

@@ -1,5 +1,7 @@
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import MealRecord
@@ -22,6 +24,7 @@ class MealRecordViewSet(viewsets.ModelViewSet):
       GET    /nutrition/meals/by_date/?date=YYYY-MM-DD  → filtrar por fecha
     """
 
+    permission_classes = [IsAuthenticated]
     queryset = MealRecord.objects.all()
     serializer_class = MealRecordSerializer
 
@@ -30,16 +33,45 @@ class MealRecordViewSet(viewsets.ModelViewSet):
         Permite filtrar por athlete_id y/o date como query params.
         Ejemplo: /nutrition/meals/?athlete=1&date=2026-03-23
         """
-        queryset = MealRecord.objects.all()
+        user = self.request.user
+        queryset = MealRecord.objects.select_related("athlete", "athlete__user")
         athlete_id = self.request.query_params.get("athlete")
         date = self.request.query_params.get("date")
+        start_date = self.request.query_params.get("start_date")
+        end_date = self.request.query_params.get("end_date")
 
-        if athlete_id:
+        # Un atleta solo puede ver sus propios registros.
+        if user.role == "athlete":
+            queryset = queryset.filter(athlete__user=user)
+        elif athlete_id:
+            # Coaches pueden consultar por atleta explícito.
             queryset = queryset.filter(athlete__id=athlete_id)
+
         if date:
             queryset = queryset.filter(date=date)
+        if start_date and end_date:
+            queryset = queryset.filter(date__range=(start_date, end_date))
 
         return queryset
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        athlete = serializer.validated_data.get("athlete")
+
+        # Evita que un atleta cree registros para otro perfil.
+        if user.role == "athlete" and athlete.user_id != user.id:
+            raise PermissionDenied("No puedes crear registros para otro atleta.")
+
+        serializer.save()
+
+    def perform_update(self, serializer):
+        user = self.request.user
+        athlete = serializer.validated_data.get("athlete", serializer.instance.athlete)
+
+        if user.role == "athlete" and athlete.user_id != user.id:
+            raise PermissionDenied("No puedes editar registros de otro atleta.")
+
+        serializer.save()
 
     @action(detail=False, methods=["get"], url_path="by_date")
     def by_date(self, request):
