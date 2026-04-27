@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import '../../core/token_storage.dart';
 import '../../models/profile/profile_settings_model.dart';
 import '../../repositories/profile/profile_repository.dart';
+import '../../theme/app_colors.dart';
 import '../../theme/app_radius.dart';
 import '../../theme/app_text_styles.dart';
-import '../../theme/app_colors.dart';
 import '../auth/login_screen.dart';
 
-/// Pantalla de perfil: muestra datos del usuario y permite cerrar sesión.
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -23,6 +22,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   double? _weight;
   double? _height;
   String? _trainingGoal;
+
   final ProfileRepository _profileRepository = ProfileRepository();
 
   final _nameCtrl = TextEditingController();
@@ -82,7 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final height = double.tryParse(_heightCtrl.text.trim());
 
     if (name.isEmpty || weight == null || height == null || _selectedGoal == null) {
-      _showMessage('Completa todos los campos con valores válidos.');
+      _showMessage('Completa todos los campos con valores validos.');
       return;
     }
 
@@ -152,7 +152,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Configuración del perfil',
+                    'Configuracion del perfil',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 16),
@@ -315,11 +315,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 borderRadius: BorderRadius.circular(24),
               ),
               title: const Text(
-                '¿Cerrar Sesión?',
+                'Cerrar sesion?',
                 style: TextStyle(fontWeight: FontWeight.w900),
               ),
               content: const Text(
-                'Tu progreso se mantendrá a salvo hasta que vuelvas.',
+                'Tu progreso se mantendra a salvo hasta que vuelvas.',
               ),
               actions: [
                 TextButton(
@@ -341,7 +341,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   child: const Text(
-                    'CERRAR SESIÓN',
+                    'CERRAR SESION',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -382,7 +382,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             : SingleChildScrollView(
                 child: Column(
                   children: [
-                    // Header
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.only(
@@ -437,9 +436,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 24),
-
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
@@ -497,7 +494,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           const SizedBox(height: 24),
                           Text(
-                            'Configuración',
+                            'Configuracion',
                             style: AppTextStyles.fitnessBold.copyWith(
                               color: AppColors.textPrimary,
                             ),
@@ -511,7 +508,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(height: 14),
                           _buildOption(
                             icon: Icons.logout,
-                            label: 'Cerrar sesión',
+                            label: 'Cerrar sesion',
                             color: AppColors.error,
                             onTap: _logout,
                           ),
@@ -545,15 +542,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Icon(icon, color: color ?? AppColors.primary),
             const SizedBox(width: 16),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: color ?? AppColors.textPrimary,
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: color ?? AppColors.textPrimary,
+                ),
               ),
             ),
-            const Spacer(),
             Icon(
               Icons.chevron_right,
               color: (color ?? AppColors.textPrimary).withValues(alpha: 0.4),
@@ -612,7 +610,7 @@ String _goalLabel(String? goal) {
     case 'lose_weight':
       return 'Perder peso';
     case 'gain_muscle':
-      return 'Ganar músculo';
+      return 'Ganar musculo';
     case 'maintain':
       return 'Mantener';
     case 'endurance':
@@ -633,7 +631,7 @@ class _GoalOption {
 
 const List<_GoalOption> _goalOptions = [
   _GoalOption('lose_weight', 'Perder peso'),
-  _GoalOption('gain_muscle', 'Ganar músculo'),
+  _GoalOption('gain_muscle', 'Ganar musculo'),
   _GoalOption('maintain', 'Mantener estado'),
   _GoalOption('endurance', 'Resistencia'),
   _GoalOption('wellness', 'Bienestar'),

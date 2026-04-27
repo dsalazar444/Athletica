@@ -144,3 +144,22 @@ class SetLog(models.Model):
 
     def __str__(self):
         return f"{self.exercise.name} Set {self.set_number}: {self.reps} reps @ {self.weight}kg"
+
+
+"""
+ATRIBUTES: TrainingGroup
+- name -> string -> group name
+- coach -> ForeignKey -> coach who created the group
+- members -> ManyToMany -> athletes that belong to the group
+- created_at -> DateTimeField -> when the group was created
+"""
+
+
+class TrainingGroup(models.Model):
+    name = models.CharField(max_length=150)
+    coach = models.ForeignKey(User, on_delete=models.CASCADE, related_name="training_groups")
+    members = models.ManyToManyField(User, related_name="training_group_memberships", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} — {self.coach.username}"

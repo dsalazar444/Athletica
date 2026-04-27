@@ -2,11 +2,14 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
+    AthleteDashboardView,
     AthleteSearchView,
     CoachAthleteManagementView,
+    CoachDashboardView,
     CustomTokenObtainPairView,
     ProfileSettingsView,
     RegisterView,
+    WeightLogView,
     protected_test,
 )
 
@@ -24,4 +27,7 @@ urlpatterns = [
         CoachAthleteManagementView,
         name="coach_athlete_action",
     ),
+    path("api/dashboard/athlete/", AthleteDashboardView, name="athlete_dashboard"),
+    path("api/dashboard/coach/", CoachDashboardView, name="coach_dashboard"),
+    path("api/athlete/weight-logs/", WeightLogView, name="weight_logs"),
 ]
