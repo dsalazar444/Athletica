@@ -225,6 +225,8 @@ def ProfileSettingsView(request):
                     )
 
     return Response(build_payload(), status=status.HTTP_200_OK)
+
+
 # ── Dashboard Atleta ──────────────────────────────────────────────────────────
 
 

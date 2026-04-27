@@ -25,10 +25,7 @@ class DashboardRepository {
   Future<WeightLogModel> addWeightLog(double weight, {double? bodyFat}) async {
     final response = await _dio.post(
       'athlete/weight-logs/',
-      data: {
-        'weight': weight,
-        'body_fat': bodyFat,
-      },
+      data: {'weight': weight, 'body_fat': bodyFat},
     );
     return WeightLogModel.fromJson(response.data);
   }

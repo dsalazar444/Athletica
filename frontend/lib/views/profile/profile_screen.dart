@@ -81,7 +81,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final weight = double.tryParse(_weightCtrl.text.trim());
     final height = double.tryParse(_heightCtrl.text.trim());
 
-    if (name.isEmpty || weight == null || height == null || _selectedGoal == null) {
+    if (name.isEmpty ||
+        weight == null ||
+        height == null ||
+        _selectedGoal == null) {
       _showMessage('Completa todos los campos con valores validos.');
       return;
     }
@@ -130,7 +133,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _openSettingsSheet() {
@@ -140,7 +145,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) {
         return Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom,
+          ),
           child: Container(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
             decoration: const BoxDecoration(
@@ -165,13 +172,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _buildInputField(
                     controller: _weightCtrl,
                     label: 'Peso (kg)',
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   _buildInputField(
                     controller: _heightCtrl,
                     label: 'Altura (cm)',
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Container(
@@ -183,7 +194,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.cake_rounded, color: AppColors.primary),
+                        const Icon(
+                          Icons.cake_rounded,
+                          color: AppColors.primary,
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
@@ -405,7 +419,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           CircleAvatar(
                             radius: 40,
-                            backgroundColor: Colors.white.withValues(alpha: 0.3),
+                            backgroundColor: Colors.white.withValues(
+                              alpha: 0.3,
+                            ),
                             child: Text(
                               nameDisplay[0].toUpperCase(),
                               style: const TextStyle(
@@ -595,10 +611,7 @@ class _ProfileStatCard extends StatelessWidget {
             style: AppTextStyles.cardTitle.copyWith(fontSize: 16),
           ),
           const SizedBox(height: 4),
-          Text(
-            label,
-            style: AppTextStyles.cardSubtitle,
-          ),
+          Text(label, style: AppTextStyles.cardSubtitle),
         ],
       ),
     );

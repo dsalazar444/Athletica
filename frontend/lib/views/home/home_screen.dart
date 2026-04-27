@@ -33,7 +33,15 @@ class _HomeScreenState extends State<HomeScreen> {
   );
 
   static const int _calendarDays = 21;
-  static const List<String> _weekdayLabels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+  static const List<String> _weekdayLabels = [
+    'L',
+    'M',
+    'X',
+    'J',
+    'V',
+    'S',
+    'D',
+  ];
 
   bool _isCalendarLoading = true;
   Map<String, _DayActivity> _calendarActivity = {};
@@ -142,7 +150,11 @@ class _HomeScreenState extends State<HomeScreen> {
     var streak = 0;
 
     for (int i = 0; i < _calendarDays; i++) {
-      final day = DateTime(now.year, now.month, now.day).subtract(Duration(days: i));
+      final day = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).subtract(Duration(days: i));
       final key = _formatDate(day);
       final activity = _calendarActivity[key] ?? _DayActivity.none;
       if (activity == _DayActivity.none) {
@@ -512,7 +524,9 @@ class _HomeScreenState extends State<HomeScreen> {
               final key = _formatDate(day);
               final activity = _calendarActivity[key] ?? _DayActivity.none;
               final isToday =
-                  day.year == now.year && day.month == now.month && day.day == now.day;
+                  day.year == now.year &&
+                  day.month == now.month &&
+                  day.day == now.day;
 
               return Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -556,7 +570,10 @@ class _HomeScreenState extends State<HomeScreen> {
             runSpacing: 8,
             children: const [
               _LegendDot(label: 'Ejercicio', activity: _DayActivity.workout),
-              _LegendDot(label: 'Alimentacion', activity: _DayActivity.nutrition),
+              _LegendDot(
+                label: 'Alimentacion',
+                activity: _DayActivity.nutrition,
+              ),
               _LegendDot(label: 'Ambos', activity: _DayActivity.both),
               _LegendDot(label: 'Sin actividad', activity: _DayActivity.none),
             ],
