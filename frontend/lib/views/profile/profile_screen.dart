@@ -26,7 +26,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final ProfileRepository _profileRepository = ProfileRepository();
 
   final _nameCtrl = TextEditingController();
-  final _ageCtrl = TextEditingController();
   final _weightCtrl = TextEditingController();
   final _heightCtrl = TextEditingController();
   String? _selectedGoal;
@@ -43,7 +42,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void dispose() {
     _nameCtrl.dispose();
-    _ageCtrl.dispose();
     _weightCtrl.dispose();
     _heightCtrl.dispose();
     super.dispose();
@@ -62,7 +60,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _height = profile.height;
         _trainingGoal = profile.trainingGoal;
         _nameCtrl.text = profile.name;
-        _ageCtrl.text = profile.age?.toString() ?? '';
         _weightCtrl.text = profile.weight?.toStringAsFixed(1) ?? '';
         _heightCtrl.text = profile.height?.toStringAsFixed(1) ?? '';
         _selectedGoal = profile.trainingGoal;
@@ -81,17 +78,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _saveProfileSettings() async {
     final name = _nameCtrl.text.trim();
-    final age = int.tryParse(_ageCtrl.text.trim());
     final weight = double.tryParse(_weightCtrl.text.trim());
     final height = double.tryParse(_heightCtrl.text.trim());
 
-    if (name.isEmpty || age == null || weight == null || height == null || _selectedGoal == null) {
+    if (name.isEmpty || weight == null || height == null || _selectedGoal == null) {
       _showMessage('Completa todos los campos con valores válidos.');
       return;
     }
 
-    if (age <= 0 || weight <= 0 || height <= 0) {
-      _showMessage('Edad, peso y altura deben ser mayores que 0.');
+    if (weight <= 0 || height <= 0) {
+      _showMessage('Peso y altura deben ser mayores que 0.');
       return;
     }
 
@@ -100,7 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final updated = await _profileRepository.updateProfileSettings(
         ProfileSettingsModel(
           name: name,
-          age: age,
+          age: _age,
           weight: weight,
           height: height,
           trainingGoal: _selectedGoal,
@@ -118,7 +114,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _height = updated.height;
         _trainingGoal = updated.trainingGoal;
         _nameCtrl.text = updated.name;
-        _ageCtrl.text = updated.age?.toString() ?? '';
         _weightCtrl.text = updated.weight?.toStringAsFixed(1) ?? '';
         _heightCtrl.text = updated.height?.toStringAsFixed(1) ?? '';
         _selectedGoal = updated.trainingGoal;
@@ -168,12 +163,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 12),
                   _buildInputField(
-                    controller: _ageCtrl,
-                    label: 'Edad',
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildInputField(
                     controller: _weightCtrl,
                     label: 'Peso (kg)',
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -183,6 +172,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     controller: _heightCtrl,
                     label: 'Altura (cm)',
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.background,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.cake_rounded, color: AppColors.primary),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Edad registrada: ${_age?.toString() ?? "Sin dato"}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 12),
                   const Text(

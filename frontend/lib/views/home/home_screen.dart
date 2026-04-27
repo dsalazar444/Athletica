@@ -503,9 +503,9 @@ class _HomeScreenState extends State<HomeScreen> {
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 7,
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
-              childAspectRatio: 0.78,
+              mainAxisSpacing: 6,
+              crossAxisSpacing: 6,
+              mainAxisExtent: 68,
             ),
             itemBuilder: (context, index) {
               final day = days[index];
@@ -515,19 +515,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   day.year == now.year && day.month == now.month && day.day == now.day;
 
               return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
                     _weekdayLabels[day.weekday - 1],
                     style: AppTextStyles.fitnessCaption.copyWith(
-                      fontSize: 10,
+                      fontSize: 9,
                       color: AppColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   Container(
-                    width: 30,
-                    height: 30,
+                    width: 28,
+                    height: 28,
                     decoration: BoxDecoration(
                       color: activity.color,
                       borderRadius: BorderRadius.circular(10),
@@ -541,7 +541,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(
                           color: activity.textColor,
                           fontWeight: FontWeight.w700,
-                          fontSize: 11,
+                          fontSize: 10,
                         ),
                       ),
                     ),
