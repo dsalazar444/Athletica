@@ -29,4 +29,12 @@ class DashboardRepository {
     );
     return WeightLogModel.fromJson(response.data);
   }
+
+  Future<void> createGroup(String name) async {
+    final response = await _dio.post('coach/groups/', data: {'name': name});
+
+    if (response.statusCode != 201 && response.statusCode != 200) {
+      throw Exception('Error creando grupo');
+    }
+  }
 }
