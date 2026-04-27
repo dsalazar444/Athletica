@@ -8,6 +8,7 @@ import '../../theme/app_radius.dart';
 import '../../theme/app_text_styles.dart';
 import '../../view_models/dashboard/dashboard_view_model.dart';
 import '../auth/login_screen.dart';
+import '../group/groups_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -581,7 +582,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // ── Perfil Coach ───────────────────────────────────────────────────────────
-
   Widget _buildCoachProfile() {
     final d = _vm.coachDashboard;
     return Column(
@@ -621,30 +621,66 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        if (d == null || d.groups.isEmpty)
-          Container(
+        GestureDetector(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const MyGroupsScreen()),
+          ),
+          child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.primary.withValues(alpha: 0.08),
               borderRadius: AppRadius.card,
             ),
-            child: Text(
-              'Sin grupos creados',
-              style: AppTextStyles.sectionSubtitle,
-            ),
-          )
-        else
-          ...d.groups.map(
-            (group) => Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              child: _buildOption(
-                icon: Icons.group_rounded,
-                label: group.name,
-                onTap: () {}, // navegar a detalle del grupo
-              ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.group_rounded,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        d == null || d.groups.isEmpty
+                            ? 'Sin grupos creados'
+                            : '${d.groups.length} equipo${d.groups.length == 1 ? '' : 's'}',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      if (d != null && d.groups.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          'Toca para gestionar',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right, color: AppColors.primary),
+              ],
             ),
           ),
+        ),
       ],
     );
   }
