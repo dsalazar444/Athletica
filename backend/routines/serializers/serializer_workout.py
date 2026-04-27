@@ -8,6 +8,11 @@ class SetLogSerializer(serializers.ModelSerializer):
         model = SetLog
         fields = ["id", "session", "exercise", "set_number", "reps", "weight"]
 
+    def validate_weight(self, value):
+        if value < 0:
+            raise serializers.ValidationError("El peso no puede ser negativo.")
+        return value
+
 
 class WorkoutSessionSerializer(serializers.ModelSerializer):
     set_logs = SetLogSerializer(many=True, read_only=True)
