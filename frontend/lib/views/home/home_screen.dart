@@ -189,9 +189,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 16),
                   _buildStreakCalendar(),
                   const SizedBox(height: 32),
-                  _buildSectionTitle("ENTRENAMIENTO SUGERIDO"),
-                  const SizedBox(height: 16),
-                  _buildFeaturedRoutine(),
+                  // _buildSectionTitle("ENTRENAMIENTO SUGERIDO"),
+                  // const SizedBox(height: 16),
+                  // _buildFeaturedRoutine(),
                   const SizedBox(height: 120),
                 ],
               ),
@@ -639,6 +639,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /*
   Widget _buildFeaturedRoutine() {
     return Container(
       width: double.infinity,
@@ -726,6 +727,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+*/
 }
 
 enum _DayActivity { none, workout, nutrition, both }
