@@ -109,8 +109,8 @@ def CoachAthleteManagementView(request, athlete_id=None):
         )
 
     if request.method == "GET":
-        # Listar mis atletas
-        athletes = coach_profile.athletes.all()
+        # Listar mis atletas (Solo usuarios con rol 'athlete')
+        athletes = coach_profile.athletes.filter(role="athlete")
         serializer = AthleteSearchSerializer(athletes, many=True)
         return Response(serializer.data)
 
