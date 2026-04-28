@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/api_client.dart';
 import '../../theme/app_colors.dart';
-import '../../theme/app_radius.dart';
 import '../../theme/app_text_styles.dart';
 import '../routine/routine_detail_screen.dart';
 
@@ -16,8 +15,9 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<dynamic> _searchResults = [];
   List<dynamic> _myAthletes = [];
+  List<dynamic> _myGroups = [];
   bool _isSearching = false;
-  bool _isLoadingMyAthletes = false;
+  bool _isLoadingData = false;
 
   @override
   void initState() {
@@ -26,14 +26,24 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
   }
 
   Future<void> refresh() async {
-    setState(() => _isLoadingMyAthletes = true);
+    if (!mounted) return;
+    setState(() => _isLoadingData = true);
     try {
-      final response = await ApiClient.dio.get('users/coach/athletes/');
-      setState(() => _myAthletes = response.data);
+      final futures = [
+        ApiClient.dio.get('users/coach/athletes/'),
+        ApiClient.dio.get('groups/'),
+      ];
+      final results = await Future.wait(futures);
+      if (mounted) {
+        setState(() {
+          _myAthletes = results[0].data;
+          _myGroups = results[1].data;
+        });
+      }
     } catch (e) {
-      debugPrint("Error fetching my athletes: $e");
+      debugPrint("Error fetching coach data: $e");
     } finally {
-      setState(() => _isLoadingMyAthletes = false);
+      if (mounted) setState(() => _isLoadingData = false);
     }
   }
 
@@ -48,9 +58,23 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
         'users/athletes/search/',
         queryParameters: {'q': query},
       );
-      setState(() => _searchResults = response.data);
+      final List<dynamic> athletes = response.data;
+      final List<dynamic> matchingGroups = _myGroups
+          .where(
+            (g) => g['name'].toString().toLowerCase().contains(
+              query.toLowerCase(),
+            ),
+          )
+          .toList();
+
+      setState(() {
+        _searchResults = [
+          ...matchingGroups.map((g) => {...g, 'isGroup': true}),
+          ...athletes.map((a) => {...a, 'isGroup': false}),
+        ];
+      });
     } catch (e) {
-      debugPrint("Error searching athletes: $e");
+      debugPrint("Error searching: $e");
     } finally {
       setState(() => _isSearching = false);
     }
@@ -77,13 +101,10 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
   }
 
   Future<void> _viewAthleteRoutine(int athleteId) async {
-    setState(() => _isLoadingMyAthletes = true);
+    if (mounted) setState(() => _isLoadingData = true);
     try {
       final response = await ApiClient.dio.get('athletes/$athleteId/routine/');
       if (mounted) {
-        // Asumiendo que RoutineDetailScreen acepta un objeto de tipo RoutineModel
-        // Necesitaremos convertir el response.data a RoutineModel o manejarlo
-        // De momento, si el backend devuelve el detalle completo:
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -103,24 +124,19 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
         );
       }
     } finally {
-      if (mounted) setState(() => _isLoadingMyAthletes = false);
+      if (mounted) setState(() => _isLoadingData = false);
     }
   }
 
-  Future<void> _showQuickAssignModal(int athleteId) async {
+  Future<void> _showQuickAssignModal(int id, {bool isGroup = false}) async {
     try {
       final response = await ApiClient.dio.get('routines/');
       final List<dynamic> routines = response.data;
 
       if (!mounted) return;
-
       if (routines.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "Aún no tienes rutinas creadas. Ve a la pestaña Rutinas.",
-            ),
-          ),
+          const SnackBar(content: Text("Aún no tienes rutinas creadas.")),
         );
         return;
       }
@@ -136,9 +152,12 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Padding(
-                  padding: EdgeInsets.all(24.0),
-                  child: Text("Selecciona una Rutina", style: AppTextStyles.h2),
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Text(
+                    isGroup ? "Asignar a Grupo" : "Asignar a Atleta",
+                    style: AppTextStyles.h2,
+                  ),
                 ),
                 Flexible(
                   child: ListView.builder(
@@ -162,10 +181,12 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
                             await ApiClient.dio.post(
                               'routines/${routine['id']}/assign/',
                               data: {
-                                'athlete_ids': [athleteId],
+                                if (isGroup)
+                                  'group_ids': [id]
+                                else
+                                  'athlete_ids': [id],
                               },
                             );
-
                             refresh();
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -212,49 +233,7 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
           child: Column(
             children: [
               const SizedBox(height: 16),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 24),
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(
-                    alpha: 0.05,
-                  ), // Indented inner look
-                  borderRadius: BorderRadius.circular(100),
-                  border: Border.all(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    width: 1,
-                  ),
-                ),
-                child: TabBar(
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  dividerColor: Colors.transparent,
-                  indicator: BoxDecoration(
-                    color:
-                        AppColors.primary, // Vibrant Orange active background
-                    borderRadius: BorderRadius.circular(100),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(
-                          alpha: 0.4,
-                        ), // Glow effect
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  labelColor: Colors.white, // Text inside orange pill
-                  unselectedLabelColor: AppColors.textSecondary,
-                  labelStyle: AppTextStyles.fitnessBold.copyWith(fontSize: 11),
-                  unselectedLabelStyle: AppTextStyles.fitnessBold.copyWith(
-                    fontSize: 11,
-                  ),
-                  tabs: const [
-                    Tab(text: "BUSCADOR", height: 40),
-                    Tab(text: "POR ASIGNAR", height: 40),
-                    Tab(text: "ENTRENANDO", height: 40),
-                  ],
-                ),
-              ),
+              _buildTabs(),
               const SizedBox(height: 8),
               Expanded(
                 child: TabBarView(
@@ -272,62 +251,306 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
     );
   }
 
-  Widget _buildPorAsignarTab() {
-    final pending = _myAthletes
-        .where((a) => a['active_routine_id'] == null)
-        .toList();
-    return _buildTabContainer(
-      title: "ATLETAS SIN PLAN",
-      subtitle: "ESTOS ATLETAS NECESITAN UNA RUTINA ACTIVA",
-      child: _buildAthletesList(pending, isPending: true),
-    );
-  }
-
-  Widget _buildEntrenandoTab() {
-    final active = _myAthletes
-        .where((a) => a['active_routine_id'] != null)
-        .toList();
-    return _buildTabContainer(
-      title: "PLANES ACTIVOS",
-      subtitle: "ATLETAS QUE YA ESTÁN ENTRENANDO",
-      child: _buildAthletesList(active, isPending: false),
+  Widget _buildTabs() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(100),
+      ),
+      child: TabBar(
+        indicatorSize: TabBarIndicatorSize.tab,
+        dividerColor: Colors.transparent,
+        indicator: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(100),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.4),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        labelColor: Colors.white,
+        unselectedLabelColor: AppColors.textSecondary,
+        labelStyle: AppTextStyles.fitnessBold.copyWith(fontSize: 11),
+        tabs: const [
+          Tab(text: "BUSCADOR", height: 40),
+          Tab(text: "POR ASIGNAR", height: 40),
+          Tab(text: "ENTRENANDO", height: 40),
+        ],
+      ),
     );
   }
 
   Widget _buildBuscadorTab() {
     return _buildTabContainer(
       title: "BUSCADOR GLOBAL",
-      subtitle: "TRAE NUEVOS ATLETAS A TU PANEL",
+      subtitle: "ENCUENTRA ATLETAS O TUS GRUPOS",
       child: Column(
         children: [
           TextField(
             controller: _searchController,
             onChanged: _searchAthletes,
-            decoration: InputDecoration(
-              hintText: "Nombre o email...",
-              prefixIcon: const Icon(Icons.search_rounded),
-              suffixIcon: _isSearching
-                  ? const Padding(
-                      padding: EdgeInsets.all(12),
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : null,
+            decoration: const InputDecoration(
+              hintText: "Nombre, email o grupo...",
+              prefixIcon: Icon(Icons.search_rounded),
             ),
           ),
           const SizedBox(height: 24),
           if (_searchResults.isNotEmpty) _buildSearchResults(),
           if (_searchResults.isEmpty && !_isSearching)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(40),
-                child: Icon(
-                  Icons.person_search_rounded,
-                  size: 80,
-                  color: AppColors.textHint.withValues(alpha: 0.2),
-                ),
+            Padding(
+              padding: const EdgeInsets.only(top: 60),
+              child: Icon(
+                Icons.search_off_rounded,
+                size: 80,
+                color: AppColors.textHint.withValues(alpha: 0.2),
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSearchResults() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _searchResults.length,
+      itemBuilder: (context, index) {
+        final item = _searchResults[index];
+        final bool isGroup = item['isGroup'] == true;
+        final bool isAlreadyLinked =
+            !isGroup && _myAthletes.any((a) => a['id'] == item['id']);
+
+        return _buildEntityCard(
+          item,
+          isGroup,
+          false,
+          trailing: isAlreadyLinked
+              ? const Icon(Icons.check_circle_rounded, color: Colors.green)
+              : IconButton(
+                  icon: Icon(
+                    isGroup
+                        ? Icons.group_add_rounded
+                        : Icons.person_add_rounded,
+                    color: AppColors.primary,
+                  ),
+                  onPressed: () => isGroup
+                      ? _showQuickAssignModal(item['id'], isGroup: true)
+                      : _linkAthlete(item['id']),
+                ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPorAsignarTab() {
+    // 1. Identificar atletas que ya pertenecen a un grupo
+    final idsInGroups = _myGroups
+        .expand((g) => g['members'] as List)
+        .map((m) => m['id'])
+        .toSet();
+
+    // 2. Atletas pendientes que NO tienen grupo
+    final independentPending = _myAthletes
+        .where(
+          (a) =>
+              a['active_routine_id'] == null && !idsInGroups.contains(a['id']),
+        )
+        .toList();
+
+    final pendingGroups = _myGroups.where((g) {
+      final members = g['members'] as List;
+      if (members.isEmpty) return true;
+      return members.any((m) => m['active_routine_id'] == null);
+    }).toList();
+
+    return _buildTabContainer(
+      title: "GESTIÓN GRUPAL",
+      subtitle: "ASIGNA RUTINAS A EQUIPOS O INDIVIDUOS",
+      child: _buildCompositionList(
+        athletes: independentPending,
+        groups: pendingGroups,
+        isPending: true,
+      ),
+    );
+  }
+
+  Widget _buildEntrenandoTab() {
+    // 1. Identificar atletas que ya pertenecen a un grupo
+    final idsInGroups = _myGroups
+        .expand((g) => g['members'] as List)
+        .map((m) => m['id'])
+        .toSet();
+
+    // 2. Atletas activos que NO tienen grupo
+    final independentActive = _myAthletes
+        .where(
+          (a) =>
+              a['active_routine_id'] != null && !idsInGroups.contains(a['id']),
+        )
+        .toList();
+
+    final trainingGroups = _myGroups.where((g) {
+      final members = g['members'] as List;
+      if (members.isEmpty) return false;
+      return members.every((m) => m['active_routine_id'] != null);
+    }).toList();
+
+    return _buildTabContainer(
+      title: "CONTROL ACTIVO",
+      subtitle: "ESTADO DE ENTRENAMIENTO EN TIEMPO REAL",
+      child: _buildCompositionList(
+        athletes: independentActive,
+        groups: trainingGroups,
+        isPending: false,
+      ),
+    );
+  }
+
+  Widget _buildCompositionList({
+    required List<dynamic> athletes,
+    required List<dynamic> groups,
+    required bool isPending,
+  }) {
+    if (_isLoadingData) return const Center(child: CircularProgressIndicator());
+    final List<dynamic> combined = [
+      ...groups.map((g) => {...g, 'isGroup': true}),
+      ...athletes.map((a) => {...a, 'isGroup': false}),
+    ];
+    if (combined.isEmpty) return _buildEmptyState(isPending);
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: combined.length,
+      itemBuilder: (context, index) {
+        final item = combined[index];
+        return _buildEntityCard(item, item['isGroup'] == true, isPending);
+      },
+    );
+  }
+
+  Widget _buildEntityCard(
+    dynamic item,
+    bool isGroup,
+    bool isPending, {
+    Widget? trailing,
+  }) {
+    final title = item['name'] ?? item['username'] ?? "Sin nombre";
+    final subtitle = isGroup
+        ? "${(item['members'] as List).length} integrantes"
+        : (item['active_routine_title'] ?? "Sin rutina activa");
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+          ),
+        ],
+        border: Border.all(
+          color: isGroup
+              ? AppColors.primary.withValues(alpha: 0.2)
+              : Colors.transparent,
+        ),
+      ),
+      child: ListTile(
+        onTap: () =>
+            isGroup ? _showGroupDetail(item) : _viewAthleteRoutine(item['id']),
+        leading: _buildEntityIcon(isGroup),
+        title: Text(
+          title,
+          style: AppTextStyles.fitnessBold.copyWith(fontSize: 14),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: TextStyle(
+            fontSize: 11,
+            color: isGroup ? AppColors.primary : AppColors.textSecondary,
+          ),
+        ),
+        trailing:
+            trailing ??
+            IconButton(
+              icon: Icon(
+                isGroup
+                    ? Icons.group_add_rounded
+                    : Icons.add_circle_outline_rounded,
+                color: AppColors.primary,
+              ),
+              onPressed: () =>
+                  _showQuickAssignModal(item['id'], isGroup: isGroup),
+            ),
+      ),
+    );
+  }
+
+  Widget _buildEntityIcon(bool isGroup) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: isGroup
+            ? AppColors.primary.withValues(alpha: 0.1)
+            : AppColors.textHint.withValues(alpha: 0.1),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        isGroup ? Icons.groups_rounded : Icons.person_rounded,
+        color: isGroup ? AppColors.primary : AppColors.textSecondary,
+        size: 20,
+      ),
+    );
+  }
+
+  void _showGroupDetail(dynamic group) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        decoration: const BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              group['name'].toString().toUpperCase(),
+              style: AppTextStyles.fitnessDisplay,
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.builder(
+                itemCount: (group['members'] as List).length,
+                itemBuilder: (context, index) {
+                  final member = group['members'][index];
+                  return ListTile(
+                    leading: const CircleAvatar(child: Icon(Icons.person)),
+                    title: Text(member['name'] ?? member['username']),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _viewAthleteRoutine(member['id']);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -339,249 +562,32 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
   }) {
     return RefreshIndicator(
       onRefresh: refresh,
-      color: AppColors.primary,
       child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         children: [
           const SizedBox(height: 32),
           Text(
             title,
-            style: AppTextStyles.fitnessDisplay.copyWith(fontSize: 24),
+            style: AppTextStyles.fitnessDisplay.copyWith(fontSize: 22),
           ),
-          const SizedBox(height: 4),
           Text(subtitle, style: AppTextStyles.fitnessCaption),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
           child,
-          const SizedBox(height: 120),
+          const SizedBox(height: 100),
         ],
       ),
     );
   }
 
-  Widget _buildSearchResults() {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: AppRadius.card,
-        boxShadow: AppColors.softShadow,
-      ),
-      child: ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: _searchResults.length,
-        separatorBuilder: (context, index) => const Divider(height: 1),
-        itemBuilder: (context, index) {
-          final user = _searchResults[index];
-          final isAlreadyLinked = _myAthletes.any((a) => a['id'] == user['id']);
-
-          return ListTile(
-            title: Text(
-              user['name'] ?? user['username'],
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(user['email']),
-            trailing: isAlreadyLinked
-                ? const Icon(Icons.check_circle_rounded, color: Colors.green)
-                : ElevatedButton(
-                    onPressed: () => _linkAthlete(user['id']),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      visualDensity: VisualDensity.compact,
-                    ),
-                    child: const Text(
-                      "Vincular",
-                      style: TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                  ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildAthletesList(List<dynamic> athletes, {required bool isPending}) {
-    if (_isLoadingMyAthletes) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (athletes.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 40),
-          child: Column(
-            children: [
-              Icon(
-                isPending
-                    ? Icons.notification_important_rounded
-                    : Icons.fitness_center_rounded,
-                size: 64,
-                color: AppColors.textHint.withValues(alpha: 0.3),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                isPending
-                    ? "Todos tus atletas tienen planes."
-                    : "Aún no tienes atletas entrenando.",
-                style: const TextStyle(color: AppColors.textSecondary),
-              ),
-            ],
-          ),
+  Widget _buildEmptyState(bool isPending) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 40),
+        child: Text(
+          isPending ? "No hay pendientes." : "Sin actividad.",
+          style: const TextStyle(color: AppColors.textSecondary),
         ),
-      );
-    }
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: athletes.length,
-      itemBuilder: (context, index) {
-        final athlete = athletes[index];
-        final routineTitle = athlete['active_routine_title'] ?? "Sin rutina";
-
-        return Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: isPending
-                ? [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.15),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ]
-                : [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 15,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-            border: Border.all(
-              color: isPending
-                  ? AppColors.primary.withValues(alpha: 0.5)
-                  : Colors.transparent,
-              width: 1.5,
-            ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: isPending
-                        ? [
-                            AppColors.primary.withValues(alpha: 0.8),
-                            AppColors.primary,
-                          ]
-                        : [
-                            AppColors.textHint.withValues(alpha: 0.2),
-                            AppColors.textHint.withValues(alpha: 0.5),
-                          ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    athlete['name']?[0]?.toUpperCase() ?? 'A',
-                    style: TextStyle(
-                      color: isPending ? Colors.white : AppColors.textSecondary,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      athlete['name'] ?? athlete['username'],
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    if (isPending)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Text(
-                          "REQUIERE ACCIÓN",
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      )
-                    else
-                      Text(
-                        "Plan Activo:\n$routineTitle",
-                        style: TextStyle(
-                          color: AppColors.primary.withValues(alpha: 0.8),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          height: 1.2,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: isPending
-                      ? AppColors.primary
-                      : AppColors.textHint.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                  boxShadow: isPending
-                      ? [
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.4),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ]
-                      : [],
-                ),
-                child: IconButton(
-                  icon: Icon(
-                    isPending
-                        ? Icons.add_rounded
-                        : Icons.arrow_forward_ios_rounded,
-                    color: isPending ? Colors.white : AppColors.textSecondary,
-                    size: isPending ? 24 : 16,
-                  ),
-                  onPressed: () {
-                    if (isPending) {
-                      _showQuickAssignModal(athlete['id']);
-                    } else {
-                      _viewAthleteRoutine(athlete['id']);
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+      ),
     );
   }
 }

@@ -185,4 +185,27 @@ class RoutineRepository {
       throw Exception('Error al recuperar rutina activa: ${e.message}');
     }
   }
+
+  /// Asigna una rutina a atletas individuales y/o grupos de entrenamiento.
+  Future<void> assignRoutine({
+    required int routineId,
+    List<int>? athleteIds,
+    List<int>? groupIds,
+  }) async {
+    try {
+      final data = <String, dynamic>{};
+      if (athleteIds != null) data['athlete_ids'] = athleteIds;
+      if (groupIds != null) data['group_ids'] = groupIds;
+
+      final response = await _dio.post(
+        'routines/$routineId/assign/',
+        data: data,
+      );
+      if (response.statusCode != 200) {
+        throw Exception('Fallo al asignar la rutina.');
+      }
+    } on DioException catch (e) {
+      throw Exception('Error al asignar rutina: ${e.message}');
+    }
+  }
 }

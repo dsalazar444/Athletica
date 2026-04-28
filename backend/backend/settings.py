@@ -91,8 +91,8 @@ RUNNING_IN_DOCKER = os.path.exists("/.dockerenv")
 DEFAULT_DB_HOST = "db" if RUNNING_IN_DOCKER else "localhost"
 DEFAULT_DB_PORT = "5432" if RUNNING_IN_DOCKER else "5433"
 
-
-if "test" in sys.argv:
+# Si estamos ejecutando tests (con manage.py test o pytest), usamos SQLite en memoria
+if "test" in sys.argv or "pytest" in sys.modules:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",

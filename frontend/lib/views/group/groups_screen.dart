@@ -303,10 +303,10 @@ class _ManageGroupDialogState extends State<_ManageGroupDialog>
   Widget build(BuildContext context) {
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-      child: SizedBox(
-        width: double.infinity,
-        height: 540,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 500, maxHeight: 600),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Header
             Padding(
@@ -423,84 +423,87 @@ class _ManageGroupDialogState extends State<_ManageGroupDialog>
           if (_searchResults.isNotEmpty) ...[
             const SizedBox(height: 8),
             Container(
+              constraints: const BoxConstraints(maxHeight: 180),
               decoration: BoxDecoration(
                 border: Border.all(
                   color: AppColors.primary.withValues(alpha: 0.3),
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-                    child: Text(
-                      'Resultados',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                      child: Text(
+                        'Resultados',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
                       ),
                     ),
-                  ),
-                  ...(_searchResults.map((athlete) {
-                    final alreadyAdded = _members.any(
-                      (m) => m.id == athlete.id,
-                    );
-                    return ListTile(
-                      dense: true,
-                      leading: CircleAvatar(
-                        radius: 16,
-                        backgroundColor: AppColors.primary.withValues(
-                          alpha: 0.15,
-                        ),
-                        child: Text(
-                          athlete.displayName[0].toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
+                    ...(_searchResults.map((athlete) {
+                      final alreadyAdded = _members.any(
+                        (m) => m.id == athlete.id,
+                      );
+                      return ListTile(
+                        dense: true,
+                        leading: CircleAvatar(
+                          radius: 16,
+                          backgroundColor: AppColors.primary.withValues(
+                            alpha: 0.15,
+                          ),
+                          child: Text(
+                            athlete.displayName[0].toUpperCase(),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                      title: Text(
-                        athlete.displayName,
-                        style: const TextStyle(fontSize: 13),
-                      ),
-                      subtitle: Text(
-                        athlete.email,
-                        style: const TextStyle(fontSize: 11),
-                      ),
-                      trailing: alreadyAdded
-                          ? const Icon(
-                              Icons.check_circle,
-                              color: Colors.green,
-                              size: 20,
-                            )
-                          : GestureDetector(
-                              onTap: () => _addMember(athlete),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: const Text(
-                                  'Añadir',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                        title: Text(
+                          athlete.displayName,
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                        subtitle: Text(
+                          athlete.email,
+                          style: const TextStyle(fontSize: 11),
+                        ),
+                        trailing: alreadyAdded
+                            ? const Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                                size: 20,
+                              )
+                            : GestureDetector(
+                                onTap: () => _addMember(athlete),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: const Text(
+                                    'Añadir',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                    );
-                  })),
-                ],
+                      );
+                    })),
+                  ],
+                ),
               ),
             ),
           ],

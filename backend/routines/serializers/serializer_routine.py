@@ -31,7 +31,7 @@ class RoutineCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Routine
-        fields = ["title", "description", "category", "difficulty", "exercises"]
+        fields = ["id", "title", "description", "category", "difficulty", "exercises"]
 
     def validate_exercises(self, exercises):
         """Verifica que no vengan dos ejercicios con el mismo orden."""

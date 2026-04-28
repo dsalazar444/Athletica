@@ -2,11 +2,11 @@ from rest_framework import serializers
 
 from routines.models import TrainingGroup
 from users.models import User
-from users.serializers import UserSerializer
+from users.serializers import AthleteSearchSerializer
 
 
 class TrainingGroupSerializer(serializers.ModelSerializer):
-    members = UserSerializer(many=True, read_only=True)
+    members = AthleteSearchSerializer(many=True, read_only=True)
     member_ids = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=User.objects.filter(role="athlete"),

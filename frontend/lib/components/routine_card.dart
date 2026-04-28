@@ -102,27 +102,31 @@ class RoutineCard extends StatelessWidget {
 
           // 'Iniciar entrenamiento' button
           if (onStartTraining != null) ...[
-            const SizedBox(width: 12),
-            ElevatedButton.icon(
-              onPressed: onStartTraining,
-              icon: const Icon(Icons.play_arrow_rounded, size: 16),
-              label: Text(
-                "Iniciar entrenamiento",
-                style: AppTextStyles.buttonPrimary.copyWith(
-                  fontSize: 14,
-                  letterSpacing: 0.5,
-                  fontWeight: FontWeight.w800,
+            const SizedBox(width: 8),
+            Flexible(
+              child: ElevatedButton.icon(
+                onPressed: onStartTraining,
+                icon: const Icon(Icons.play_arrow_rounded, size: 14),
+                label: Text(
+                  "Iniciar",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.buttonPrimary.copyWith(
+                    fontSize: 12,
+                    letterSpacing: 0.5,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.white,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 30,
-                  vertical: 16,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
                 ),
-                shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
               ),
             ),
           ],
@@ -133,52 +137,64 @@ class RoutineCard extends StatelessWidget {
 
   Widget _buildFooter() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.surfaceVariant.withValues(alpha: 0.5),
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            "${routine.exercises.length} EJERCICIOS",
-            style: AppTextStyles.fitnessCaption.copyWith(fontSize: 10),
-          ),
-          Row(
-            children: [
-              Text(
-                "DETALLES",
-                style: AppTextStyles.fitnessCaption.copyWith(
-                  color: AppColors.primary,
-                  fontSize: 10,
+          Expanded(
+            child: Row(
+              children: [
+                Text(
+                  "${routine.exercises.length} EJERCICIOS",
+                  style: AppTextStyles.fitnessCaption.copyWith(fontSize: 9),
                 ),
-              ),
-              const SizedBox(width: 4),
-              const Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 10,
-                color: AppColors.primary,
-              ),
-            ],
+                const SizedBox(width: 8),
+                Text(
+                  "|",
+                  style: TextStyle(color: Colors.grey.withValues(alpha: 0.3)),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: onTap,
+                  child: Row(
+                    children: [
+                      Text(
+                        "DETALLES",
+                        style: AppTextStyles.fitnessCaption.copyWith(
+                          color: AppColors.primary,
+                          fontSize: 9,
+                        ),
+                      ),
+                      const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 8,
+                        color: AppColors.primary,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-          if (isCoach && onAssign != null) ...[
-            const SizedBox(width: 16),
+          if (isCoach && onAssign != null)
             ElevatedButton.icon(
               onPressed: onAssign,
-              icon: const Icon(Icons.person_add_alt_rounded, size: 14),
+              icon: const Icon(Icons.person_add_alt_rounded, size: 12),
               label: const Text(
                 "ASIGNAR",
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
                 visualDensity: VisualDensity.compact,
+                elevation: 0,
               ),
             ),
-          ],
         ],
       ),
     );

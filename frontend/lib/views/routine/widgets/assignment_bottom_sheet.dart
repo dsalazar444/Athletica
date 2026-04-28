@@ -20,35 +20,46 @@ class AssignmentBottomSheet extends StatefulWidget {
 
 class _AssignmentBottomSheetState extends State<AssignmentBottomSheet> {
   List<dynamic> _athletes = [];
+  List<dynamic> _groups = [];
   final List<int> _selectedAthletes = [];
+  final List<int> _selectedGroups = [];
   bool _isLoading = false;
   bool _isAssigning = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchAthletes();
+    _fetchData();
   }
 
-  Future<void> _fetchAthletes() async {
+  Future<void> _fetchData() async {
     if (mounted) setState(() => _isLoading = true);
     try {
-      final response = await ApiClient.dio.get('users/coach/athletes/');
-      if (mounted) setState(() => _athletes = response.data);
+      final futures = [
+        ApiClient.dio.get('users/coach/athletes/'),
+        ApiClient.dio.get('groups/'),
+      ];
+      final results = await Future.wait(futures);
+      if (mounted) {
+        setState(() {
+          _athletes = results[0].data;
+          _groups = results[1].data;
+        });
+      }
     } catch (e) {
-      debugPrint("Error fetching athletes: $e");
+      debugPrint("Error fetching assignment data: $e");
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
   Future<void> _assignRoutine() async {
-    if (_selectedAthletes.isEmpty) return;
+    if (_selectedAthletes.isEmpty && _selectedGroups.isEmpty) return;
     if (mounted) setState(() => _isAssigning = true);
     try {
       await ApiClient.dio.post(
         'routines/${widget.routine.id}/assign/',
-        data: {'athlete_ids': _selectedAthletes.toList()},
+        data: {'athlete_ids': _selectedAthletes, 'group_ids': _selectedGroups},
       );
 
       if (mounted) {
@@ -68,28 +79,46 @@ class _AssignmentBottomSheetState extends State<AssignmentBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(),
-          const SizedBox(height: 8),
-          Text(
-            "Selecciona los atletas para: ${widget.routine.title}",
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
-          ),
-          const SizedBox(height: 24),
-          _buildAthletesList(),
-          const SizedBox(height: 24),
-          _buildConfirmButton(),
-          const SizedBox(height: 24),
-        ],
+    return DefaultTabController(
+      length: 2,
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          children: [
+            _buildHeader(),
+            const SizedBox(height: 16),
+            TabBar(
+              labelColor: AppColors.primary,
+              unselectedLabelColor: AppColors.textSecondary,
+              indicatorColor: AppColors.primary,
+              indicatorSize: TabBarIndicatorSize.label,
+              tabs: const [
+                Tab(text: "ATLETAS"),
+                Tab(text: "GRUPOS"),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: TabBarView(
+                children: [
+                  _buildList(
+                    _athletes,
+                    _selectedAthletes,
+                    "No tienes atletas.",
+                  ),
+                  _buildList(_groups, _selectedGroups, "No tienes grupos."),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            _buildConfirmButton(),
+          ],
+        ),
       ),
     );
   }
@@ -98,7 +127,16 @@ class _AssignmentBottomSheetState extends State<AssignmentBottomSheet> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text("ASIGNAR RUTINA", style: AppTextStyles.fitnessBold),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("ASIGNAR RUTINA", style: AppTextStyles.fitnessBold),
+            Text(
+              widget.routine.title,
+              style: TextStyle(color: AppColors.primary, fontSize: 12),
+            ),
+          ],
+        ),
         IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.close_rounded),
@@ -107,67 +145,69 @@ class _AssignmentBottomSheetState extends State<AssignmentBottomSheet> {
     );
   }
 
-  Widget _buildAthletesList() {
+  Widget _buildList(
+    List<dynamic> items,
+    List<int> selectedList,
+    String emptyMsg,
+  ) {
     if (_isLoading) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(40),
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
-    if (_athletes.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(40),
-          child: Text("No tienes atletas vinculados todavía."),
-        ),
-      );
+    if (items.isEmpty) {
+      return Center(child: Text(emptyMsg));
     }
 
-    return Flexible(
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: _athletes.length,
-        itemBuilder: (context, index) {
-          final athlete = _athletes[index];
-          final isSelected = _selectedAthletes.contains(athlete['id']);
-          return CheckboxListTile(
-            value: isSelected,
-            onChanged: (val) {
-              setState(() {
-                if (val == true) {
-                  _selectedAthletes.add(athlete['id']);
-                } else {
-                  _selectedAthletes.remove(athlete['id']);
-                }
-              });
-            },
-            title: Text(athlete['name'] ?? athlete['username']),
-            subtitle: Text(athlete['email']),
-            activeColor: AppColors.primary,
-          );
-        },
-      ),
+    return ListView.builder(
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final item = items[index];
+        final id = item['id'];
+        final isSelected = selectedList.contains(id);
+        final title = item['name'] ?? item['username'] ?? "Sin nombre";
+        final subtitle =
+            item['email'] ?? "${item['members']?.length ?? 0} miembros";
+
+        return CheckboxListTile(
+          value: isSelected,
+          onChanged: (val) {
+            setState(() {
+              if (val == true) {
+                selectedList.add(id);
+              } else {
+                selectedList.remove(id);
+              }
+            });
+          },
+          title: Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
+          activeColor: AppColors.primary,
+          contentPadding: EdgeInsets.zero,
+        );
+      },
     );
   }
 
   Widget _buildConfirmButton() {
+    final total = _selectedAthletes.length + _selectedGroups.length;
     return SizedBox(
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
-        onPressed: _selectedAthletes.isEmpty || _isAssigning
-            ? null
-            : _assignRoutine,
+        onPressed: total == 0 || _isAssigning ? null : _assignRoutine,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
         child: _isAssigning
             ? const CircularProgressIndicator(color: Colors.white)
-            : Text("CONFIRMAR ASIGNACIÓN (${_selectedAthletes.length})"),
+            : Text("CONFIRMAR ASIGNACIÓN ($total)"),
       ),
     );
   }

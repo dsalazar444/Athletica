@@ -110,21 +110,41 @@ class RoutineViewSet(viewsets.ModelViewSet):
             )
 
         routine = self.get_object()
-        athlete_ids = request.data.get("athlete_ids", [])
-        if not athlete_ids:
+        if routine.created_by != request.user:
             return Response(
-                {"detail": "Proporcione athlete_ids."}, status=status.HTTP_400_BAD_REQUEST
+                {"detail": "No tienes permiso para asignar esta rutina."},
+                status=status.HTTP_403_FORBIDDEN,
             )
 
+        athlete_ids = set(request.data.get("athlete_ids", []))
+        group_ids = request.data.get("group_ids", [])
+
+        # Si se proporcionan grupos, sumar sus miembros a la lista de atletas
+        if group_ids:
+            members_from_groups = User.objects.filter(
+                training_group_memberships__id__in=group_ids, role="athlete"
+            ).values_list("id", flat=True)
+            athlete_ids.update(members_from_groups)
+
+        if not athlete_ids:
+            return Response(
+                {"detail": "Proporcione athlete_ids o group_ids con miembros."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Obtener los objetos de usuario finales
         athletes = User.objects.filter(id__in=athlete_ids, role="athlete")
+
         for athlete in athletes:
-            # Limpiar asignaciones previas
-            Routine.objects.filter(assigned_athletes=athlete).all()  # Evaluation
+            # Regla de negocio: Un atleta solo puede tener una rutina activa a la vez.
+            # Quitamos al atleta de cualquier otra rutina donde esté asignado.
             for r in Routine.objects.filter(assigned_athletes=athlete):
                 r.assigned_athletes.remove(athlete)
+
+            # Asignar la nueva rutina
             routine.assigned_athletes.add(athlete)
 
-        return Response({"detail": f"Asignada a {athletes.count()} atletas."})
+        return Response({"detail": f"Rutina asignada a {athletes.count()} atletas."})
 
     @decorators.action(
         detail=False, methods=["get"], url_path="athlete/(?P<athlete_id>[^/.]+)/active"

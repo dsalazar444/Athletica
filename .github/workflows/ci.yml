@@ -34,16 +34,17 @@ jobs:
           ruff format --check .
 
       - name: Security Scan (Bandit)
-        run: bandit -r . -x ./tests
-
+        run: |
+          bandit -r . -x ./tests,./venv,./.venv
+          
       - name: Vulnerability Scan (Safety)
         run: safety scan -r ../requirements.txt
         env:
           SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
           
-      - name: Run Django Tests
+      - name: Run Backend Tests (Pytest)
         run: |
-          python manage.py test
+          python -m pytest
         env:
           DJANGO_SETTINGS_MODULE: backend.settings
           SECRET_KEY: "test-secret-key-for-ci"
