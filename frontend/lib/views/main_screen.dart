@@ -5,6 +5,7 @@ import 'home/home_screen.dart';
 import 'routine/routines_list_screen.dart';
 import 'profile/profile_screen.dart';
 import 'nutrition/nutrition_screen.dart';
+import 'nutrition/nutrition_plans_screen.dart';
 import 'coach/coach_athletes_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_radius.dart';
@@ -164,23 +165,15 @@ class _MainScreenState extends State<MainScreen> {
   ];
 
   Widget _buildNutritionScreen() {
-    // Coaches can also access nutrition with their own user ID
+    if (_userRole == 'coach') {
+      return const NutritionPlansScreen();
+    }
     final id = _athleteId;
     if (id != null) {
       return NutritionScreen(athleteId: id);
     }
     return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(color: AppColors.primary),
-          SizedBox(height: 16),
-          Text(
-            'Cargando perfil...',
-            style: TextStyle(color: AppColors.textSecondary),
-          ),
-        ],
-      ),
+      child: CircularProgressIndicator(color: AppColors.primary),
     );
   }
 

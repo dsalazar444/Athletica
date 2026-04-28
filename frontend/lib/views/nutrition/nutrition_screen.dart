@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/api_client.dart';
 import '../../models/nutrition/meal_record.dart';
 import '../../repositories/nutrition/nutrition_service.dart';
 import '../../theme/app_colors.dart';
@@ -16,6 +17,7 @@ class NutritionScreen extends StatefulWidget {
 class _NutritionScreenState extends State<NutritionScreen> {
   final NutritionService _service = NutritionService();
   List<MealRecord> _meals = [];
+  Map<String, dynamic>? _nutritionPlan;
   DateTime _selectedDate = DateTime.now();
   bool _isLoading = false;
 
@@ -23,6 +25,17 @@ class _NutritionScreenState extends State<NutritionScreen> {
   void initState() {
     super.initState();
     _fetchMeals();
+    _fetchNutritionPlan();
+  }
+
+  Future<void> _fetchNutritionPlan() async {
+    try {
+      final response = await ApiClient.dio.get('nutrition/plans/');
+      final List<dynamic> plans = response.data;
+      if (mounted && plans.isNotEmpty) {
+        setState(() => _nutritionPlan = plans.first);
+      }
+    } catch (_) {}
   }
 
   String get _formattedDate =>
@@ -172,6 +185,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
             ),
           ),
 
+          // Plan nutricional del coach
+          if (_nutritionPlan != null) _NutritionPlanBanner(plan: _nutritionPlan!),
+
           // Lista
           Expanded(
             child: _isLoading
@@ -234,6 +250,118 @@ class _NutritionScreenState extends State<NutritionScreen> {
   }
 }
 
+class _NutritionPlanBanner extends StatelessWidget {
+  final Map<String, dynamic> plan;
+  const _NutritionPlanBanner({required this.plan});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.restaurant_menu_rounded,
+                color: AppColors.primary,
+                size: 16,
+              ),
+              const SizedBox(width: 6),
+              const Text(
+                'OBJETIVOS DEL ENTRENADOR',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.primary,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _MacroTarget(
+                label: 'Calorías',
+                value: '${plan['target_calories'].toStringAsFixed(0)}',
+                unit: 'kcal',
+                icon: Icons.local_fire_department_rounded,
+              ),
+              _MacroTarget(
+                label: 'Proteínas',
+                value: '${plan['protein_g'].toStringAsFixed(0)}',
+                unit: 'g',
+                icon: Icons.fitness_center_rounded,
+              ),
+              _MacroTarget(
+                label: 'Carbos',
+                value: '${plan['carbs_g'].toStringAsFixed(0)}',
+                unit: 'g',
+                icon: Icons.grain_rounded,
+              ),
+              _MacroTarget(
+                label: 'Grasas',
+                value: '${plan['fat_g'].toStringAsFixed(0)}',
+                unit: 'g',
+                icon: Icons.water_drop_rounded,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MacroTarget extends StatelessWidget {
+  final String label;
+  final String value;
+  final String unit;
+  final IconData icon;
+
+  const _MacroTarget({
+    required this.label,
+    required this.value,
+    required this.unit,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(icon, color: AppColors.primary, size: 18),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            color: Colors.black87,
+          ),
+        ),
+        Text(
+          unit,
+          style: const TextStyle(fontSize: 10, color: Colors.black45),
+        ),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 10, color: Colors.black54),
+        ),
+      ],
+    );
+  }
+}
+
 class _MealCard extends StatelessWidget {
   final MealRecord meal;
   final IconData icon;
@@ -262,7 +390,7 @@ class _MealCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: AppColors.primary, size: 22),

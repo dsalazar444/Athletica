@@ -4,8 +4,10 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import MealRecord
-from .serializers import MealRecordSerializer
+from users.models import User
+
+from .models import MealRecord, NutritionPlan
+from .serializers import MealRecordSerializer, NutritionPlanSerializer
 
 
 class MealRecordViewSet(viewsets.ModelViewSet):
@@ -89,3 +91,69 @@ class MealRecordViewSet(viewsets.ModelViewSet):
         records = self.get_queryset().filter(date=date)
         serializer = self.get_serializer(records, many=True)
         return Response(serializer.data)
+
+
+class NutritionPlanViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para planes de nutrición asignados por un coach a un atleta.
+
+    Endpoints:
+      GET    /nutrition/plans/              → listar planes
+      POST   /nutrition/plans/              → crear plan (solo coaches)
+      GET    /nutrition/plans/{id}/         → detalle
+      PATCH  /nutrition/plans/{id}/         → actualizar (solo el coach dueño)
+      DELETE /nutrition/plans/{id}/         → eliminar (solo el coach dueño)
+
+    Query params para GET /nutrition/plans/:
+      ?athlete=<athlete_profile_id>
+    """
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = NutritionPlanSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = NutritionPlan.objects.select_related("coach")
+        if user.role == "athlete":
+            queryset = queryset.filter(assigned_athletes=user)
+        else:
+            queryset = queryset.filter(coach=user)
+        return queryset
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        if user.role != "coach":
+            raise PermissionDenied("Solo los coaches pueden crear planes de nutrición.")
+        serializer.save(coach=user)
+
+    def perform_update(self, serializer):
+        user = self.request.user
+        if serializer.instance.coach_id != user.id:
+            raise PermissionDenied("Solo el coach que creó este plan puede modificarlo.")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        user = self.request.user
+        if instance.coach_id != user.id:
+            raise PermissionDenied("Solo el coach que creó este plan puede eliminarlo.")
+        instance.delete()
+
+    @action(detail=True, methods=["post"])
+    def assign(self, request, pk=None):
+        plan = self.get_object()
+        if plan.coach_id != request.user.id:
+            raise PermissionDenied("Solo el coach dueño puede asignar este plan.")
+
+        from routines.models import TrainingGroup
+
+        athlete_ids = set(request.data.get("athlete_ids", []))
+        group_ids = request.data.get("group_ids", [])
+        if group_ids:
+            members_from_groups = User.objects.filter(
+                training_group_memberships__id__in=group_ids
+            ).values_list("id", flat=True)
+            athlete_ids.update(members_from_groups)
+
+        athletes = User.objects.filter(id__in=athlete_ids, role="athlete")
+        plan.assigned_athletes.add(*athletes)
+        return Response({"detail": "Plan asignado correctamente."}, status=status.HTTP_200_OK)
