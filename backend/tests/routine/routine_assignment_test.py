@@ -55,9 +55,7 @@ class RoutineAssignmentTests(TestCase):
 
         self.routine_1.refresh_from_db()
         # Verificar directamente en la relación ManyToMany
-        self.assertTrue(
-            self.routine_1.assigned_athletes.filter(id=self.athlete.id).exists()
-        )
+        self.assertTrue(self.routine_1.assigned_athletes.filter(id=self.athlete.id).exists())
 
         # Asignar segunda rutina (debe reemplazar a la primera)
         assign_response2 = self.client.post(
@@ -70,12 +68,8 @@ class RoutineAssignmentTests(TestCase):
         # Verificar que ya no está en la 1 y sí en la 2
         self.routine_1.refresh_from_db()
         self.routine_2.refresh_from_db()
-        self.assertFalse(
-            self.routine_1.assigned_athletes.filter(id=self.athlete.id).exists()
-        )
-        self.assertTrue(
-            self.routine_2.assigned_athletes.filter(id=self.athlete.id).exists()
-        )
+        self.assertFalse(self.routine_1.assigned_athletes.filter(id=self.athlete.id).exists())
+        self.assertTrue(self.routine_2.assigned_athletes.filter(id=self.athlete.id).exists())
 
     def test_athlete_cannot_assign_routine(self):
         self.client.force_authenticate(user=self.athlete)
@@ -148,9 +142,7 @@ class RoutineAssignmentTests(TestCase):
         # Pre-requisito: El ejercicio debe existir para que el serializer de rutina no falle
         from routines.models import Exercise
 
-        exercise = Exercise.objects.create(
-            external_id=999, name="Ejercicio E2E", muscle="Pecho"
-        )
+        exercise = Exercise.objects.create(external_id=999, name="Ejercicio E2E", muscle="Pecho")
 
         # 1. Login del Entrenador (Ruta corregida)
         login_response = self.client.post(
@@ -187,8 +179,6 @@ class RoutineAssignmentTests(TestCase):
 
         # 4. Verificar como Atleta
         self.client.force_authenticate(user=self.athlete)
-        active_response = self.client.get(
-            f"/api/routines/athlete/{self.athlete.id}/active/"
-        )
+        active_response = self.client.get(f"/api/routines/athlete/{self.athlete.id}/active/")
         self.assertEqual(active_response.status_code, 200)
         self.assertEqual(active_response.data["title"], "Rutina E2E")
