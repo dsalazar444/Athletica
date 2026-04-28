@@ -265,7 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            "NO PAIN\nNO GAIN.",
+                            "STRENGTH\n& POWER.",
                             style: AppTextStyles.fitnessHero.copyWith(
                               color: Colors.white,
                               height: 0.9,

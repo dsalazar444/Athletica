@@ -199,6 +199,7 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
         _buildPersonalRoutinesEntry(),
         const SizedBox(height: 32),
         if (_viewModel.routines.isNotEmpty) _buildRecentRoutinesSection(),
+        const SizedBox(height: 120),
       ],
     );
   }

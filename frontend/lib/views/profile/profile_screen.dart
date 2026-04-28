@@ -495,7 +495,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             color: AppColors.error,
                             onTap: _logout,
                           ),
-                          const SizedBox(height: 36),
+                          const SizedBox(height: 120),
                         ],
                       ),
                     ),
