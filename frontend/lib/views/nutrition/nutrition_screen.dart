@@ -289,7 +289,7 @@ class _MealCard extends StatelessWidget {
               icon: const Icon(
                 Icons.delete_outline,
                 color: Colors.white38,
-                size: 20,
+                size: 21,
               ),
               onPressed: onDelete,
             ),
