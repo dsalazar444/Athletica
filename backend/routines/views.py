@@ -110,6 +110,12 @@ class RoutineViewSet(viewsets.ModelViewSet):
             )
 
         routine = self.get_object()
+        if routine.created_by != request.user:
+            return Response(
+                {"detail": "No tienes permiso para asignar esta rutina."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         athlete_ids = set(request.data.get("athlete_ids", []))
         group_ids = request.data.get("group_ids", [])
 
