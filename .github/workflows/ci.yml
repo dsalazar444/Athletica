@@ -44,7 +44,7 @@ jobs:
           
       - name: Run Backend Tests (Pytest)
         run: |
-          pytest
+          python -m pytest
         env:
           DJANGO_SETTINGS_MODULE: backend.settings
           SECRET_KEY: "test-secret-key-for-ci"
