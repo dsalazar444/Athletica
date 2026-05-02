@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from routines.models import Exercise, Routine, RoutineExercise
-
 from routines.serializers.serializers_exercise import ExerciseSerializer
 
 

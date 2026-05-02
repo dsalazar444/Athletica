@@ -19,6 +19,7 @@ from .serializers import (
 
 PROFILE_NOT_FOUND_MSG = "Perfil no encontrado."
 
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def protected_test(request):
