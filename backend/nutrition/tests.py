@@ -6,7 +6,7 @@ from rest_framework.test import APIClient
 
 from users.models import AthleteProfile, User
 
-from .models import MealRecord
+from .models import MealRecord, NutritionPlan
 
 
 class MealRecordTestCase(TestCase):
@@ -214,3 +214,72 @@ class MealRecordTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["food_name"], "Pollo")
+
+
+class NutritionPlanTestCase(TestCase):
+    def setUp(self):
+        from users.models import CoachProfile
+
+        self.client = APIClient()
+
+        self.coach_user = User.objects.create_user(
+            username="testcoach",
+            password="testpass123",
+            email="coach@test.com",
+            role="coach",
+        )
+        self.coach = CoachProfile.objects.create(user=self.coach_user)
+
+        self.athlete_user = User.objects.create_user(
+            username="testathlete2",
+            password="testpass123",
+            email="athlete2@test.com",
+            role="athlete",
+        )
+        self.athlete = AthleteProfile.objects.create(
+            user=self.athlete_user, height=180.0, age=20, gender="male", activity_level="medium"
+        )
+        self.plan_url = "/api/nutrition/plans/"
+
+    def test_coach_can_create_plan(self):
+        self.client.force_authenticate(user=self.coach_user)
+        payload = {"title": "Dieta Volumen", "description": "1000 kcal"}
+        response = self.client.post(self.plan_url, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(NutritionPlan.objects.count(), 1)
+
+    def test_athlete_cannot_create_plan(self):
+        self.client.force_authenticate(user=self.athlete_user)
+        payload = {"title": "Dieta Volumen", "description": "1000 kcal"}
+        response = self.client.post(self.plan_url, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_assign_plan_to_athlete(self):
+        self.client.force_authenticate(user=self.coach_user)
+        plan = NutritionPlan.objects.create(coach=self.coach_user, title="Plan", description="Desc")
+        url = f"{self.plan_url}{plan.id}/assign/"
+        payload = {"athlete_ids": [self.athlete_user.id]}
+        response = self.client.post(url, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        plan.refresh_from_db()
+        self.assertIn(self.athlete_user, plan.assigned_athletes.all())
+
+    def test_assign_plan_forbidden_for_other_coach(self):
+        other_coach = User.objects.create_user(username="coach2", password="123", role="coach")
+        self.client.force_authenticate(user=other_coach)
+        plan = NutritionPlan.objects.create(coach=self.coach_user, title="Plan", description="Desc")
+        url = f"{self.plan_url}{plan.id}/assign/"
+        response = self.client.post(url, {"athlete_ids": [self.athlete_user.id]}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_coach_can_update_plan(self):
+        self.client.force_authenticate(user=self.coach_user)
+        plan = NutritionPlan.objects.create(coach=self.coach_user, title="Plan", description="Desc")
+        response = self.client.patch(f"{self.plan_url}{plan.id}/", {"title": "New"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_coach_can_delete_plan(self):
+        self.client.force_authenticate(user=self.coach_user)
+        plan = NutritionPlan.objects.create(coach=self.coach_user, title="Plan", description="Desc")
+        response = self.client.delete(f"{self.plan_url}{plan.id}/")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

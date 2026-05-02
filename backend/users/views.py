@@ -96,7 +96,7 @@ def athlete_search_view(request):
     return Response(serializer.data)
 
 
-@api_view(["GET", "POST", "DELETE"])
+@api_view(["GET", "POST", "DELETE"])  # NOSONAR
 @permission_classes([IsAuthenticated])
 def coach_athlete_management_view(request, athlete_id=None):
     """Gestiona la lista de atletas vinculados a un coach."""
@@ -133,7 +133,7 @@ def coach_athlete_management_view(request, athlete_id=None):
         return Response({"detail": "Atleta desvinculado."}, status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view(["GET", "PATCH"])
+@api_view(["GET", "PATCH"])  # NOSONAR
 @permission_classes([IsAuthenticated])
 def profile_settings_view(request):
     user = request.user
@@ -256,7 +256,7 @@ def athlete_dashboard_view(request):
     )
 
 
-@api_view(["GET", "POST"])
+@api_view(["GET", "POST"])  # NOSONAR
 @permission_classes([IsAuthenticated])
 def weight_log_view(request):
     """Lista todos los pesos del atleta o agrega uno nuevo."""

@@ -24,6 +24,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   double? _weight;
   double? _height;
   String? _trainingGoal;
+  static const String _sinDato = 'Sin dato';
 
   final ProfileRepository _profileRepository = ProfileRepository();
   final DashboardViewModel _vm = DashboardViewModel();
@@ -69,12 +70,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _isProfileLoading = false;
       });
       // Cargar datos del dashboard según el rol
-      if (_role == 'athlete') {
-        await _vm.loadAthleteDashboard();
-      } else if (_role == 'coach') {
-        await _vm.loadCoachDashboard();
-      }
-      if (mounted) setState(() {});
+      await _loadDashboardData();
     } catch (_) {
       final fallbackName = await TokenStorage.getUserName();
       final fallbackRole = await TokenStorage.getUserRole();
@@ -86,6 +82,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _isProfileLoading = false;
       });
     }
+  }
+
+  Future<void> _loadDashboardData() async {
+    if (_role == 'athlete') {
+      await _vm.loadAthleteDashboard();
+    } else if (_role == 'coach') {
+      await _vm.loadCoachDashboard();
+    }
+    if (mounted) setState(() {});
   }
 
   Future<void> _saveProfileSettings() async {
@@ -209,7 +214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Edad registrada: ${_age?.toString() ?? "Sin dato"}',
+                            'Edad registrada: ${_age?.toString() ?? _sinDato}',
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -525,7 +530,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Expanded(
               child: _ProfileStatCard(
                 label: 'Edad',
-                value: _age?.toString() ?? 'Sin dato',
+                value: _age?.toString() ?? _sinDato,
                 icon: Icons.cake_rounded,
               ),
             ),
@@ -535,7 +540,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 label: 'Peso',
                 value: _weight != null
                     ? '${_weight!.toStringAsFixed(1)} kg'
-                    : 'Sin dato',
+                    : _sinDato,
                 icon: Icons.monitor_weight_rounded,
               ),
             ),
@@ -549,7 +554,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 label: 'Altura',
                 value: _height != null
                     ? '${_height!.toStringAsFixed(1)} cm'
-                    : 'Sin dato',
+                    : _sinDato,
                 icon: Icons.height_rounded,
               ),
             ),
@@ -557,7 +562,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Expanded(
               child: _ProfileStatCard(
                 label: 'Actividad',
-                value: d != null ? _mapActivity(d.activityLevel) : 'Sin dato',
+                value: d != null ? _mapActivity(d.activityLevel) : _sinDato,
                 icon: Icons.bolt_rounded,
               ),
             ),
@@ -599,7 +604,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Expanded(
               child: _ProfileStatCard(
                 label: 'Especialidad',
-                value: d != null ? _mapSpeciality(d.speciality) : 'Sin dato',
+                value: d != null ? _mapSpeciality(d.speciality) : _sinDato,
                 icon: Icons.workspace_premium_rounded,
               ),
             ),
@@ -607,7 +612,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Expanded(
               child: _ProfileStatCard(
                 label: 'Experiencia',
-                value: d != null ? '${d.yearsExperience} años' : 'Sin dato',
+                value: d != null ? '${d.yearsExperience} años' : _sinDato,
                 icon: Icons.history_toggle_off_rounded,
               ),
             ),

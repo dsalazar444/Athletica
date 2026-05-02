@@ -47,34 +47,37 @@ class _AddExerciseSheetState extends State<AddExerciseSheet> {
         return;
       }
       if (mounted) setState(() => _isSearching = true);
-      try {
-        final dio = Dio(
-          BaseOptions(
-            connectTimeout: const Duration(seconds: 5),
-            headers: {'User-Agent': 'AthleticaApp/1.0 (contact@athletica.com)'},
+      await _fetchSearchApi(query);
+      if (mounted) setState(() => _isSearching = false);
+    });
+  }
+
+  Future<void> _fetchSearchApi(String query) async {
+    try {
+      final dio = Dio(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 5),
+          headers: {'User-Agent': 'AthleticaApp/1.0 (contact@athletica.com)'},
+        ),
+      );
+      final response = await dio.get(
+        'https://wger.de/api/v2/exercise/search/',
+        queryParameters: {'term': query, 'language': '2', 'format': 'json'},
+      );
+      final suggestions = response.data['suggestions'] as List? ?? [];
+      if (mounted) setState(() => _results = suggestions);
+    } catch (e) {
+      debugPrint('Exercise search error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Error al conectar con el catálogo de ejercicios. Reintenta.",
+            ),
           ),
         );
-        final response = await dio.get(
-          'https://wger.de/api/v2/exercise/search/',
-          queryParameters: {'term': query, 'language': '2', 'format': 'json'},
-        );
-        final suggestions = response.data['suggestions'] as List? ?? [];
-        if (mounted) setState(() => _results = suggestions);
-      } catch (e) {
-        debugPrint('Exercise search error: $e');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                "Error al conectar con el catálogo de ejercicios. Reintenta.",
-              ),
-            ),
-          );
-        }
-      } finally {
-        if (mounted) setState(() => _isSearching = false);
       }
-    });
+    }
   }
 
   Future<void> _addExercise() async {

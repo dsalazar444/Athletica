@@ -25,6 +25,7 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
   late final RoutinesListViewModel _viewModel;
   String? _userRole;
   bool _showPersonalRoutines = false;
+  static const String _misRutinasText = "MIS RUTINAS";
 
   @override
   void initState() {
@@ -111,7 +112,7 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "MIS RUTINAS",
+                  _misRutinasText,
                   style: AppTextStyles.fitnessDisplay.copyWith(
                     color: AppColors.textPrimary,
                   ),
@@ -306,7 +307,7 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
               ),
               const Spacer(),
               const Text(
-                "MIS RUTINAS",
+                _misRutinasText,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
@@ -372,7 +373,7 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
                 icon: const Icon(Icons.arrow_back_rounded),
                 onPressed: () => setState(() => _showPersonalRoutines = false),
               ),
-              Text("MIS RUTINAS", style: AppTextStyles.inputLabel),
+              Text(_misRutinasText, style: AppTextStyles.inputLabel),
             ],
           ),
         const SizedBox(height: 12),
