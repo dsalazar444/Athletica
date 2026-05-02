@@ -228,7 +228,7 @@ class NutritionPlanTestCase(TestCase):
             email="coach@test.com",
             role="coach",
         )
-        self.coach = CoachProfile.objects.create(user=self.coach_user)
+        self.coach = CoachProfile.objects.create(user=self.coach_user, years_experience=5)
 
         self.athlete_user = User.objects.create_user(
             username="testathlete2",
@@ -243,20 +243,39 @@ class NutritionPlanTestCase(TestCase):
 
     def test_coach_can_create_plan(self):
         self.client.force_authenticate(user=self.coach_user)
-        payload = {"title": "Dieta Volumen", "description": "1000 kcal"}
+        payload = {
+            "title": "Dieta Volumen",
+            "target_calories": 2500,
+            "protein_g": 150,
+            "carbs_g": 300,
+            "fat_g": 80,
+        }
         response = self.client.post(self.plan_url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(NutritionPlan.objects.count(), 1)
 
     def test_athlete_cannot_create_plan(self):
         self.client.force_authenticate(user=self.athlete_user)
-        payload = {"title": "Dieta Volumen", "description": "1000 kcal"}
+        payload = {
+            "title": "Dieta Volumen",
+            "target_calories": 2500,
+            "protein_g": 150,
+            "carbs_g": 300,
+            "fat_g": 80,
+        }
         response = self.client.post(self.plan_url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_assign_plan_to_athlete(self):
         self.client.force_authenticate(user=self.coach_user)
-        plan = NutritionPlan.objects.create(coach=self.coach_user, title="Plan", description="Desc")
+        plan = NutritionPlan.objects.create(
+            coach=self.coach_user,
+            title="Plan",
+            target_calories=2000,
+            protein_g=100,
+            carbs_g=200,
+            fat_g=50,
+        )
         url = f"{self.plan_url}{plan.id}/assign/"
         payload = {"athlete_ids": [self.athlete_user.id]}
         response = self.client.post(url, payload, format="json")
@@ -267,19 +286,40 @@ class NutritionPlanTestCase(TestCase):
     def test_assign_plan_forbidden_for_other_coach(self):
         other_coach = User.objects.create_user(username="coach2", password="123", role="coach")  # nosec
         self.client.force_authenticate(user=other_coach)
-        plan = NutritionPlan.objects.create(coach=self.coach_user, title="Plan", description="Desc")
+        plan = NutritionPlan.objects.create(
+            coach=self.coach_user,
+            title="Plan",
+            target_calories=2000,
+            protein_g=100,
+            carbs_g=200,
+            fat_g=50,
+        )
         url = f"{self.plan_url}{plan.id}/assign/"
         response = self.client.post(url, {"athlete_ids": [self.athlete_user.id]}, format="json")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_coach_can_update_plan(self):
         self.client.force_authenticate(user=self.coach_user)
-        plan = NutritionPlan.objects.create(coach=self.coach_user, title="Plan", description="Desc")
+        plan = NutritionPlan.objects.create(
+            coach=self.coach_user,
+            title="Plan",
+            target_calories=2000,
+            protein_g=100,
+            carbs_g=200,
+            fat_g=50,
+        )
         response = self.client.patch(f"{self.plan_url}{plan.id}/", {"title": "New"}, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_coach_can_delete_plan(self):
         self.client.force_authenticate(user=self.coach_user)
-        plan = NutritionPlan.objects.create(coach=self.coach_user, title="Plan", description="Desc")
+        plan = NutritionPlan.objects.create(
+            coach=self.coach_user,
+            title="Plan",
+            target_calories=2000,
+            protein_g=100,
+            carbs_g=200,
+            fat_g=50,
+        )
         response = self.client.delete(f"{self.plan_url}{plan.id}/")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
