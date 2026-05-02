@@ -15,9 +15,8 @@ El objetivo es facilitar a los usuarios el registro de rutinas, ejercicios y ali
 
 **Únicamente rama: Main**
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Athletica&metric=alert_status&token=d97cb3a0cfbfcbf012a2d32534353397922c8ee5)](https://sonarcloud.io/summary/new_code?id=Athletica)
-[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=Athletica&token=d97cb3a0cfbfcbf012a2d32534353397922c8ee5)](https://sonarcloud.io/summary/new_code?id=Athletica)
-[![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-light.svg)](https://sonarcloud.io/summary/new_code?id=Athletica)
+<img width="592" height="236" alt="image" src="https://github.com/user-attachments/assets/0f16e498-a33f-4ede-9fe9-b7c1fbd27442" />
+
 
 ## 👥 Equipo de trabajo 
 - Daniela Salazar
