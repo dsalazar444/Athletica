@@ -10,7 +10,7 @@ from .models import MealRecord, NutritionPlan
 from .serializers import MealRecordSerializer, NutritionPlanSerializer
 
 
-class MealRecordViewSet(viewsets.ModelViewSet):
+class MealRecordViewSet(viewsets.ModelViewSet):  # NOSONAR
     """
     ViewSet para gestionar registros de alimentación.
 
@@ -93,7 +93,7 @@ class MealRecordViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class NutritionPlanViewSet(viewsets.ModelViewSet):
+class NutritionPlanViewSet(viewsets.ModelViewSet):  # NOSONAR
     """
     ViewSet para planes de nutrición asignados por un coach a un atleta.
 

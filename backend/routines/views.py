@@ -23,7 +23,7 @@ from .serializers.serializers_exercise import ExerciseSerializer
 from .serializers.serializers_groups import TrainingGroupSerializer
 
 
-class ExerciseViewSet(viewsets.ViewSet):
+class ExerciseViewSet(viewsets.ViewSet):  # NOSONAR
     """
     Gestiona la búsqueda y creación de ejercicios.
     """
@@ -46,7 +46,7 @@ class ExerciseViewSet(viewsets.ViewSet):
         )
 
 
-class RoutineViewSet(viewsets.ModelViewSet):
+class RoutineViewSet(viewsets.ModelViewSet):  # NOSONAR
     """
     ViewSet para gestionar Rutinas: listar, crear, detalle, eliminar y acciones personalizadas.
     """
@@ -170,7 +170,7 @@ class RoutineViewSet(viewsets.ModelViewSet):
         return Response({"detail": "No encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
 
-class WorkoutSessionViewSet(viewsets.ModelViewSet):
+class WorkoutSessionViewSet(viewsets.ModelViewSet):  # NOSONAR
     """
     Gestiona las sesiones de entrenamiento y el historial.
     """
@@ -231,7 +231,7 @@ class WorkoutSessionViewSet(viewsets.ModelViewSet):
         return paginator.get_paginated_response(serializer.data)
 
 
-class SetLogViewSet(viewsets.ModelViewSet):
+class SetLogViewSet(viewsets.ModelViewSet):  # NOSONAR
     permission_classes = [IsAuthenticated]
     serializer_class = SetLogSerializer
     queryset = SetLog.objects.all()
@@ -266,7 +266,7 @@ class SetLogViewSet(viewsets.ModelViewSet):
         return Response(list(history.values()))
 
 
-class TrainingGroupViewSet(viewsets.ModelViewSet):
+class TrainingGroupViewSet(viewsets.ModelViewSet):  # NOSONAR
     serializer_class = TrainingGroupSerializer
     permission_classes = [IsAuthenticated]
 

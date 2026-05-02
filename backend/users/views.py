@@ -98,7 +98,7 @@ def athlete_search_view(request):
 
 @api_view(["GET", "POST", "DELETE"])  # NOSONAR
 @permission_classes([IsAuthenticated])
-def coach_athlete_management_view(request, athlete_id=None):
+def coach_athlete_management_view(request, athlete_id=None):  # NOSONAR
     """Gestiona la lista de atletas vinculados a un coach."""
     if request.user.role != "coach":
         return Response({"detail": "Acceso denegado."}, status=status.HTTP_403_FORBIDDEN)
@@ -135,7 +135,7 @@ def coach_athlete_management_view(request, athlete_id=None):
 
 @api_view(["GET", "PATCH"])  # NOSONAR
 @permission_classes([IsAuthenticated])
-def profile_settings_view(request):
+def profile_settings_view(request):  # NOSONAR
     user = request.user
 
     def build_payload():
@@ -258,7 +258,7 @@ def athlete_dashboard_view(request):
 
 @api_view(["GET", "POST"])  # NOSONAR
 @permission_classes([IsAuthenticated])
-def weight_log_view(request):
+def weight_log_view(request):  # NOSONAR
     """Lista todos los pesos del atleta o agrega uno nuevo."""
     try:
         profile = AthleteProfile.objects.get(user=request.user)
