@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/nutrition/meal_record.dart';
 import '../../repositories/nutrition/nutrition_service.dart';
+import '../../theme/app_colors.dart';
 
 class AddMealScreen extends StatefulWidget {
   final int athleteId;
@@ -92,19 +93,19 @@ class _AddMealScreenState extends State<AddMealScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(color: Colors.white70, fontSize: 13),
+          style: const TextStyle(color: Colors.black54, fontSize: 13),
         ),
         const SizedBox(height: 6),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           validator: validator,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.black),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Colors.white30),
+            hintStyle: const TextStyle(color: Colors.black38),
             filled: true,
-            fillColor: const Color(0xFF1E1E1E),
+            fillColor: Colors.grey[100],
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide.none,
@@ -112,11 +113,11 @@ class _AddMealScreenState extends State<AddMealScreen> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(
-                color: Color(0xFFE91E63),
+                color: AppColors.primary,
                 width: 1.5,
               ),
             ),
-            errorStyle: const TextStyle(color: Color(0xFFE91E63)),
+            errorStyle: const TextStyle(color: AppColors.primary),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 14,
               vertical: 12,
@@ -130,9 +131,9 @@ class _AddMealScreenState extends State<AddMealScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: AppColors.primary,
         title: const Text(
           'Agregar Comida',
           style: TextStyle(color: Colors.white),
@@ -153,21 +154,21 @@ class _AddMealScreenState extends State<AddMealScreen> {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E1E1E),
+                  color: Colors.grey[100],
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
                   children: [
                     const Icon(
                       Icons.calendar_today,
-                      color: Color(0xFFE91E63),
+                      color: AppColors.primary,
                       size: 16,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       widget.selectedDate,
                       style: const TextStyle(
-                        color: Colors.white70,
+                        color: Colors.black54,
                         fontSize: 14,
                       ),
                     ),
@@ -179,7 +180,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
               // Tipo de comida
               const Text(
                 'Tipo de comida',
-                style: TextStyle(color: Colors.white70, fontSize: 13),
+                style: TextStyle(color: Colors.black54, fontSize: 13),
               ),
               const SizedBox(height: 8),
               Row(
@@ -195,27 +196,27 @@ class _AddMealScreenState extends State<AddMealScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
                           color: selected
-                              ? const Color(0xFFE91E63)
-                              : const Color(0xFF1E1E1E),
+                              ? AppColors.primary
+                              : Colors.grey[100],
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
                             color: selected
-                                ? const Color(0xFFE91E63)
-                                : Colors.white12,
+                                ? AppColors.primary
+                                : Colors.grey[300]!,
                           ),
                         ),
                         child: Column(
                           children: [
                             Icon(
                               type['icon'] as IconData,
-                              color: Colors.white,
+                              color: selected ? Colors.white : Colors.black,
                               size: 20,
                             ),
                             const SizedBox(height: 4),
                             Text(
                               type['label'] as String,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: selected ? Colors.white : Colors.black,
                                 fontSize: 10,
                               ),
                             ),
@@ -275,7 +276,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
               // Macros
               const Text(
                 'Macronutrientes (opcional)',
-                style: TextStyle(color: Colors.white70, fontSize: 13),
+                style: TextStyle(color: Colors.black54, fontSize: 13),
               ),
               const SizedBox(height: 10),
               Row(
@@ -316,7 +317,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
                 height: 50,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFE91E63),
+                    backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -335,7 +336,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
                           'Guardar comida',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 16,
+                            fontSize: 15,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

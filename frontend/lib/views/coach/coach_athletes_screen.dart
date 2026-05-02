@@ -3,6 +3,7 @@ import '../../core/api_client.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../routine/routine_detail_screen.dart';
+import '../group/groups_screen.dart';
 
 class CoachAthletesScreen extends StatefulWidget {
   const CoachAthletesScreen({super.key});
@@ -125,6 +126,106 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
       }
     } finally {
       if (mounted) setState(() => _isLoadingData = false);
+    }
+  }
+
+  Future<void> _showQuickAssignNutritionModal(
+    int id, {
+    bool isGroup = false,
+  }) async {
+    try {
+      final response = await ApiClient.dio.get('nutrition/plans/');
+      final List<dynamic> plans = response.data;
+
+      if (!mounted) return;
+      if (plans.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Aún no tienes planes nutricionales creados."),
+          ),
+        );
+        return;
+      }
+
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: AppColors.background,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        builder: (context) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Text(
+                  "Asignar Plan Nutricional",
+                  style: AppTextStyles.h2,
+                ),
+              ),
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: plans.length,
+                  itemBuilder: (context, index) {
+                    final plan = plans[index];
+                    return ListTile(
+                      title: Text(
+                        plan['title'],
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        "${(plan['target_calories'] as num).toStringAsFixed(0)} kcal · P:${(plan['protein_g'] as num).toStringAsFixed(0)}g · C:${(plan['carbs_g'] as num).toStringAsFixed(0)}g · G:${(plan['fat_g'] as num).toStringAsFixed(0)}g",
+                        style: const TextStyle(fontSize: 11),
+                      ),
+                      trailing: const Icon(
+                        Icons.check_circle_outline_rounded,
+                        color: AppColors.primary,
+                      ),
+                      onTap: () async {
+                        Navigator.pop(context);
+                        try {
+                          await ApiClient.dio.post(
+                            'nutrition/plans/${plan['id']}/assign/',
+                            data: {
+                              if (isGroup)
+                                'group_ids': [id]
+                              else
+                                'athlete_ids': [id],
+                            },
+                          );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("¡Plan nutricional asignado!"),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Error al asignar el plan."),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Error al cargar los planes.")),
+        );
+      }
     }
   }
 
@@ -481,15 +582,53 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
         ),
         trailing:
             trailing ??
-            IconButton(
-              icon: Icon(
-                isGroup
-                    ? Icons.group_add_rounded
-                    : Icons.add_circle_outline_rounded,
+            PopupMenuButton<String>(
+              icon: const Icon(
+                Icons.more_vert_rounded,
                 color: AppColors.primary,
               ),
-              onPressed: () =>
-                  _showQuickAssignModal(item['id'], isGroup: isGroup),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              onSelected: (value) {
+                if (value == 'routine') {
+                  _showQuickAssignModal(item['id'], isGroup: isGroup);
+                } else if (value == 'nutrition') {
+                  _showQuickAssignNutritionModal(item['id'], isGroup: isGroup);
+                } else if (value == 'manage') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MyGroupsScreen()),
+                  ).then((_) => refresh());
+                }
+              },
+              itemBuilder: (_) => [
+                if (isGroup)
+                  const PopupMenuItem(
+                    value: 'manage',
+                    child: ListTile(
+                      leading: Icon(Icons.manage_accounts_rounded),
+                      title: Text("Gestionar grupo"),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                const PopupMenuItem(
+                  value: 'routine',
+                  child: ListTile(
+                    leading: Icon(Icons.fitness_center_rounded),
+                    title: Text("Asignar rutina"),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'nutrition',
+                  child: ListTile(
+                    leading: Icon(Icons.restaurant_menu_rounded),
+                    title: Text("Asignar plan nutricional"),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ],
             ),
       ),
     );
@@ -528,9 +667,28 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              group['name'].toString().toUpperCase(),
-              style: AppTextStyles.fitnessDisplay,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  group['name'].toString().toUpperCase(),
+                  style: AppTextStyles.fitnessDisplay,
+                ),
+                FilledButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const MyGroupsScreen()),
+                    ).then((_) => refresh());
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                  ),
+                  icon: const Icon(Icons.manage_accounts_rounded, size: 16),
+                  label: const Text("Gestionar"),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             Expanded(
