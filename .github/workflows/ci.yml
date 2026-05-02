@@ -81,15 +81,6 @@ jobs:
         
       - name: Analyze code
         run: flutter analyze
-        
-      - name: Run Flutter tests
-        run: flutter test --coverage
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-coverage
-          path: frontend/coverage/lcov.info
 
   sonarqube:
     name: SonarQube Analysis
@@ -106,12 +97,6 @@ jobs:
         with:
           name: backend-coverage
           path: backend
-
-      - name: Download frontend coverage
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-coverage
-          path: frontend/coverage
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5.0.0

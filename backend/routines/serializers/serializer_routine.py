@@ -2,7 +2,6 @@ from rest_framework import serializers
 
 from routines.models import Exercise, Routine, RoutineExercise
 
-# from users.models import User
 from routines.serializers.serializers_exercise import ExerciseSerializer
 
 
@@ -47,7 +46,6 @@ class RoutineCreateSerializer(serializers.ModelSerializer):
         """Valida que el usuario autenticado no tenga otra rutina con el mismo título."""
         request = self.context.get("request")
         user = getattr(request, "user", None)
-        # user = User.objects.get(username='daniela')
         title = data.get("title")
         if user and title:
             qs = Routine.objects.filter(title=title, created_by=user)

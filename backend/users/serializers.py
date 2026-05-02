@@ -109,8 +109,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         ]
 
     def validate_email(self, value):
-        User = get_user_model()
-        if User.objects.filter(email=value).exists():
+        user_model = get_user_model()
+        if user_model.objects.filter(email=value).exists():
             raise serializers.ValidationError("Este email ya esta en uso.")
         return value
 
@@ -120,12 +120,12 @@ class RegisterSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        User = get_user_model()
+        user_model = get_user_model()
         athlete_data = validated_data.pop("athlete_profile", None)
         coach_data = validated_data.pop("coach_profile", None)
         validated_data.pop("password2")
 
-        user = User.objects.create_user(**validated_data)
+        user = user_model.objects.create_user(**validated_data)
 
         if user.role == "athlete" and athlete_data:
             goals_data = athlete_data.pop("goals", [])
@@ -177,7 +177,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         except Exception as e:
             # If for some reason extra field logic fails, don't block the login
             logger.error(f"Error adding extra fields to login data: {e}", exc_info=True)
-            pass
 
         return data
 
