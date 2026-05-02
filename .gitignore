@@ -93,3 +93,15 @@ desktop.ini
 
 # Logs
 logs/
+
+*.ini
+
+# Reportes de cobertura de Pytest
+htmlcov/
+.coverage
+coverage.xml
+nosetests.xml
+.tox/
+.nox/
+.cache/
+.pytest_cache/

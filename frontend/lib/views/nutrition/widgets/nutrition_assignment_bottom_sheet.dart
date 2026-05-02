@@ -61,10 +61,7 @@ class _NutritionAssignmentBottomSheetState
     try {
       await ApiClient.dio.post(
         'nutrition/plans/${widget.planId}/assign/',
-        data: {
-          'athlete_ids': _selectedAthletes,
-          'group_ids': _selectedGroups,
-        },
+        data: {'athlete_ids': _selectedAthletes, 'group_ids': _selectedGroups},
       );
       if (mounted) {
         Navigator.pop(context);
@@ -123,14 +120,25 @@ class _NutritionAssignmentBottomSheetState
               unselectedLabelColor: AppColors.textSecondary,
               indicatorColor: AppColors.primary,
               indicatorSize: TabBarIndicatorSize.label,
-              tabs: [Tab(text: "ATLETAS"), Tab(text: "GRUPOS")],
+              tabs: [
+                Tab(text: "ATLETAS"),
+                Tab(text: "GRUPOS"),
+              ],
             ),
             const SizedBox(height: 12),
             Expanded(
               child: TabBarView(
                 children: [
-                  _buildList(_athletes, _selectedAthletes, "No tienes atletas vinculados."),
-                  _buildList(_groups, _selectedGroups, "No tienes grupos creados."),
+                  _buildList(
+                    _athletes,
+                    _selectedAthletes,
+                    "No tienes atletas vinculados.",
+                  ),
+                  _buildList(
+                    _groups,
+                    _selectedGroups,
+                    "No tienes grupos creados.",
+                  ),
                 ],
               ),
             ),
@@ -158,11 +166,7 @@ class _NutritionAssignmentBottomSheetState
     );
   }
 
-  Widget _buildList(
-    List<dynamic> items,
-    List<int> selected,
-    String emptyMsg,
-  ) {
+  Widget _buildList(List<dynamic> items, List<int> selected, String emptyMsg) {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -176,7 +180,8 @@ class _NutritionAssignmentBottomSheetState
         final id = item['id'] as int;
         final isSelected = selected.contains(id);
         final title = item['name'] ?? item['username'] ?? '';
-        final subtitle = item['email'] ??
+        final subtitle =
+            item['email'] ??
             "${(item['members'] as List?)?.length ?? 0} miembros";
         return CheckboxListTile(
           value: isSelected,
@@ -189,7 +194,10 @@ class _NutritionAssignmentBottomSheetState
               }
             });
           },
-          title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          title: Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
           subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
           activeColor: AppColors.primary,
           contentPadding: EdgeInsets.zero,

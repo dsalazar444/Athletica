@@ -186,42 +186,41 @@ class _NutritionScreenState extends State<NutritionScreen> {
           ),
 
           // Plan nutricional del coach
-          if (_nutritionPlan != null) _NutritionPlanBanner(plan: _nutritionPlan!),
+          if (_nutritionPlan != null)
+            _NutritionPlanBanner(plan: _nutritionPlan!),
 
           // Lista
           Expanded(
             child: _isLoading
                 ? const Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.primary,
-                    ),
+                    child: CircularProgressIndicator(color: AppColors.primary),
                   )
                 : _meals.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'No hay comidas registradas para esta fecha.',
-                          style: TextStyle(color: Colors.black54),
-                          textAlign: TextAlign.center,
-                        ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.only(
-                          left: 16,
-                          right: 16,
-                          top: 16,
-                          bottom: 120,
-                        ),
-                        itemCount: _meals.length,
-                        itemBuilder: (context, index) {
-                          final meal = _meals[index];
-                          return _MealCard(
-                            meal: meal,
-                            icon: _mealIcon(meal.mealType),
-                            label: _mealLabel(meal.mealType),
-                            onDelete: () => _deleteMeal(meal.id!),
-                          );
-                        },
-                      ),
+                ? const Center(
+                    child: Text(
+                      'No hay comidas registradas para esta fecha.',
+                      style: TextStyle(color: Colors.black54),
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: 16,
+                      bottom: 120,
+                    ),
+                    itemCount: _meals.length,
+                    itemBuilder: (context, index) {
+                      final meal = _meals[index];
+                      return _MealCard(
+                        meal: meal,
+                        icon: _mealIcon(meal.mealType),
+                        label: _mealLabel(meal.mealType),
+                        onDelete: () => _deleteMeal(meal.id!),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
@@ -349,10 +348,7 @@ class _MacroTarget extends StatelessWidget {
             color: Colors.black87,
           ),
         ),
-        Text(
-          unit,
-          style: const TextStyle(fontSize: 10, color: Colors.black45),
-        ),
+        Text(unit, style: const TextStyle(fontSize: 10, color: Colors.black45)),
         Text(
           label,
           style: const TextStyle(fontSize: 10, color: Colors.black54),
@@ -402,8 +398,7 @@ class _MealCard extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style:
-                        const TextStyle(color: Colors.black54, fontSize: 12),
+                    style: const TextStyle(color: Colors.black54, fontSize: 12),
                   ),
                   const SizedBox(height: 2),
                   Text(

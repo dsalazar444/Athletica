@@ -144,8 +144,6 @@ class NutritionPlanViewSet(viewsets.ModelViewSet):
         if plan.coach_id != request.user.id:
             raise PermissionDenied("Solo el coach dueño puede asignar este plan.")
 
-        from routines.models import TrainingGroup
-
         athlete_ids = set(request.data.get("athlete_ids", []))
         group_ids = request.data.get("group_ids", [])
         if group_ids:

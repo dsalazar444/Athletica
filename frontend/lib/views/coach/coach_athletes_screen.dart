@@ -129,7 +129,10 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
     }
   }
 
-  Future<void> _showQuickAssignNutritionModal(int id, {bool isGroup = false}) async {
+  Future<void> _showQuickAssignNutritionModal(
+    int id, {
+    bool isGroup = false,
+  }) async {
     try {
       final response = await ApiClient.dio.get('nutrition/plans/');
       final List<dynamic> plans = response.data;
@@ -156,7 +159,10 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(24.0),
-                child: Text("Asignar Plan Nutricional", style: AppTextStyles.h2),
+                child: Text(
+                  "Asignar Plan Nutricional",
+                  style: AppTextStyles.h2,
+                ),
               ),
               Flexible(
                 child: ListView.builder(
@@ -183,7 +189,10 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
                           await ApiClient.dio.post(
                             'nutrition/plans/${plan['id']}/assign/',
                             data: {
-                              if (isGroup) 'group_ids': [id] else 'athlete_ids': [id],
+                              if (isGroup)
+                                'group_ids': [id]
+                              else
+                                'athlete_ids': [id],
                             },
                           );
                           if (context.mounted) {
@@ -571,9 +580,13 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
             color: isGroup ? AppColors.primary : AppColors.textSecondary,
           ),
         ),
-        trailing: trailing ??
+        trailing:
+            trailing ??
             PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert_rounded, color: AppColors.primary),
+              icon: const Icon(
+                Icons.more_vert_rounded,
+                color: AppColors.primary,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -666,9 +679,7 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const MyGroupsScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const MyGroupsScreen()),
                     ).then((_) => refresh());
                   },
                   style: FilledButton.styleFrom(

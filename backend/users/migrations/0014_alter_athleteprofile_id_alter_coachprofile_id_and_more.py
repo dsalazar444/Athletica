@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("users", "0013_alter_athleteprofile_id_alter_coachprofile_id_and_more"),
     ]

@@ -47,4 +47,11 @@ class NutritionPlanSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "coach", "coach_username", "assigned_count", "created_at", "updated_at"]
+        read_only_fields = [
+            "id",
+            "coach",
+            "coach_username",
+            "assigned_count",
+            "created_at",
+            "updated_at",
+        ]

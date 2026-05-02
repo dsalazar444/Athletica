@@ -5,25 +5,26 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('nutrition', '0002_add_nutritionplan'),
+        ("nutrition", "0002_add_nutritionplan"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='nutritionplan',
-            name='athlete',
+            model_name="nutritionplan",
+            name="athlete",
         ),
         migrations.AddField(
-            model_name='nutritionplan',
-            name='assigned_athletes',
-            field=models.ManyToManyField(blank=True, related_name='nutrition_plans', to=settings.AUTH_USER_MODEL),
+            model_name="nutritionplan",
+            name="assigned_athletes",
+            field=models.ManyToManyField(
+                blank=True, related_name="nutrition_plans", to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AddField(
-            model_name='nutritionplan',
-            name='title',
-            field=models.CharField(default='', max_length=255),
+            model_name="nutritionplan",
+            name="title",
+            field=models.CharField(default="", max_length=255),
         ),
     ]

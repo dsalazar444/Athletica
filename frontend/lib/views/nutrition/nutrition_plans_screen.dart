@@ -63,7 +63,10 @@ class NutritionPlansScreenState extends State<NutritionPlansScreen> {
             children: [
               Text("NUEVO PLAN", style: AppTextStyles.fitnessCaption),
               const SizedBox(height: 4),
-              Text("Crea un plan nutricional", style: AppTextStyles.fitnessBold),
+              Text(
+                "Crea un plan nutricional",
+                style: AppTextStyles.fitnessBold,
+              ),
               const SizedBox(height: 20),
               TextFormField(
                 controller: titleCtrl,
@@ -152,13 +155,16 @@ class NutritionPlansScreenState extends State<NutritionPlansScreen> {
                   onPressed: () async {
                     if (!formKey.currentState!.validate()) return;
                     try {
-                      await ApiClient.dio.post('nutrition/plans/', data: {
-                        'title': titleCtrl.text.trim(),
-                        'target_calories': double.parse(caloriesCtrl.text),
-                        'protein_g': double.parse(proteinCtrl.text),
-                        'carbs_g': double.parse(carbsCtrl.text),
-                        'fat_g': double.parse(fatCtrl.text),
-                      });
+                      await ApiClient.dio.post(
+                        'nutrition/plans/',
+                        data: {
+                          'title': titleCtrl.text.trim(),
+                          'target_calories': double.parse(caloriesCtrl.text),
+                          'protein_g': double.parse(proteinCtrl.text),
+                          'carbs_g': double.parse(carbsCtrl.text),
+                          'fat_g': double.parse(fatCtrl.text),
+                        },
+                      );
                       if (context.mounted) {
                         Navigator.pop(context);
                         refresh();
@@ -284,16 +290,16 @@ class NutritionPlansScreenState extends State<NutritionPlansScreen> {
                       ),
                     )
                   : _plans.isEmpty
-                      ? _buildEmpty()
-                      : RefreshIndicator(
-                          onRefresh: refresh,
-                          child: ListView.builder(
-                            padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
-                            itemCount: _plans.length,
-                            itemBuilder: (context, index) =>
-                                _buildPlanCard(_plans[index]),
-                          ),
-                        ),
+                  ? _buildEmpty()
+                  : RefreshIndicator(
+                      onRefresh: refresh,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
+                        itemCount: _plans.length,
+                        itemBuilder: (context, index) =>
+                            _buildPlanCard(_plans[index]),
+                      ),
+                    ),
             ),
           ],
         ),
@@ -323,8 +329,10 @@ class NutritionPlansScreenState extends State<NutritionPlansScreen> {
                 ),
               ),
               PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert_rounded,
-                    color: AppColors.textSecondary),
+                icon: const Icon(
+                  Icons.more_vert_rounded,
+                  color: AppColors.textSecondary,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -344,10 +352,14 @@ class NutritionPlansScreenState extends State<NutritionPlansScreen> {
                   const PopupMenuItem(
                     value: 'delete',
                     child: ListTile(
-                      leading: Icon(Icons.delete_outline_rounded,
-                          color: AppColors.error),
-                      title: Text("Eliminar",
-                          style: TextStyle(color: AppColors.error)),
+                      leading: Icon(
+                        Icons.delete_outline_rounded,
+                        color: AppColors.error,
+                      ),
+                      title: Text(
+                        "Eliminar",
+                        style: TextStyle(color: AppColors.error),
+                      ),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
@@ -393,7 +405,9 @@ class NutritionPlansScreenState extends State<NutritionPlansScreen> {
               label: Text(
                 "ASIGNAR  •  ${plan['assigned_count']} atleta${plan['assigned_count'] == 1 ? '' : 's'}",
                 style: const TextStyle(
-                    fontSize: 12, fontWeight: FontWeight.w700),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),

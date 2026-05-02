@@ -209,18 +209,14 @@ class _AddMealScreenState extends State<AddMealScreen> {
                           children: [
                             Icon(
                               type['icon'] as IconData,
-                              color: selected
-                                  ? Colors.white
-                                  : Colors.black,
+                              color: selected ? Colors.white : Colors.black,
                               size: 20,
                             ),
                             const SizedBox(height: 4),
                             Text(
                               type['label'] as String,
                               style: TextStyle(
-                                color: selected
-                                    ? Colors.white
-                                    : Colors.black,
+                                color: selected ? Colors.white : Colors.black,
                                 fontSize: 10,
                               ),
                             ),
