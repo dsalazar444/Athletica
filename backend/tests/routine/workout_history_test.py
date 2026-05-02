@@ -70,8 +70,9 @@ class WorkoutHistoryByDateRangeViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(payload["count"], 2)
         self.assertEqual(len(payload["results"]), 2)
-        self.assertEqual(payload["results"][0]["id"], in_range_older.pk)
-        self.assertEqual(payload["results"][1]["id"], in_range_newer.pk)
+        # Se espera orden descendente (más reciente primero) según la lógica del ViewSet
+        self.assertEqual(payload["results"][0]["id"], in_range_newer.pk)
+        self.assertEqual(payload["results"][1]["id"], in_range_older.pk)
 
     def test_history_does_not_return_data_from_other_users(self):
         WorkoutSession.objects.create(

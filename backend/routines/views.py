@@ -1,17 +1,18 @@
+from django.db import models
 from django.utils import timezone
 from django.utils.dateparse import parse_date
-
-# from users.models import User
-from rest_framework import generics, status
-from rest_framework.pagination import PageNumberPagination
+from rest_framework import decorators, status, viewsets
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
-from .models import Exercise, Routine, SetLog, WorkoutSession
+from users.models import User
+
+from .models import Exercise, Routine, RoutineExercise, SetLog, TrainingGroup, WorkoutSession
 from .serializers.serializer_routine import (
     RoutineCreateSerializer,
     RoutineDetailSerializer,
+    RoutineExerciseInputSerializer,
 )
 from .serializers.serializer_workout import (
     SetLogSerializer,
@@ -19,284 +20,266 @@ from .serializers.serializer_workout import (
     WorkoutSessionSerializer,
 )
 from .serializers.serializers_exercise import ExerciseSerializer
+from .serializers.serializers_groups import TrainingGroupSerializer
 
 
-# Endpoint para buscar ejercicios por nombre y crear ejercicios
-# cuando usamos clase APIView, se registra la clase para la url, y django REST dirige automaticamente peticion a mentodo correspondiente de la clase:
-# Si la petición es GET, llama al método get().
-# Si la petición es POST, llama al método post().
-# (Y si tuvieras métodos put(), delete(), etc., los llamaría según el verbo HTTP).
-class ExerciseListCreateView(APIView):
-    """Class to create or search if a Exercise exits in bd"""
+class ExerciseViewSet(viewsets.ViewSet):
+    """
+    Gestiona la búsqueda y creación de ejercicios.
+    """
 
-    # buscamos ejercicio por external_id
-    def get(self, request):
+    def list(self, request):
         external_id = request.query_params.get("external_id")
         if not external_id:
-            return Response(
-                {"detail": "Missing external id parameter."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return Response({"detail": "Missing external_id."}, status=status.HTTP_400_BAD_REQUEST)
 
         exists = Exercise.objects.filter(external_id=external_id).exists()
-        return Response({"exists": exists}, status=status.HTTP_200_OK)
+        return Response({"exists": exists})
 
-    def post(self, request):
-        # intentamos convertir json a modelo
+    def create(self, request):
         serializer = ExerciseSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()  # si sí se puede, lo guardamos en bd
+            serializer.save()
             return Response({"created": True}, status=status.HTTP_201_CREATED)
         return Response(
-            {"created": False, "errors": serializer.errors},
-            status=status.HTTP_400_BAD_REQUEST,
+            {"created": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
         )
 
 
-class RoutineListCreateView(APIView):
+class RoutineViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para gestionar Rutinas: listar, crear, detalle, eliminar y acciones personalizadas.
+    """
+
     permission_classes = [IsAuthenticated]
-    """
-    GET  /api/routines/     → lista todas las rutinas
-    POST /api/routines/     → crea una rutina nueva con sus ejercicios
-    """
+    queryset = Routine.objects.all().prefetch_related("routine_exercises__exercise")
 
-    def get(self, request):
-        user = request.user
-        routines = (
-            Routine.objects.filter(created_by=user)
-            .prefetch_related("routine_exercises__exercise")
-            .all()
-        )  # obtenemos todas las rutinas del usuario y precarga sus ejercicios
-        serializer = RoutineDetailSerializer(
-            routines, many=True
-        )  # convierte la lista de rutinas (y sus ejercicios) a formato JSON usando el serializer RoutineDetailSerializer.
+    def get_serializer_class(self):
+        if self.action == "create":
+            return RoutineCreateSerializer
+        return RoutineDetailSerializer
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get_queryset(self):
+        # El usuario solo ve sus propias rutinas en el listado general
+        if self.action == "list":
+            return self.queryset.filter(created_by=self.request.user)
+        return self.queryset
 
-    def post(self, request):
-        serializer = RoutineCreateSerializer(data=request.data, context={"request": request})
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.created_by != request.user:
+            return Response(
+                {"detail": "No tienes permiso para borrar esta rutina."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        return super().destroy(request, *args, **kwargs)
+
+    @decorators.action(detail=True, methods=["patch"])
+    def add_exercises(self, request, pk=None):
+        """Action personalizada para añadir ejercicios a una rutina existente."""
+        routine = self.get_object()
+        if routine.created_by != request.user:
+            return Response({"detail": "Permiso denegado."}, status=status.HTTP_403_FORBIDDEN)
+
+        exercises_data = request.data.get("exercises", [])
+        serializer = RoutineExerciseInputSerializer(data=exercises_data, many=True)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        routine = serializer.save()
-
-        # Respondemos con el detalle completo de la rutina recién creada
-        response_serializer = RoutineDetailSerializer(routine)
-
-        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
-
-
-class RoutineDetailView(APIView):
-    """
-    GET    /api/routines/<id>/   → detalle de una rutina
-    DELETE /api/routines/<id>/   → elimina una rutina
-    """
-
-    def _get_routine_or_404(self, routine_id):
-        """gets routine if it exists"""
-        try:
-            return Routine.objects.prefetch_related("routine_exercises__exercise").get(
-                pk=routine_id
+        current_max_order = (
+            routine.routine_exercises.aggregate(models.Max("order"))["order__max"] or 0
+        )
+        new_exercises = [
+            RoutineExercise(
+                routine=routine, exercise=item["external_id"], order=current_max_order + i + 1
             )
-        except Routine.DoesNotExist:
-            return None
+            for i, item in enumerate(serializer.validated_data)
+        ]
+        RoutineExercise.objects.bulk_create(new_exercises)
+        return Response(RoutineDetailSerializer(routine).data)
 
-    def get(self, request, routine_id):
-        routine = self._get_routine_or_404(routine_id)
-        if routine is None:
-            return Response({"error": "Rutina no encontrada."}, status=status.HTTP_404_NOT_FOUND)
+    @decorators.action(detail=True, methods=["post"], url_path="assign")
+    def assign_to_athletes(self, request, pk=None):
+        """Asigna la rutina a varios atletas."""
+        if request.user.role != "coach":
+            return Response(
+                {"detail": "Solo coaches pueden asignar."}, status=status.HTTP_403_FORBIDDEN
+            )
 
-        serializer = RoutineDetailSerializer(routine)  # convertimos a json y mandamos
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        routine = self.get_object()
+        if routine.created_by != request.user:
+            return Response(
+                {"detail": "No tienes permiso para asignar esta rutina."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
-    def delete(self, request, routine_id):
-        routine = self._get_routine_or_404(routine_id)
-        if routine is None:
-            return Response({"error": "Rutina no encontrada."}, status=status.HTTP_404_NOT_FOUND)
+        athlete_ids = set(request.data.get("athlete_ids", []))
+        group_ids = request.data.get("group_ids", [])
 
-        routine.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        # Si se proporcionan grupos, sumar sus miembros a la lista de atletas
+        if group_ids:
+            members_from_groups = User.objects.filter(
+                training_group_memberships__id__in=group_ids, role="athlete"
+            ).values_list("id", flat=True)
+            athlete_ids.update(members_from_groups)
 
+        if not athlete_ids:
+            return Response(
+                {"detail": "Proporcione athlete_ids o group_ids con miembros."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-class RoutineExerciseDeleteView(APIView):
-    """
-    DELETE /api/routines/<routine_id>/exercises/<exercise_id>/ → quita un ejercicio de una rutina
-    """
+        # Obtener los objetos de usuario finales
+        athletes = User.objects.filter(id__in=athlete_ids, role="athlete")
 
-    def delete(self, request, routine_id, exercise_id):
-        from .models import RoutineExercise
+        for athlete in athletes:
+            # Regla de negocio: Un atleta solo puede tener una rutina activa a la vez.
+            # Quitamos al atleta de cualquier otra rutina donde esté asignado.
+            for r in Routine.objects.filter(assigned_athletes=athlete):
+                r.assigned_athletes.remove(athlete)
 
+            # Asignar la nueva rutina
+            routine.assigned_athletes.add(athlete)
+
+        return Response({"detail": f"Rutina asignada a {athletes.count()} atletas."})
+
+    @decorators.action(
+        detail=False, methods=["get"], url_path="athlete/(?P<athlete_id>[^/.]+)/active"
+    )
+    def active_routine(self, request, athlete_id=None):
+        """Obtiene la rutina activa de un atleta específico."""
+        routine = Routine.objects.filter(assigned_athletes__id=athlete_id).first()
+        if not routine:
+            return Response({"detail": "Sin rutina asignada."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(RoutineDetailSerializer(routine).data)
+
+    @decorators.action(
+        detail=True, methods=["delete"], url_path="exercises/(?P<exercise_id>[^/.]+)"
+    )
+    def remove_exercise(self, request, pk=None, exercise_id=None):
+        """Quita un ejercicio de la rutina."""
+        routine = self.get_object()
         deleted, _ = RoutineExercise.objects.filter(
-            routine_id=routine_id, exercise_id=exercise_id
+            routine=routine, exercise_id=exercise_id
         ).delete()
         if deleted:
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(
-            {"error": "Ejercicio no encontrado en esta rutina."},
-            status=status.HTTP_404_NOT_FOUND,
-        )
+        return Response({"detail": "No encontrado."}, status=status.HTTP_404_NOT_FOUND)
 
 
-class WorkoutSessionListCreateView(APIView):
+class WorkoutSessionViewSet(viewsets.ModelViewSet):
+    """
+    Gestiona las sesiones de entrenamiento y el historial.
+    """
+
     permission_classes = [IsAuthenticated]
-    """
-    POST /api/sessions/         → inicia una sesión de entrenamiento
-    GET  /api/sessions/         → lista sesiones pasadas
-    """
+    serializer_class = WorkoutSessionSerializer
 
-    def post(self, request):
-        serializer = WorkoutSessionSerializer(data=request.data, context={"request": request})
+    def get_queryset(self):
+        return WorkoutSession.objects.filter(user=self.request.user).order_by("-date")
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            # Intentamos reutilizar sesión si es el mismo usuario, rutina y el MISMO DÍA.
             user = request.user
-            # user = User.objects.get(username="daniela")
             routine = serializer.validated_data["routine"]
-            requested_date = serializer.validated_data.get("date", timezone.now())
+            date = serializer.validated_data.get("date", timezone.now())
 
-            # Filtramos por el día exacto (sin importar la hora)
+            # Reutilizar sesión si es el mismo día
             existing = WorkoutSession.objects.filter(
-                user=user, routine=routine, date__date=requested_date.date()
+                user=user, routine=routine, date__date=date.date()
             ).first()
-
             if existing:
-                return Response(WorkoutSessionSerializer(existing).data, status=status.HTTP_200_OK)
+                return Response(self.get_serializer(existing).data)
 
-            session = serializer.save()
-            return Response(WorkoutSessionSerializer(session).data, status=status.HTTP_201_CREATED)
+            return super().create(request, *args, **kwargs)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request):
-        user = request.user
-        sessions = WorkoutSession.objects.filter(user=user).order_by("-date")
-        serializer = WorkoutSessionSerializer(sessions, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    @decorators.action(detail=False, methods=["get"], url_path="history")
+    def history_range(self, request):
+        """Filtra historial por rango de fechas."""
+        start_param = request.query_params.get("start_date")
+        end_param = request.query_params.get("end_date")
 
+        if not (start_param and end_param):
+            return Response({"detail": "Params missing."}, status=status.HTTP_400_BAD_REQUEST)
 
-class WorkoutHistoryByDateRangeView(APIView):
-    permission_classes = [IsAuthenticated]
+        start_date = parse_date(start_param)
+        end_date = parse_date(end_param)
 
-    """
-    GET /api/sessions/history/?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&page=1&page_size=10
-    → historial de entrenamientos del usuario en un rango de fechas.
-    """
-
-    class Pagination(PageNumberPagination):
-        page_size = 10
-        page_size_query_param = "page_size"
-        max_page_size = 50
-
-    def get(self, request):
-        start_date_param = request.query_params.get("start_date")
-        end_date_param = request.query_params.get("end_date")
-
-        if not start_date_param or not end_date_param:
-            return Response(
-                {"detail": "Los parámetros start_date y end_date son obligatorios."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        start_date = parse_date(start_date_param)
-        end_date = parse_date(end_date_param)
-
-        if not start_date or not end_date:
-            return Response(
-                {"detail": "Formato de fecha inválido. Usa YYYY-MM-DD en start_date y end_date."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        if start_date > end_date:
-            return Response(
-                {"detail": "start_date no puede ser mayor que end_date."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        user = request.user
-        # try:
-        #     user = User.objects.get(username="daniela")
-        # except User.DoesNotExist:
-        #     return Response(
-        #         {"detail": "Usuario de contexto no encontrado."},
-        #         status=status.HTTP_404_NOT_FOUND,
-        #     )
+        if not (start_date and end_date):
+            return Response({"detail": "Invalid dates."}, status=status.HTTP_400_BAD_REQUEST)
 
         sessions = (
-            WorkoutSession.objects.filter(
-                user=user,
-                date__date__range=(start_date, end_date),
-            )
+            self.get_queryset()
+            .filter(date__date__range=(start_date, end_date))
             .select_related("routine")
-            .order_by("date")
         )
 
-        paginator = self.Pagination()
-        page = paginator.paginate_queryset(sessions, request, view=self)
+        from rest_framework.pagination import PageNumberPagination
+
+        class CustomPagination(PageNumberPagination):
+            page_size_query_param = "page_size"
+
+        paginator = CustomPagination()
+        paginator.page_size = 10
+        page = paginator.paginate_queryset(sessions, request)
         serializer = WorkoutHistorySerializer(page, many=True)
         return paginator.get_paginated_response(serializer.data)
 
 
-class SetLogCreateView(APIView):
-    """
-    POST /api/sets/             → registra una serie (set)
-    """
-
-    def post(self, request):
-        serializer = SetLogSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class SetLogDetailView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    GET /api/sets/<id>/    → obtiene una serie
-    PUT /api/sets/<id>/    → actualiza una serie
-    DELETE /api/sets/<id>/ → elimina una serie
-    """
-
-    queryset = SetLog.objects.all()
+class SetLogViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
     serializer_class = SetLogSerializer
+    queryset = SetLog.objects.all()
 
-
-class LastExerciseLogView(APIView):
-    """
-    GET /api/exercises/<exercise_id>/last/ → obtiene el último registro de un ejercicio
-    """
-
-    def get(self, request, exercise_id):
-        # Buscar el último SetLog para este ejercicio
+    @decorators.action(
+        detail=False, methods=["get"], url_path="exercise/(?P<exercise_id>[^/.]+)/last"
+    )
+    def last_for_exercise(self, request, exercise_id=None):
         last_log = SetLog.objects.filter(exercise_id=exercise_id).order_by("-session__date")
         if not last_log.exists():
-            return Response(
-                {"detail": "No hay registros previos."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+            return Response({"detail": "No records."}, status=status.HTTP_404_NOT_FOUND)
 
         last_session_id = last_log.first().session_id
         sets = last_log.filter(session_id=last_session_id)
-        serializer = SetLogSerializer(sets, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(SetLogSerializer(sets, many=True).data)
 
-
-class ExerciseHistoryView(APIView):
-    """
-    GET /api/exercises/<exercise_id>/history/ → historial completo de un ejercicio
-    """
-
-    def get(self, request, exercise_id):
+    @decorators.action(
+        detail=False, methods=["get"], url_path="exercise/(?P<exercise_id>[^/.]+)/history"
+    )
+    def exercise_history(self, request, exercise_id=None):
         logs = (
             SetLog.objects.filter(exercise_id=exercise_id)
             .select_related("session")
             .order_by("-session__date")
         )
-
-        # Agrupar por sesión para que el frontend pueda mostrar tarjetas por fecha
         history = {}
         for log in logs:
-            session_date = log.session.date.strftime("%Y-%m-%d")
-            if session_date not in history:
-                history[session_date] = {"date": session_date, "sets": []}
-            history[session_date]["sets"].append(SetLogSerializer(log).data)
+            date_str = log.session.date.strftime("%Y-%m-%d")
+            if date_str not in history:
+                history[date_str] = {"date": date_str, "sets": []}
+            history[date_str]["sets"].append(SetLogSerializer(log).data)
+        return Response(list(history.values()))
 
-        return Response(list(history.values()), status=status.HTTP_200_OK)
+
+class TrainingGroupViewSet(viewsets.ModelViewSet):
+    serializer_class = TrainingGroupSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Solo devuelve los grupos del coach autenticado
+        return TrainingGroup.objects.filter(coach=self.request.user)
+
+    def perform_create(self, serializer):
+        # Asigna automáticamente el coach al crear
+        serializer.save(coach=self.request.user)
+
+    def initial(self, request, *args, **kwargs):
+        # Verifica que el usuario sea coach antes de cualquier acción
+        super().initial(request, *args, **kwargs)
+        if request.user.role != "coach":
+            raise PermissionDenied("Solo los coaches pueden gestionar grupos.")

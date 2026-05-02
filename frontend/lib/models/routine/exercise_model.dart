@@ -98,7 +98,7 @@ class ExerciseModel {
     'name': name,
     'description': description,
     'muscle': primaryMuscleName,
-    'image_url': imageUrl,
+    'image_url': imageUrl ?? '',
   };
 
   /// Diccionario estático de IDs de músculos a nombres legibles en español.

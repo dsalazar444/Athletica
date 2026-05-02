@@ -2,13 +2,16 @@ from rest_framework import serializers
 
 from routines.models import SetLog, WorkoutSession
 
-# from users.models import User
-
 
 class SetLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = SetLog
         fields = ["id", "session", "exercise", "set_number", "reps", "weight"]
+
+    def validate_weight(self, value):
+        if value < 0:
+            raise serializers.ValidationError("El peso no puede ser negativo.")
+        return value
 
 
 class WorkoutSessionSerializer(serializers.ModelSerializer):

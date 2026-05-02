@@ -21,7 +21,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verifica que se renderiza el texto de bienvenida o el titulo de login
-    expect(find.text('Inicia sesion'), findsOneWidget);
-    expect(find.text('Username'), findsOneWidget);
+    expect(find.text('BIENVENIDO'), findsOneWidget);
+    expect(find.text('Usuario o Email'), findsOneWidget);
   });
 }

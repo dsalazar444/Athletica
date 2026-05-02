@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_radius.dart';
+import '../../theme/app_text_styles.dart';
 import '../../models/auth/register_model.dart';
 
 class Step1Role extends StatefulWidget {
@@ -20,48 +22,42 @@ class _Step1RoleState extends State<Step1Role> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "¿Cuál es tu rol?",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+          Text("¿Cuál es tu rol?", style: AppTextStyles.sectionTitle),
+          const SizedBox(height: 8),
+          Text(
+            "Selecciona cómo usarás la aplicación para personalizar tu experiencia.",
+            style: AppTextStyles.sectionSubtitle,
           ),
-          const SizedBox(height: 10),
-          const Text(
-            "Selecciona cómo usarás la aplicación",
-            style: TextStyle(color: Colors.grey),
-          ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 32),
           _card(
-            title: "Atleta",
-            subtitle: "Entrena y registra tu progreso",
+            title: "Soy Atleta",
+            subtitle: "Quiero entrenar, registrar mi progreso y ver rutinas.",
             value: UserRole.athlete,
+            icon: Icons.fitness_center_rounded,
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 16),
           _card(
-            title: "Entrenador",
-            subtitle: "Gestiona grupos de atletas",
+            title: "Soy Entrenador",
+            subtitle:
+                "Quiero gestionar grupos, crear rutinas y seguir atletas.",
             value: UserRole.coach,
+            icon: Icons.psychology_outlined,
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 48),
           SizedBox(
             width: double.infinity,
+            height: 56,
             child: ElevatedButton(
               onPressed: selectedRole == null
                   ? null
                   : () => widget.onNext(selectedRole!),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.button),
               ),
-              child: const Text(
-                "Continuar",
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
+              child: Text("Continuar", style: AppTextStyles.buttonPrimary),
             ),
           ),
         ],
@@ -72,7 +68,8 @@ class _Step1RoleState extends State<Step1Role> {
   Widget _card({
     required String title,
     required String subtitle,
-    required UserRole value, //
+    required UserRole value,
+    required IconData icon,
   }) {
     final isSelected = selectedRole == value;
 
@@ -82,37 +79,73 @@ class _Step1RoleState extends State<Step1Role> {
           selectedRole = value;
         });
       },
-      child: Container(
-        padding: const EdgeInsets.all(16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
+          color: isSelected
+              ? Colors.white
+              : AppColors.surfaceVariant.withValues(alpha: 0.3),
+          borderRadius: AppRadius.cardLarge,
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
-            width: 2,
+            color: isSelected ? AppColors.primary : Colors.transparent,
+            width: 2.5,
           ),
+          boxShadow: isSelected ? AppColors.deepShadow : null,
         ),
         child: Row(
           children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: isSelected ? AppColors.primaryGradient : null,
+                color: isSelected ? null : AppColors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: isSelected ? AppColors.softShadow : null,
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? Colors.white : AppColors.textSecondary,
+                size: 32,
+              ),
+            ),
+            const SizedBox(width: 20),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                    style: AppTextStyles.cardTitle.copyWith(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: isSelected
+                          ? AppColors.textPrimary
+                          : AppColors.textPrimary.withValues(alpha: 0.7),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(subtitle, style: const TextStyle(color: Colors.grey)),
+                  const SizedBox(height: 6),
+                  Text(
+                    subtitle,
+                    style: AppTextStyles.bodyText1.copyWith(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                      height: 1.3,
+                    ),
+                  ),
                 ],
               ),
             ),
-
             if (isSelected)
-              const Icon(Icons.check_circle, color: AppColors.primary),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                child: const Icon(
+                  Icons.check_circle_rounded,
+                  color: AppColors.primary,
+                  size: 30,
+                ),
+              ),
           ],
         ),
       ),

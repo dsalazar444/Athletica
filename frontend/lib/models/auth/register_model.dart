@@ -24,7 +24,7 @@ class RegisterModel {
   ActivityLevel? activityLevel;
 
   // Campos exclusivos del perfil de coach.
-  String? specialty;
+  String? speciality;
   int? yearsExperience;
 
   RegisterModel({
@@ -40,7 +40,7 @@ class RegisterModel {
     this.gender,
     this.goal,
     this.activityLevel,
-    this.specialty,
+    this.speciality,
     this.yearsExperience,
   });
 
@@ -64,11 +64,7 @@ class RegisterModel {
           'gender': gender,
           'activity_level': _mapActivityLevel(),
           'goals': [
-            {
-              'goal_type': _mapGoal(),
-              'description': null,
-              'target_value': null,
-            },
+            {'goal_type': _mapGoal(), 'description': '', 'target_value': null},
           ],
           'weight_logs': [
             {'weight': weight, 'body_fat': null},
@@ -78,7 +74,7 @@ class RegisterModel {
       // Solo se incluye coach_profile si el usuario es coach.
       if (role == UserRole.coach)
         'coach_profile': {
-          'specialty': specialty,
+          'speciality': speciality,
           'years_experience': yearsExperience,
         },
     };

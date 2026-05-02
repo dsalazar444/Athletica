@@ -22,8 +22,17 @@ class RoutineModel {
   /// ID del usuario que creó la rutina (gestionado por el backend).
   final int? createdBy;
 
-  /// IDs de los atletas que tienen asignada esta rutina.
+  /// Nombre del creador de la rutina.
+  final String? creatorName;
+
+  /// IDs de los atletas que tienen asignada esta rutina (legacy).
   final List<int>? assignedAthletes;
+
+  /// Conteo de atletas asignados (nuevo).
+  final int assignedAthletesCount;
+
+  /// Información básica de los atletas asignados (nombres y IDs).
+  final List<Map<String, dynamic>> assignedAthletesInfo;
 
   /// Lista de ejercicios que componen esta rutina, incluyendo su orden.
   final List<RoutineExerciseModel> exercises;
@@ -35,7 +44,10 @@ class RoutineModel {
     required this.category,
     required this.difficulty,
     this.createdBy,
+    this.creatorName,
     this.assignedAthletes,
+    this.assignedAthletesCount = 0,
+    this.assignedAthletesInfo = const [],
     required this.exercises,
   });
 
@@ -47,8 +59,13 @@ class RoutineModel {
     category: json['category'],
     difficulty: json['difficulty'],
     createdBy: json['created_by'],
+    creatorName: json['creator_name'],
     assignedAthletes: (json['assigned_athletes'] != null)
         ? (json['assigned_athletes'] as List).map((e) => e as int).toList()
+        : [],
+    assignedAthletesCount: json['assigned_athletes_count'] ?? 0,
+    assignedAthletesInfo: (json['assigned_athletes_info'] != null)
+        ? List<Map<String, dynamic>>.from(json['assigned_athletes_info'])
         : [],
     exercises: (json['exercises'] != null)
         ? (json['exercises'] as List)
@@ -64,6 +81,5 @@ class RoutineModel {
     'category': category,
     'difficulty': difficulty,
     'exercises': exercises.map((e) => e.toJson()).toList(),
-    // 'created_by' y 'assigned_athletes' suelen ser manejados automáticamente por el backend.
   };
 }

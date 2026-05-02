@@ -1,0 +1,20 @@
+[tool.bandit]
+# Exclude directories that should not be scanned (like the virtual environment)
+exclude_dirs = ["venv", ".venv", "backend/tests", "frontend/test", "**/migrations/**"]
+# Number of lines of context to show for each issue
+targets = ["."]
+# Ignore B101 (assert), B106 (hardcoded pass in func), and B105 (hardcoded pass string)
+skips = ["B101", "B106", "B105"]
+
+[tool.ruff]
+# Target Python version
+target-version = "py312"
+# Rules to enable/disable
+line-length = 88
+select = ["E", "F", "W", "I"]
+ignore = []
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "backend.settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+addopts = "--cov=. --cov-report=xml:coverage.xml"

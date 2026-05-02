@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'theme/app_colors.dart';
+import 'theme/app_radius.dart';
+import 'theme/app_text_styles.dart';
 import 'views/main_screen.dart';
+
 import 'views/auth/login_screen.dart';
 import 'core/token_storage.dart';
 
@@ -22,7 +25,30 @@ class WorkoutApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
         scaffoldBackgroundColor: AppColors.background,
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: AppColors.surfaceVariant.withValues(alpha: 0.5),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 18,
+            horizontal: 16,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: AppRadius.input,
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: AppRadius.input,
+            borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: AppRadius.input,
+            borderSide: const BorderSide(color: AppColors.error, width: 1),
+          ),
+          labelStyle: AppTextStyles.inputLabel,
+          hintStyle: AppTextStyles.hintText,
+        ),
       ),
+
       // Verifica si hay un token guardado para decidir que pantalla mostrar.
       home: const AuthGate(),
     );

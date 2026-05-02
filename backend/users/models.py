@@ -13,6 +13,10 @@ class User(AbstractUser):
 
     # Sobreescribe el email para hacerlo único — no puede haber dos usuarios con el mismo email.
     email = models.EmailField(unique=True)
+    age = models.IntegerField(null=True, blank=True)
+    height = models.FloatField(null=True, blank=True)
+    weight = models.FloatField(null=True, blank=True)
+    training_goal = models.CharField(max_length=30, blank=True, default="")
 
     def __str__(self):
         return f"{self.username} ({self.get_role_display()})"
@@ -56,11 +60,20 @@ class AthleteProfile(Profile):
 # Perfil específico para usuarios con rol 'coach'.
 # Almacena información del gimnasio o negocio del entrenador.
 class CoachProfile(Profile):
-    gym_name = models.CharField(max_length=255)
-    business_address = models.CharField(max_length=255)
+    SPECIALITY_CHOICES = (
+        ("lose_weight", "Lose_weight"),
+        ("gain_muscle", "Gain_muscle"),
+        ("maintain", "Maintain"),
+        ("endurance", "Endurance"),
+        ("wellness", "Wellness"),
+    )
+    speciality = models.CharField(max_length=255, choices=SPECIALITY_CHOICES)
+    years_experience = models.IntegerField()
+    # Lista de atletas vinculados al coach (independiente de los grupos)
+    athletes = models.ManyToManyField(User, related_name="managed_by_coaches", blank=True)
 
     def __str__(self):
-        return f"{self.user.username} — {self.gym_name}"
+        return f"{self.user.username} — {self.speciality}"
 
 
 # Representa una meta de entrenamiento asociada a un atleta.
@@ -78,7 +91,7 @@ class Goal(models.Model):
     # Relación con el atleta dueño de la meta.
     athlete = models.ForeignKey(AthleteProfile, on_delete=models.CASCADE, related_name="goals")
 
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, default="")
 
     # Valor objetivo de la meta, por ejemplo: 70kg para pérdida de peso.
     target_value = models.FloatField(null=True, blank=True)

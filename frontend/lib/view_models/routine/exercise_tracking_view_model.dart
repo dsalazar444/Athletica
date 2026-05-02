@@ -15,10 +15,10 @@ class ExerciseTrackingViewModel extends ChangeNotifier {
   WorkoutSessionModel? currentSession;
 
   /// Las series registradas en la última sesión realizada (usado para sugerencias).
-  List<SetLogModel> lastSessionSets = [];
+  List<LogSetModel> lastSessionSets = [];
 
   /// Lista interactiva de series que el usuario está registrando/editando actualmente.
-  List<SetLogModel> setsToLog = [];
+  List<LogSetModel> setsToLog = [];
 
   /// Lista de IDs de series que han sido eliminadas de la UI y deben borrarse del backend al guardar.
   List<int> setsToDelete = [];
@@ -69,7 +69,7 @@ class ExerciseTrackingViewModel extends ChangeNotifier {
       );
 
       final existingSets = (existingDay['sets'] as List)
-          .map((s) => SetLogModel.fromJson(s))
+          .map((s) => LogSetModel.fromJson(s))
           .toList();
 
       // 3. Obtenemos sugerencias del entrenamiento más reciente.
@@ -82,19 +82,19 @@ class ExerciseTrackingViewModel extends ChangeNotifier {
         // Editamos registros ya existentes.
         setsToLog = existingSets;
       } else {
-        // Pre-llenamos con 4 series sugeridas o vacías.
-        setsToLog = List.generate(4, (index) {
-          final lastSet = index < lastSessionSets.length
-              ? lastSessionSets[index]
-              : (lastSessionSets.isNotEmpty ? lastSessionSets.last : null);
-          return SetLogModel(
+        // Iniciamos con solo 1 serie sugerida o vacía (como solicitó el usuario).
+        final lastSet = lastSessionSets.isNotEmpty
+            ? lastSessionSets.first
+            : null;
+        setsToLog = [
+          LogSetModel(
             exerciseId: exerciseId,
-            setNumber: index + 1,
+            setNumber: 1,
             reps: lastSet?.reps ?? 10,
             weight: lastSet?.weight ?? 0.0,
             sessionId: currentSession?.id,
-          );
-        });
+          ),
+        ];
       }
     } catch (e) {
       errorMessage = "Error al inicializar el registro del ejercicio.";
@@ -127,11 +127,11 @@ class ExerciseTrackingViewModel extends ChangeNotifier {
   void addRow() {
     final lastSet = setsToLog.isNotEmpty ? setsToLog.last : null;
     setsToLog.add(
-      SetLogModel(
+      LogSetModel(
         exerciseId: exerciseId,
         setNumber: setsToLog.length + 1,
-        reps: lastSet?.reps ?? 10,
-        weight: lastSet?.weight ?? 0.0,
+        reps: lastSet?.reps ?? 10, // Copia la serie anterior
+        weight: lastSet?.weight ?? 0.0, // Copia la serie anterior
         sessionId: currentSession?.id,
       ),
     );

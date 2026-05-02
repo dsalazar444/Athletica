@@ -1,8 +1,12 @@
+import logging
+
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .models import AthleteProfile, CoachProfile, Goal, User, WeightLog
+
+logger = logging.getLogger(__name__)
 
 
 # Serializer para las metas de un atleta.
@@ -50,7 +54,7 @@ class AthleteProfileSerializer(serializers.ModelSerializer):
 class CoachProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CoachProfile
-        fields = ["id", "gym_name", "business_address"]
+        fields = ["id", "speciality", "years_experience"]
 
 
 # Serializer para mostrar la informacion de un usuario existente.
@@ -66,9 +70,21 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "first_name",
             "role",
+            "age",
+            "height",
+            "weight",
+            "training_goal",
             "athlete_profile",
             "coach_profile",
         ]
+
+
+class ProfileSettingsSerializer(serializers.Serializer):
+    name = serializers.CharField(required=False, max_length=150, allow_blank=False)
+    age = serializers.IntegerField(required=False, min_value=1, max_value=120)
+    weight = serializers.FloatField(required=False, min_value=1)
+    height = serializers.FloatField(required=False, min_value=1)
+    training_goal = serializers.ChoiceField(required=False, choices=Goal.GOAL_CHOICES)
 
 
 # Serializer para el registro de nuevos usuarios.
@@ -132,6 +148,66 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
+        # Allow login using email by resolving it to a username
+        username = attrs.get("username")
+        if username and "@" in username:
+            try:
+                user = User.objects.get(email=username)
+                attrs["username"] = user.username
+            except User.DoesNotExist:
+                # Let super().validate handle the non-existent user case normally
+                pass
+
         data = super().validate(attrs)
-        data["first_name"] = self.user.first_name or self.user.username
+
+        # Add extra data safely
+        try:
+            data["first_name"] = self.user.first_name or self.user.username
+            data["role"] = self.user.role
+            data["user_id"] = self.user.id
+
+            if self.user.role == "athlete":
+                try:
+                    athlete = AthleteProfile.objects.get(user=self.user)
+                    data["athlete_id"] = athlete.id
+                except AthleteProfile.DoesNotExist:
+                    data["athlete_id"] = None
+            else:
+                data["athlete_id"] = None
+        except Exception as e:
+            # If for some reason extra field logic fails, don't block the login
+            logger.error(f"Error adding extra fields to login data: {e}", exc_info=True)
+            pass
+
         return data
+
+
+# Serializer para búsqueda de atletas
+class AthleteSearchSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source="get_full_name")
+    active_routine_id = serializers.SerializerMethodField()
+    active_routine_title = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "email",
+            "name",
+            "role",
+            "active_routine_id",
+            "active_routine_title",
+        ]
+
+    def get_active_routine_id(self, obj):
+        from routines.models import Routine
+
+        routine = Routine.objects.filter(assigned_athletes=obj).first()
+        return routine.id if routine else None
+
+    def get_active_routine_title(self, obj):
+        from routines.models import Routine
+
+        routine = Routine.objects.filter(assigned_athletes=obj).first()
+        return routine.title if routine else None

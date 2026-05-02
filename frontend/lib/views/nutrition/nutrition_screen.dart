@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../core/api_client.dart';
 import '../../models/nutrition/meal_record.dart';
 import '../../repositories/nutrition/nutrition_service.dart';
+import '../../theme/app_colors.dart';
 import 'add_meal_screen.dart';
 
 class NutritionScreen extends StatefulWidget {
@@ -15,6 +17,7 @@ class NutritionScreen extends StatefulWidget {
 class _NutritionScreenState extends State<NutritionScreen> {
   final NutritionService _service = NutritionService();
   List<MealRecord> _meals = [];
+  Map<String, dynamic>? _nutritionPlan;
   DateTime _selectedDate = DateTime.now();
   bool _isLoading = false;
 
@@ -22,23 +25,41 @@ class _NutritionScreenState extends State<NutritionScreen> {
   void initState() {
     super.initState();
     _fetchMeals();
+    _fetchNutritionPlan();
+  }
+
+  Future<void> _fetchNutritionPlan() async {
+    try {
+      final response = await ApiClient.dio.get('nutrition/plans/');
+      final List<dynamic> plans = response.data;
+      if (mounted && plans.isNotEmpty) {
+        setState(() => _nutritionPlan = plans.first);
+      }
+    } catch (_) {}
   }
 
   String get _formattedDate =>
       '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}';
 
   Future<void> _fetchMeals() async {
+    if (_isLoading) return;
     setState(() => _isLoading = true);
     try {
       final meals = await _service.getMeals(
         date: _formattedDate,
         athleteId: widget.athleteId,
       );
-      setState(() => _meals = meals);
+      if (mounted) {
+        setState(() {
+          _meals = meals;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      _showError('No se pudieron cargar los registros.');
-    } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+        _showError('No se pudieron cargar los registros.');
+      }
     }
   }
 
@@ -96,9 +117,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: AppColors.primary,
         title: const Text(
           'Registro de Alimentación',
           style: TextStyle(color: Colors.white),
@@ -107,16 +128,17 @@ class _NutritionScreenState extends State<NutritionScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.calendar_today),
+            color: Colors.white,
             onPressed: _pickDate,
           ),
         ],
       ),
       body: Column(
         children: [
-          // Cabecera fecha y calorías totales
+          // Header
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            color: const Color(0xFF1E1E1E),
+            color: Colors.grey[100],
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -126,14 +148,14 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     children: [
                       const Icon(
                         Icons.calendar_month,
-                        color: Color(0xFFE91E63),
+                        color: AppColors.primary,
                         size: 18,
                       ),
                       const SizedBox(width: 6),
                       Text(
                         _formattedDate,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),
@@ -145,14 +167,14 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   children: [
                     const Icon(
                       Icons.local_fire_department,
-                      color: Color(0xFFE91E63),
+                      color: AppColors.primary,
                       size: 18,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       '${_totalCalories.toStringAsFixed(0)} kcal',
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
@@ -163,22 +185,31 @@ class _NutritionScreenState extends State<NutritionScreen> {
             ),
           ),
 
-          // Lista de comidas
+          // Plan nutricional del coach
+          if (_nutritionPlan != null)
+            _NutritionPlanBanner(plan: _nutritionPlan!),
+
+          // Lista
           Expanded(
             child: _isLoading
                 ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFFE91E63)),
+                    child: CircularProgressIndicator(color: AppColors.primary),
                   )
                 : _meals.isEmpty
                 ? const Center(
                     child: Text(
                       'No hay comidas registradas para esta fecha.',
-                      style: TextStyle(color: Colors.white54),
+                      style: TextStyle(color: Colors.black54),
                       textAlign: TextAlign.center,
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: 16,
+                      bottom: 120,
+                    ),
                     itemCount: _meals.length,
                     itemBuilder: (context, index) {
                       final meal = _meals[index];
@@ -195,7 +226,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'nutrition_fab',
-        backgroundColor: const Color(0xFFE91E63),
+        backgroundColor: AppColors.primary,
         onPressed: () async {
           final added = await Navigator.push<bool>(
             context,
@@ -218,6 +249,115 @@ class _NutritionScreenState extends State<NutritionScreen> {
   }
 }
 
+class _NutritionPlanBanner extends StatelessWidget {
+  final Map<String, dynamic> plan;
+  const _NutritionPlanBanner({required this.plan});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.restaurant_menu_rounded,
+                color: AppColors.primary,
+                size: 16,
+              ),
+              const SizedBox(width: 6),
+              const Text(
+                'OBJETIVOS DEL ENTRENADOR',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.primary,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _MacroTarget(
+                label: 'Calorías',
+                value: '${plan['target_calories'].toStringAsFixed(0)}',
+                unit: 'kcal',
+                icon: Icons.local_fire_department_rounded,
+              ),
+              _MacroTarget(
+                label: 'Proteínas',
+                value: '${plan['protein_g'].toStringAsFixed(0)}',
+                unit: 'g',
+                icon: Icons.fitness_center_rounded,
+              ),
+              _MacroTarget(
+                label: 'Carbos',
+                value: '${plan['carbs_g'].toStringAsFixed(0)}',
+                unit: 'g',
+                icon: Icons.grain_rounded,
+              ),
+              _MacroTarget(
+                label: 'Grasas',
+                value: '${plan['fat_g'].toStringAsFixed(0)}',
+                unit: 'g',
+                icon: Icons.water_drop_rounded,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MacroTarget extends StatelessWidget {
+  final String label;
+  final String value;
+  final String unit;
+  final IconData icon;
+
+  const _MacroTarget({
+    required this.label,
+    required this.value,
+    required this.unit,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(icon, color: AppColors.primary, size: 18),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            color: Colors.black87,
+          ),
+        ),
+        Text(unit, style: const TextStyle(fontSize: 10, color: Colors.black45)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 10, color: Colors.black54),
+        ),
+      ],
+    );
+  }
+}
+
 class _MealCard extends StatelessWidget {
   final MealRecord meal;
   final IconData icon;
@@ -234,7 +374,8 @@ class _MealCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color(0xFF1E1E1E),
+      color: Colors.white,
+      elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
@@ -245,10 +386,10 @@ class _MealCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFFE91E63).withValues(alpha: 0.15),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: const Color(0xFFE91E63), size: 22),
+              child: Icon(icon, color: AppColors.primary, size: 22),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -257,13 +398,13 @@ class _MealCard extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: const TextStyle(color: Colors.white54, fontSize: 12),
+                    style: const TextStyle(color: Colors.black54, fontSize: 12),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     meal.foodName,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: Colors.black,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
@@ -288,7 +429,7 @@ class _MealCard extends StatelessWidget {
             IconButton(
               icon: const Icon(
                 Icons.delete_outline,
-                color: Colors.white38,
+                color: Colors.black38,
                 size: 20,
               ),
               onPressed: onDelete,
@@ -309,12 +450,12 @@ class _Chip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: Colors.white10,
+        color: Colors.grey[200],
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         text,
-        style: const TextStyle(color: Colors.white70, fontSize: 11),
+        style: const TextStyle(color: Colors.black54, fontSize: 11),
       ),
     );
   }

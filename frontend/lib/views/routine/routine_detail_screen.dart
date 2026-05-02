@@ -8,15 +8,21 @@ import '../../view_models/routine/routine_detail_view_model.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_radius.dart';
 import '../../theme/app_text_styles.dart';
+import '../../core/token_storage.dart';
 import 'exercise_detail_screen.dart';
+import 'widgets/routine_header.dart';
+import 'widgets/exercise_list_item.dart';
+import 'widgets/add_exercise_sheet.dart';
 
-/// Pantalla detallada de una rutina específica.
-/// Muestra la información de la rutina y la lista de ejercicios que la componen.
-/// Utiliza [RoutineDetailViewModel] para gestionar el estado y las acciones en la rutina.
 class RoutineDetailScreen extends StatelessWidget {
   final RoutineModel routine;
+  final bool isOwner;
 
-  const RoutineDetailScreen({super.key, required this.routine});
+  const RoutineDetailScreen({
+    super.key,
+    required this.routine,
+    this.isOwner = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +54,15 @@ class RoutineDetailScreen extends StatelessWidget {
                       height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     ),
+                  )
+                else if (isOwner)
+                  IconButton(
+                    icon: const Icon(
+                      Icons.delete_outline_rounded,
+                      color: AppColors.error,
+                    ),
+                    onPressed: () =>
+                        _showDeleteRoutineConfirmation(context, viewModel),
                   ),
               ],
             ),
@@ -62,14 +77,10 @@ class RoutineDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildRoutineInfo(viewModel.routine),
+                    RoutineHeader(routine: viewModel.routine),
                     const SizedBox(height: AppSpacing.xxl),
-                    Text(
-                      'Ejercicios (${viewModel.routine.exercises.length})',
-                      style: AppTextStyles.sectionTitle,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    _buildExercisesList(context, viewModel),
+                    _buildCoachSection(viewModel),
+                    _buildExercisesSection(context, viewModel),
                   ],
                 ),
               ),
@@ -80,97 +91,95 @@ class RoutineDetailScreen extends StatelessWidget {
     );
   }
 
-  /// Construye la tarjeta superior con la información destacada de la rutina.
-  Widget _buildRoutineInfo(RoutineModel routine) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.textPrimary, Color(0xFF333333)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: AppRadius.card,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(AppSpacing.xxl),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Etiquetas de categoría y dificultad.
-          Row(
+  Widget _buildCoachSection(RoutineDetailViewModel viewModel) {
+    return FutureBuilder<String?>(
+      future: TokenStorage.getUserRole(),
+      builder: (context, snapshot) {
+        final isCoach = snapshot.data == 'coach';
+        if (isCoach && viewModel.routine.assignedAthletesInfo.isNotEmpty) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildTag(
-                routine.category,
-                Colors.white.withValues(alpha: 0.2),
-                Colors.white,
+              _buildSectionTitle(
+                "ATLETAS ACTIVOS (${viewModel.routine.assignedAthletesInfo.length})",
               ),
-              const SizedBox(width: AppSpacing.sm),
-              _buildTag(
-                routine.difficulty,
-                Colors.white.withValues(alpha: 0.2),
-                Colors.white,
-              ),
+              const SizedBox(height: AppSpacing.md),
+              _buildActiveAthletesList(viewModel.routine.assignedAthletesInfo),
+              const SizedBox(height: AppSpacing.xxl),
             ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            routine.title,
-            style: const TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w800,
-              color: AppColors.surface,
-              letterSpacing: -0.5,
+          );
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildExercisesSection(
+    BuildContext context,
+    RoutineDetailViewModel viewModel,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildSectionTitle(
+              "EJERCICIOS (${viewModel.routine.exercises.length})",
             ),
-          ),
-          if (routine.description.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              routine.description,
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.white.withValues(alpha: 0.8),
-                height: 1.4,
+            if (isOwner)
+              TextButton.icon(
+                onPressed: () => _showAddExerciseSheet(context, viewModel),
+                icon: const Icon(Icons.add_circle_outline_rounded, size: 18),
+                label: const Text("Añadir"),
+                style: TextButton.styleFrom(foregroundColor: AppColors.primary),
               ),
-            ),
           ],
-        ],
-      ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        _buildExercisesList(context, viewModel),
+      ],
     );
   }
 
-  /// Construye una etiqueta pequeña con fondo semitransparente.
-  Widget _buildTag(String text, Color bgColor, Color textColor) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(4),
-      ),
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
       child: Text(
-        text.toUpperCase(),
-        style: AppTextStyles.tagLabel.copyWith(color: textColor),
+        title,
+        style: AppTextStyles.fitnessBold.copyWith(
+          color: AppColors.textPrimary,
+          letterSpacing: 1.0,
+        ),
       ),
     );
   }
 
-  /// Genera la lista de ejercicios como tarjetas interactivas.
   Widget _buildExercisesList(
     BuildContext context,
     RoutineDetailViewModel viewModel,
   ) {
     if (viewModel.routine.exercises.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.only(top: AppSpacing.md),
-        child: Text(
-          'Esta rutina no tiene ejercicios asignados.',
-          style: TextStyle(color: AppColors.textSecondary),
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40),
+          child: Column(
+            children: [
+              Icon(
+                Icons.fitness_center_outlined,
+                size: 64,
+                color: AppColors.textHint.withValues(alpha: 0.3),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Esta rutina no tiene ejercicios asignados.',
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -181,129 +190,93 @@ class RoutineDetailScreen extends StatelessWidget {
       itemCount: viewModel.routine.exercises.length,
       itemBuilder: (context, index) {
         final routineExercise = viewModel.routine.exercises[index];
-        return Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {
-              // Navega al detalle histórico del ejercicio.
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ExerciseDetailScreen(
-                    routineExercise: routineExercise,
-                    routineId: viewModel.routine.id!,
-                  ),
-                ),
-              ).then((_) => viewModel.refreshRoutine());
-            },
-            borderRadius: AppRadius.card,
-            child: Container(
-              margin: const EdgeInsets.only(bottom: AppSpacing.md),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: AppRadius.card,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-                border: Border.all(
-                  color: AppColors.border.withValues(alpha: 0.5),
+        return ExerciseListItem(
+          routineExercise: routineExercise,
+          isOwner: isOwner,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ExerciseDetailScreen(
+                  routineExercise: routineExercise,
+                  routineId: viewModel.routine.id!,
                 ),
               ),
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Indicador del orden del ejercicio en la rutina.
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${routineExercise.order}',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          routineExercise.exercise.name,
-                          style: AppTextStyles.exerciseName.copyWith(
-                            fontSize: 16,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.fitness_center,
-                              size: 14,
-                              color: AppColors.textHint,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              routineExercise.exercise.primaryMuscleName,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textSecondary,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Botón para eliminar el ejercicio de esta rutina.
-                  IconButton(
-                    constraints: const BoxConstraints(),
-                    padding: EdgeInsets.zero,
-                    icon: const Icon(
-                      Icons.delete_outline,
-                      color: AppColors.error,
-                      size: 22,
-                    ),
-                    onPressed: () {
-                      _showDeleteConfirmation(
-                        context,
-                        viewModel,
-                        routineExercise,
-                      );
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  const Icon(
-                    Icons.chevron_right,
-                    color: AppColors.textHint,
-                    size: 20,
-                  ),
-                ],
-              ),
-            ),
-          ),
+            ).then((_) => viewModel.refreshRoutine());
+          },
+          onDelete: () =>
+              _showDeleteConfirmation(context, viewModel, routineExercise),
         );
       },
     );
   }
 
-  /// Muestra un diálogo de confirmación antes de eliminar el ejercicio de la rutina.
+  void _showDeleteRoutineConfirmation(
+    BuildContext context,
+    RoutineDetailViewModel viewModel,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Borrar Rutina", style: AppTextStyles.fitnessBold),
+        content: const Text(
+          "¿Estás seguro de que quieres borrar esta rutina? Esta acción no se puede deshacer.",
+        ),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.card),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              "Cancelar",
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              try {
+                await viewModel.routineRepository.deleteRoutine(
+                  viewModel.routine.id!,
+                );
+                if (context.mounted) {
+                  Navigator.pop(context, true);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Rutina eliminada.")),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(e.toString())));
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text("Borrar", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddExerciseSheet(
+    BuildContext context,
+    RoutineDetailViewModel viewModel,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => AddExerciseSheet(
+        routineId: viewModel.routine.id!,
+        currentExerciseCount: viewModel.routine.exercises.length,
+        repository: viewModel.routineRepository,
+        onAdded: () => viewModel.refreshRoutine(),
+      ),
+    );
+  }
+
   void _showDeleteConfirmation(
     BuildContext context,
     RoutineDetailViewModel viewModel,
@@ -312,14 +285,22 @@ class RoutineDetailScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Quitar Ejercicio'),
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.card),
+        title: const Text(
+          'Quitar Ejercicio',
+          style: TextStyle(fontWeight: FontWeight.w800),
+        ),
         content: Text(
           '¿Estás seguro de que quieres remover "${re.exercise.name}" de esta rutina?',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CANCELAR'),
+            child: const Text(
+              'CANCELAR',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -327,10 +308,106 @@ class RoutineDetailScreen extends StatelessWidget {
               Navigator.pop(context);
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('REMOVER'),
+            child: const Text(
+              'REMOVER',
+              style: TextStyle(fontWeight: FontWeight.w800),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildActiveAthletesList(List<Map<String, dynamic>> athletes) {
+    return SizedBox(
+      height: 50,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: athletes.length,
+        itemBuilder: (context, index) {
+          final athlete = athletes[index];
+          return Container(
+            margin: const EdgeInsets.only(right: 8),
+            child: Chip(
+              avatar: CircleAvatar(
+                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                child: Text(
+                  athlete['first_name']?[0] ?? 'A',
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              label: Text(athlete['first_name'] ?? 'Atleta'),
+              backgroundColor: AppColors.surface,
+              side: BorderSide(color: AppColors.border.withValues(alpha: 0.5)),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class RoutineDetailScreenFromId extends StatefulWidget {
+  final int routineId;
+  const RoutineDetailScreenFromId({super.key, required this.routineId});
+
+  @override
+  State<RoutineDetailScreenFromId> createState() =>
+      _RoutineDetailScreenFromIdState();
+}
+
+class _RoutineDetailScreenFromIdState extends State<RoutineDetailScreenFromId> {
+  RoutineModel? _routine;
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRoutine();
+  }
+
+  Future<void> _loadRoutine() async {
+    try {
+      final repository = RoutineRepository(baseUrl: ApiConfig.baseUrl);
+      final routine = await repository.fetchRoutineDetail(widget.routineId);
+      if (mounted) {
+        setState(() {
+          _routine = routine;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = "No se pudo cargar la rutina.";
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
+    }
+
+    if (_error != null || _routine == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: Center(child: Text(_error ?? "Error desconocido")),
+      );
+    }
+
+    return RoutineDetailScreen(routine: _routine!);
   }
 }
