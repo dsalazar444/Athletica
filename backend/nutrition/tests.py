@@ -224,7 +224,7 @@ class NutritionPlanTestCase(TestCase):
 
         self.coach_user = User.objects.create_user(
             username="testcoach",
-            password="testpass123",
+            password="testpass123",  # nosec
             email="coach@test.com",
             role="coach",
         )
@@ -232,7 +232,7 @@ class NutritionPlanTestCase(TestCase):
 
         self.athlete_user = User.objects.create_user(
             username="testathlete2",
-            password="testpass123",
+            password="testpass123",  # nosec
             email="athlete2@test.com",
             role="athlete",
         )
@@ -265,7 +265,7 @@ class NutritionPlanTestCase(TestCase):
         self.assertIn(self.athlete_user, plan.assigned_athletes.all())
 
     def test_assign_plan_forbidden_for_other_coach(self):
-        other_coach = User.objects.create_user(username="coach2", password="123", role="coach")
+        other_coach = User.objects.create_user(username="coach2", password="123", role="coach")  # nosec
         self.client.force_authenticate(user=other_coach)
         plan = NutritionPlan.objects.create(coach=self.coach_user, title="Plan", description="Desc")
         url = f"{self.plan_url}{plan.id}/assign/"
