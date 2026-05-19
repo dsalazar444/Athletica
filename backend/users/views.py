@@ -557,9 +557,11 @@ def ComparativeStatsView(request):
         return Response({"error": "Periodo no soportado"}, status=status.HTTP_400_BAD_REQUEST)
 
     def calc_change(curr, prev):
-        if prev == 0 and curr > 0:
-            return 100.0
-        if prev == 0 and curr == 0:
+        if prev == 0:
+            if curr > 0:
+                return 100.0
+            elif curr < 0:
+                return -100.0
             return 0.0
         return ((curr - prev) / prev) * 100.0
 

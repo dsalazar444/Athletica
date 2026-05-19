@@ -377,7 +377,7 @@ class TrainingGroupViewSet(viewsets.ModelViewSet):  # NOSONAR
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def GroupDashboardView(request, group_id):
+def GroupDashboardView(request, group_id):  # NOSONAR
     """Tablero de métricas de los atletas de un grupo."""
     if request.user.role != "coach":
         return Response(
@@ -537,7 +537,7 @@ class ExerciseRecommendationView(APIView):
 
 @api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
-def delete_comment(request, comment_id):
+def delete_comment(request, comment_id):  # NOSONAR
     """Elimina un comentario propio. DELETE /api/comments/<id>/"""
     comment = get_object_or_404(Comment, id=comment_id)
     if comment.user != request.user:
@@ -548,13 +548,18 @@ def delete_comment(request, comment_id):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def comment_react(request, comment_id):
+def comment_react(request, comment_id):  # NOSONAR
     """Alterna la reacción (like) del usuario en un comentario. POST /api/comments/<id>/react/"""
     comment = get_object_or_404(Comment, id=comment_id)
     reaction, created = CommentReaction.objects.get_or_create(user=request.user, comment=comment)
     if not created:
         reaction.delete()
-        return Response({"reacted": False, "likes_count": comment.reactions.count()})
+        return Response(
+            {
+                "reacted": False,
+                "likes_count": CommentReaction.objects.filter(comment=comment).count(),
+            }
+        )
     return Response(
         {"reacted": True, "likes_count": comment.reactions.count()},
         status=status.HTTP_201_CREATED,

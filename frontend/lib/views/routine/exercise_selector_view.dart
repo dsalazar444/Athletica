@@ -79,7 +79,7 @@ class _ExerciseSelectorSheetState extends State<ExerciseSelectorSheet> {
       ),
       child: Column(
         children: [
-          _SheetDragHandle(), // Indicador visual de que el modal es deslizable.
+          const _SheetDragHandle(), // Indicador visual de que el modal es deslizable.
           _SelectorHeader(onClose: () => Navigator.of(context).pop()),
           _SearchBar(
             controller: _searchController,

@@ -239,12 +239,12 @@ class CommunityScreenState extends State<CommunityScreen> {
                       ),
                       if (hasDescription) ...[
                         const SizedBox(height: AppSpacing.lg),
-                        _SectionTitle('Descripción'),
+                        const _SectionTitle('Descripción'),
                         const SizedBox(height: AppSpacing.sm),
                         Text(description, style: AppTextStyles.bodyText1),
                       ],
                       const SizedBox(height: AppSpacing.lg),
-                      _SectionTitle('Ejercicios'),
+                      const _SectionTitle('Ejercicios'),
                       const SizedBox(height: AppSpacing.sm),
                       if (routine.exercises.isEmpty)
                         const _EmptyDetailBox(text: 'Sin ejercicios asignados')
