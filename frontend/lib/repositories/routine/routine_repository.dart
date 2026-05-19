@@ -103,7 +103,9 @@ class RoutineRepository {
   }
 
   /// Obtiene el listado de rutinas públicas disponibles para la comunidad.
-  Future<List<RoutineModel>> fetchPublicRoutines({bool mineOnly = false}) async {
+  Future<List<RoutineModel>> fetchPublicRoutines({
+    bool mineOnly = false,
+  }) async {
     try {
       final response = await _dio.get(
         'routines/public/',

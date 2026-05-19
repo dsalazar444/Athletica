@@ -41,12 +41,12 @@ class RoutineCreateSerializer(serializers.ModelSerializer):
             )
         return exercises
 
-    # hay que nombrar metodo asi, porque con base a nombre, data toma un valor, y como data no puede ser un campo del modelo por la lógica de func, toca así
-    def validate(self, data):
+    # hay que nombrar metodo asi, porque con base a nombre, attrs toma un valor, y como attrs no puede ser un campo del modelo por la lógica de func, toca así
+    def validate(self, attrs):
         """Valida que el usuario autenticado no tenga otra rutina con el mismo título."""
         request = self.context.get("request")
         user = getattr(request, "user", None)
-        title = data.get("title")
+        title = attrs.get("title")
         if user and title:
             qs = Routine.objects.filter(title=title, created_by=user)
             if self.instance:
@@ -55,7 +55,7 @@ class RoutineCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     f"Ya tienes una rutina con el titulo '{title}'. Ponle otro"
                 )
-        return data
+        return attrs
 
     def validate_assigned_athletes(self, value):
         """Validate that all assigned users are athletes"""

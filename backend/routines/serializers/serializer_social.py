@@ -24,7 +24,13 @@ class CommentSerializer(serializers.ModelSerializer):
             "replies",
         ]
         read_only_fields = [
-            "id", "user_id", "username", "created_at", "likes_count", "user_liked", "replies"
+            "id",
+            "user_id",
+            "username",
+            "created_at",
+            "likes_count",
+            "user_liked",
+            "replies",
         ]
 
     def get_likes_count(self, comment):

@@ -38,7 +38,8 @@ class RoutineDetailScreen extends StatelessWidget {
         builder: (context, viewModel, child) {
           return Scaffold(
             backgroundColor: AppColors.background,
-            floatingActionButton: (!isOwner && viewModel.routine.exercises.isNotEmpty)
+            floatingActionButton:
+                (!isOwner && viewModel.routine.exercises.isNotEmpty)
                 ? FloatingActionButton.extended(
                     heroTag: 'start_workout_fab',
                     onPressed: () => _startTraining(context, viewModel.routine),

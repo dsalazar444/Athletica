@@ -65,7 +65,9 @@ class CommunityScreenState extends State<CommunityScreen> {
                 child: CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   slivers: [
-                    SliverToBoxAdapter(child: _CommunityHeader(mineOnly: _viewModel.mineOnly)),
+                    SliverToBoxAdapter(
+                      child: _CommunityHeader(mineOnly: _viewModel.mineOnly),
+                    ),
                     SliverPadding(
                       padding: EdgeInsets.fromLTRB(
                         AppSpacing.lg,
@@ -328,7 +330,9 @@ class _PublicRoutineCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final creatorName = (routine.creatorName?.isNotEmpty ?? false) ? routine.creatorName! : 'Usuario';
+    final creatorName = (routine.creatorName?.isNotEmpty ?? false)
+        ? routine.creatorName!
+        : 'Usuario';
     final initials = PublicRoutinesViewModel.getInitials(creatorName);
     final isOwnPost = viewModel.isOwnRoutine(routine);
 
@@ -627,14 +631,20 @@ class _LikeButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            routine.userLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-            color: routine.userLiked ? Colors.redAccent : AppColors.textSecondary,
+            routine.userLiked
+                ? Icons.favorite_rounded
+                : Icons.favorite_border_rounded,
+            color: routine.userLiked
+                ? Colors.redAccent
+                : AppColors.textSecondary,
             size: 22,
           ),
           const SizedBox(width: 5),
           Text(
             '${routine.likesCount}',
-            style: AppTextStyles.bentoUnit.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bentoUnit.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
         ],
       ),
@@ -666,11 +676,17 @@ class _CommentButton extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.chat_bubble_outline_rounded, color: AppColors.textSecondary, size: 20),
+          Icon(
+            Icons.chat_bubble_outline_rounded,
+            color: AppColors.textSecondary,
+            size: 20,
+          ),
           const SizedBox(width: 5),
           Text(
             '${routine.commentsCount}',
-            style: AppTextStyles.bentoUnit.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bentoUnit.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
         ],
       ),
@@ -733,9 +749,9 @@ class _CommentsSheetState extends State<_CommentsSheet> {
       await vm.postComment(widget.routine.id!, text, parentId: parentId);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al comentar: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error al comentar: $e')));
       }
     }
   }
@@ -778,12 +794,16 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                     children: [
                       Text(
                         'Comentarios',
-                        style: AppTextStyles.bodyText1.copyWith(fontWeight: FontWeight.w700),
+                        style: AppTextStyles.bodyText1.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       const Spacer(),
                       Text(
                         '${comments.length}',
-                        style: AppTextStyles.bentoUnit.copyWith(color: AppColors.textSecondary),
+                        style: AppTextStyles.bentoUnit.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ],
                   ),
@@ -792,32 +812,35 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                 Expanded(
                   child: isLoading
                       ? const Center(
-                          child: CircularProgressIndicator(color: AppColors.primary),
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                          ),
                         )
                       : comments.isEmpty
-                          ? Center(
-                              child: Text(
-                                'Sé el primero en comentar.',
-                                style: AppTextStyles.bentoUnit
-                                    .copyWith(color: AppColors.textSecondary),
-                              ),
-                            )
-                          : ListView.builder(
-                              controller: scrollController,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.lg,
-                                vertical: AppSpacing.md,
-                              ),
-                              itemCount: comments.length,
-                              itemBuilder: (_, i) => _CommentTile(
-                                comment: comments[i],
-                                routineId: routineId,
-                                currentUserId: _currentUserId,
-                                viewModel: vm,
-                                onReply: _setReply,
-                                isReply: false,
-                              ),
+                      ? Center(
+                          child: Text(
+                            'Sé el primero en comentar.',
+                            style: AppTextStyles.bentoUnit.copyWith(
+                              color: AppColors.textSecondary,
                             ),
+                          ),
+                        )
+                      : ListView.builder(
+                          controller: scrollController,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.lg,
+                            vertical: AppSpacing.md,
+                          ),
+                          itemCount: comments.length,
+                          itemBuilder: (_, i) => _CommentTile(
+                            comment: comments[i],
+                            routineId: routineId,
+                            currentUserId: _currentUserId,
+                            viewModel: vm,
+                            onReply: _setReply,
+                            isReply: false,
+                          ),
+                        ),
                 ),
                 const Divider(height: 1),
                 if (_replyToUsername != null)
@@ -831,12 +854,18 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                       children: [
                         Text(
                           'Respondiendo a @$_replyToUsername',
-                          style: AppTextStyles.bentoUnit.copyWith(color: AppColors.primary),
+                          style: AppTextStyles.bentoUnit.copyWith(
+                            color: AppColors.primary,
+                          ),
                         ),
                         const Spacer(),
                         GestureDetector(
                           onTap: _clearReply,
-                          child: const Icon(Icons.close, size: 16, color: AppColors.textSecondary),
+                          child: const Icon(
+                            Icons.close,
+                            size: 16,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                       ],
                     ),
@@ -846,7 +875,9 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                     left: AppSpacing.lg,
                     right: AppSpacing.md,
                     top: AppSpacing.sm,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + AppSpacing.md,
+                    bottom:
+                        MediaQuery.of(context).viewInsets.bottom +
+                        AppSpacing.md,
                   ),
                   child: Row(
                     children: [
@@ -856,8 +887,9 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                           textCapitalization: TextCapitalization.sentences,
                           decoration: InputDecoration(
                             hintText: 'Escribe un comentario...',
-                            hintStyle:
-                                AppTextStyles.bentoUnit.copyWith(color: AppColors.textSecondary),
+                            hintStyle: AppTextStyles.bentoUnit.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
                             filled: true,
                             fillColor: AppColors.surface,
                             contentPadding: const EdgeInsets.symmetric(
@@ -874,8 +906,10 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
-                              borderSide:
-                                  const BorderSide(color: AppColors.primary, width: 1.5),
+                              borderSide: const BorderSide(
+                                color: AppColors.primary,
+                                width: 1.5,
+                              ),
                             ),
                           ),
                         ),
@@ -937,10 +971,7 @@ class _CommentTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-        left: isReply ? 32.0 : 0,
-        bottom: AppSpacing.md,
-      ),
+      padding: EdgeInsets.only(left: isReply ? 32.0 : 0, bottom: AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -951,7 +982,9 @@ class _CommentTile extends StatelessWidget {
                 radius: isReply ? 14 : 18,
                 backgroundColor: AppColors.tagBackground,
                 child: Text(
-                  comment.username.isNotEmpty ? comment.username[0].toUpperCase() : '?',
+                  comment.username.isNotEmpty
+                      ? comment.username[0].toUpperCase()
+                      : '?',
                   style: TextStyle(
                     fontSize: isReply ? 12 : 14,
                     fontWeight: FontWeight.w700,
@@ -989,7 +1022,10 @@ class _CommentTile extends StatelessWidget {
                     Row(
                       children: [
                         GestureDetector(
-                          onTap: () => viewModel.toggleCommentReaction(comment.id, routineId),
+                          onTap: () => viewModel.toggleCommentReaction(
+                            comment.id,
+                            routineId,
+                          ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -1005,8 +1041,10 @@ class _CommentTile extends StatelessWidget {
                               const SizedBox(width: 4),
                               Text(
                                 '${comment.likesCount}',
-                                style: AppTextStyles.bentoUnit
-                                    .copyWith(color: AppColors.textSecondary, fontSize: 12),
+                                style: AppTextStyles.bentoUnit.copyWith(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 12,
+                                ),
                               ),
                             ],
                           ),
@@ -1027,7 +1065,8 @@ class _CommentTile extends StatelessWidget {
                         const Spacer(),
                         if (comment.userId == currentUserId)
                           GestureDetector(
-                            onTap: () => viewModel.deleteComment(comment.id, routineId),
+                            onTap: () =>
+                                viewModel.deleteComment(comment.id, routineId),
                             child: const Icon(
                               Icons.delete_outline_rounded,
                               size: 16,
@@ -1056,7 +1095,6 @@ class _CommentTile extends StatelessWidget {
       ),
     );
   }
-
 }
 
 // ─────────────────────────────────────────────

@@ -33,9 +33,9 @@ def test_comparative_stats_monthly(auth_client):
 
     # Add weight logs
     w1 = WeightLog.objects.create(athlete=profile, weight=70.0)
-    WeightLog.objects.filter(id=w1.id).update(date=current_start.date() + timedelta(days=2))
+    WeightLog.objects.filter(pk=w1.pk).update(date=current_start.date() + timedelta(days=2))
     w2 = WeightLog.objects.create(athlete=profile, weight=72.0)
-    WeightLog.objects.filter(id=w2.id).update(date=previous_start.date() + timedelta(days=2))
+    WeightLog.objects.filter(pk=w2.pk).update(date=previous_start.date() + timedelta(days=2))
 
     # Add routine
     routine = Routine.objects.create(

@@ -53,7 +53,10 @@ class _AthleteStatsScreenState extends State<AthleteStatsScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Column(
@@ -71,10 +74,12 @@ class _AthleteStatsScreenState extends State<AthleteStatsScreen> {
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            )
           : _error != null
-              ? _buildError()
-              : _buildContent(),
+          ? _buildError()
+          : _buildContent(),
     );
   }
 
@@ -83,7 +88,11 @@ class _AthleteStatsScreenState extends State<AthleteStatsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline_rounded, size: 64, color: AppColors.error.withValues(alpha: 0.5)),
+          Icon(
+            Icons.error_outline_rounded,
+            size: 64,
+            color: AppColors.error.withValues(alpha: 0.5),
+          ),
           const SizedBox(height: 16),
           Text(_error!, style: const TextStyle(color: AppColors.textSecondary)),
           const SizedBox(height: 24),
@@ -166,13 +175,13 @@ class _AthleteStatsScreenState extends State<AthleteStatsScreen> {
             icon: changePct == null
                 ? Icons.remove_rounded
                 : changePct >= 0
-                    ? Icons.trending_up_rounded
-                    : Icons.trending_down_rounded,
+                ? Icons.trending_up_rounded
+                : Icons.trending_down_rounded,
             color: changePct == null
                 ? AppColors.textHint
                 : changePct >= 0
-                    ? AppColors.success
-                    : AppColors.error,
+                ? AppColors.success
+                : AppColors.error,
           ),
         ),
       ],
@@ -205,9 +214,15 @@ class _AthleteStatsScreenState extends State<AthleteStatsScreen> {
           const SizedBox(height: 8),
           Text(
             value,
-            style: AppTextStyles.fitnessBold.copyWith(fontSize: 22, color: color),
+            style: AppTextStyles.fitnessBold.copyWith(
+              fontSize: 22,
+              color: color,
+            ),
           ),
-          Text(unit, style: AppTextStyles.fitnessCaption.copyWith(fontSize: 10)),
+          Text(
+            unit,
+            style: AppTextStyles.fitnessCaption.copyWith(fontSize: 10),
+          ),
           const SizedBox(height: 4),
           Text(
             label,
@@ -311,7 +326,9 @@ class _AthleteStatsScreenState extends State<AthleteStatsScreen> {
   Widget _buildWeeklyChart(List<dynamic> weeklySessions) {
     if (weeklySessions.isEmpty) return const SizedBox.shrink();
 
-    final counts = weeklySessions.map((w) => (w['count'] as int?) ?? 0).toList();
+    final counts = weeklySessions
+        .map((w) => (w['count'] as int?) ?? 0)
+        .toList();
     final maxCount = counts.reduce((a, b) => a > b ? a : b);
     final effectiveMax = maxCount == 0 ? 1 : maxCount;
 
@@ -324,7 +341,9 @@ class _AthleteStatsScreenState extends State<AthleteStatsScreen> {
           final week = weeklySessions[i];
           final count = (week['count'] as int?) ?? 0;
           final fraction = count / effectiveMax;
-          final weekLabel = _shortWeekLabel(week['week_start'] as String? ?? '');
+          final weekLabel = _shortWeekLabel(
+            week['week_start'] as String? ?? '',
+          );
           return Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 3),
@@ -342,7 +361,9 @@ class _AthleteStatsScreenState extends State<AthleteStatsScreen> {
                     height: 80 * fraction + 4,
                     decoration: BoxDecoration(
                       color: count > 0
-                          ? AppColors.primary.withValues(alpha: 0.7 + 0.3 * fraction)
+                          ? AppColors.primary.withValues(
+                              alpha: 0.7 + 0.3 * fraction,
+                            )
                           : AppColors.border,
                       borderRadius: BorderRadius.circular(6),
                     ),
@@ -368,7 +389,21 @@ class _AthleteStatsScreenState extends State<AthleteStatsScreen> {
     if (parts.length < 3) return '';
     final month = int.tryParse(parts[1]) ?? 0;
     final day = int.tryParse(parts[2]) ?? 0;
-    const months = ['', 'En', 'Fe', 'Ma', 'Ab', 'My', 'Jn', 'Jl', 'Ag', 'Se', 'Oc', 'No', 'Di'];
+    const months = [
+      '',
+      'En',
+      'Fe',
+      'Ma',
+      'Ab',
+      'My',
+      'Jn',
+      'Jl',
+      'Ag',
+      'Se',
+      'Oc',
+      'No',
+      'Di',
+    ];
     return '${months[month]}\n$day';
   }
 
@@ -438,7 +473,11 @@ class _AthleteStatsScreenState extends State<AthleteStatsScreen> {
               color: AppColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.flag_rounded, color: AppColors.primary, size: 24),
+            child: const Icon(
+              Icons.flag_rounded,
+              color: AppColors.primary,
+              size: 24,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -483,7 +522,10 @@ class _AthleteStatsScreenState extends State<AthleteStatsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: AppTextStyles.fitnessBold.copyWith(fontSize: 12)),
-          Text(subtitle, style: AppTextStyles.fitnessCaption.copyWith(fontSize: 10)),
+          Text(
+            subtitle,
+            style: AppTextStyles.fitnessCaption.copyWith(fontSize: 10),
+          ),
           const SizedBox(height: 16),
           child,
         ],
@@ -527,7 +569,10 @@ class _WeightLinePainter extends CustomPainter {
 
     Offset pointAt(int i) {
       final x = i * step;
-      final y = size.height - ((weights[i] - minWeight) / range) * (size.height * 0.85) - 4;
+      final y =
+          size.height -
+          ((weights[i] - minWeight) / range) * (size.height * 0.85) -
+          4;
       return Offset(x, y);
     }
 
@@ -555,5 +600,7 @@ class _WeightLinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _WeightLinePainter old) =>
-      old.weights != weights || old.minWeight != minWeight || old.range != range;
+      old.weights != weights ||
+      old.minWeight != minWeight ||
+      old.range != range;
 }

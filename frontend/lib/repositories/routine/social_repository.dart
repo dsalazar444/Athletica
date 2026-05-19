@@ -27,7 +27,10 @@ class SocialRepository {
     try {
       final data = <String, dynamic>{'text': text};
       if (parentId != null) data['parent'] = parentId;
-      final response = await _dio.post('routines/$routineId/comments/', data: data);
+      final response = await _dio.post(
+        'routines/$routineId/comments/',
+        data: data,
+      );
       if (response.statusCode == 201) {
         return CommentModel.fromJson(response.data as Map<String, dynamic>);
       }

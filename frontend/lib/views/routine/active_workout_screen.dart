@@ -277,8 +277,11 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.fitness_center_rounded,
-                  size: 60, color: AppColors.textHint),
+              const Icon(
+                Icons.fitness_center_rounded,
+                size: 60,
+                color: AppColors.textHint,
+              ),
               const SizedBox(height: 16),
               const Text(
                 "Esta rutina no tiene ejercicios.",

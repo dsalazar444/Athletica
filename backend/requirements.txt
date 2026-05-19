@@ -17,5 +17,4 @@ safety==3.7.0
 pytest-django==4.9.0
 google-generativeai
 requests==2.34.2
-
-
+django-types

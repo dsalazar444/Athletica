@@ -17,7 +17,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from nutrition.models import MealRecord
-from routines.models import Routine, SetLog, WorkoutSession
+from routines.models import SetLog, WorkoutSession
 
 from .models import (
     AthleteProfile,
@@ -841,7 +841,17 @@ def CheckBadgesView(request):
 
 
 UPPER_KEYWORDS = {"chest", "shoulder", "back", "bicep", "tricep", "arm", "pectoral", "delt", "lat"}
-LOWER_KEYWORDS = {"quad", "hamstring", "glute", "calf", "leg", "thigh", "hip", "abductor", "adductor"}
+LOWER_KEYWORDS = {
+    "quad",
+    "hamstring",
+    "glute",
+    "calf",
+    "leg",
+    "thigh",
+    "hip",
+    "abductor",
+    "adductor",
+}
 
 
 def _classify_muscle(muscle: str) -> str:
@@ -879,9 +889,7 @@ def AthleteStatsView(request, athlete_id):
     prev_start = prev_end.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
     # Sesiones por período
-    current_sessions = WorkoutSession.objects.filter(
-        user=athlete, date__gte=current_start
-    ).count()
+    current_sessions = WorkoutSession.objects.filter(user=athlete, date__gte=current_start).count()
     prev_sessions = WorkoutSession.objects.filter(
         user=athlete, date__gte=prev_start, date__lte=prev_end
     ).count()
@@ -924,16 +932,16 @@ def AthleteStatsView(request, athlete_id):
         weekly_sessions.append({"week_start": week_start.date().isoformat(), "count": count})
 
     # Historial de peso (últimas 8 entradas)
-    weight_logs = (
-        WeightLog.objects.filter(athlete=athlete_profile).order_by("-date")[:8]
-    )
+    weight_logs = WeightLog.objects.filter(athlete=athlete_profile).order_by("-date")[:8]
     weight_history = [
         {"date": wl.date.isoformat(), "weight": float(wl.weight)}
         for wl in reversed(list(weight_logs))
     ]
 
     # Meta activa
-    active_goal = Goal.objects.filter(athlete=athlete_profile, is_active=True).order_by("-start_date").first()
+    active_goal = (
+        Goal.objects.filter(athlete=athlete_profile, is_active=True).order_by("-start_date").first()
+    )
     goal_data = None
     if active_goal:
         goal_data = {

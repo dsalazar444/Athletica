@@ -20,7 +20,10 @@ class PublicRoutinesViewModel extends ChangeNotifier {
   final Map<int, List<CommentModel>> commentsMap = {};
   final Map<int, bool> commentsLoadingMap = {};
 
-  PublicRoutinesViewModel({required this.routineRepository, this.mineOnly = false});
+  PublicRoutinesViewModel({
+    required this.routineRepository,
+    this.mineOnly = false,
+  });
 
   /// Carga todas las rutinas públicas desde el backend.
   Future<void> loadPublicRoutines() async {
@@ -32,7 +35,9 @@ class PublicRoutinesViewModel extends ChangeNotifier {
       // Obtener el ID del usuario actual
       currentUserId = await TokenStorage.getUserId();
       // Obtener rutinas publicas
-      publicRoutines = await routineRepository.fetchPublicRoutines(mineOnly: mineOnly);
+      publicRoutines = await routineRepository.fetchPublicRoutines(
+        mineOnly: mineOnly,
+      );
     } catch (e) {
       errorMessage = 'No se pudieron cargar las rutinas públicas.';
     } finally {
@@ -157,16 +162,21 @@ class PublicRoutinesViewModel extends ChangeNotifier {
 
     commentsMap[routineId] = comments
         .where((c) => c.id != commentId)
-        .map((c) => c.copyWith(
-              replies: c.replies.where((r) => r.id != commentId).toList(),
-            ))
+        .map(
+          (c) => c.copyWith(
+            replies: c.replies.where((r) => r.id != commentId).toList(),
+          ),
+        )
         .toList();
 
     if (isTopLevel) {
       final index = publicRoutines.indexWhere((r) => r.id == routineId);
       if (index != -1) {
         publicRoutines[index] = publicRoutines[index].copyWith(
-          commentsCount: (publicRoutines[index].commentsCount - 1).clamp(0, 999999),
+          commentsCount: (publicRoutines[index].commentsCount - 1).clamp(
+            0,
+            999999,
+          ),
         );
       }
     }
