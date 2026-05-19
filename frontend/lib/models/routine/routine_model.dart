@@ -43,6 +43,15 @@ class RoutineModel {
   /// Lista de ejercicios que componen esta rutina, incluyendo su orden.
   final List<RoutineExerciseModel> exercises;
 
+  /// Número de likes en la rutina.
+  final int likesCount;
+
+  /// Indica si el usuario autenticado dio like a esta rutina.
+  final bool userLiked;
+
+  /// Número de comentarios de primer nivel en la rutina.
+  final int commentsCount;
+
   RoutineModel({
     this.id,
     required this.title,
@@ -57,6 +66,9 @@ class RoutineModel {
     this.assignedAthletesCount = 0,
     this.assignedAthletesInfo = const [],
     required this.exercises,
+    this.likesCount = 0,
+    this.userLiked = false,
+    this.commentsCount = 0,
   });
 
   /// Crea una instancia de [RoutineModel] desde un mapa JSON proveniente del backend.
@@ -82,6 +94,9 @@ class RoutineModel {
               .map((e) => RoutineExerciseModel.fromJson(e))
               .toList()
         : [],
+    likesCount: json['likes_count'] ?? 0,
+    userLiked: json['user_liked'] ?? false,
+    commentsCount: json['comments_count'] ?? 0,
   );
 
   /// Convierte el modelo a un mapa JSON para ser enviado al servidor.
@@ -109,6 +124,9 @@ class RoutineModel {
     int? assignedAthletesCount,
     List<Map<String, dynamic>>? assignedAthletesInfo,
     List<RoutineExerciseModel>? exercises,
+    int? likesCount,
+    bool? userLiked,
+    int? commentsCount,
   }) {
     return RoutineModel(
       id: id ?? this.id,
@@ -125,6 +143,9 @@ class RoutineModel {
           assignedAthletesCount ?? this.assignedAthletesCount,
       assignedAthletesInfo: assignedAthletesInfo ?? this.assignedAthletesInfo,
       exercises: exercises ?? this.exercises,
+      likesCount: likesCount ?? this.likesCount,
+      userLiked: userLiked ?? this.userLiked,
+      commentsCount: commentsCount ?? this.commentsCount,
     );
   }
 }

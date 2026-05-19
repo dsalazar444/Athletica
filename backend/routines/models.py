@@ -165,3 +165,49 @@ class TrainingGroup(models.Model):
 
     def __str__(self):
         return f"{self.name} — {self.coach.username}"
+
+
+class Reaction(models.Model):
+    class ReactionType(models.TextChoices):
+        LIKE = "like", "Like"
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="routine_reactions")
+    routine = models.ForeignKey(Routine, on_delete=models.CASCADE, related_name="reactions")
+    reaction_type = models.CharField(
+        max_length=20, choices=ReactionType.choices, default=ReactionType.LIKE
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "routine", "reaction_type")
+
+    def __str__(self):
+        return f"{self.user.username} → {self.reaction_type} on {self.routine.title}"
+
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="routine_comments")
+    routine = models.ForeignKey(Routine, on_delete=models.CASCADE, related_name="comments")
+    parent = models.ForeignKey(
+        "self", null=True, blank=True, on_delete=models.CASCADE, related_name="replies"
+    )
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.user.username}: {self.text[:40]}"
+
+
+class CommentReaction(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comment_reactions")
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="reactions")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "comment")
+
+    def __str__(self):
+        return f"{self.user.username} liked comment {self.comment_id}"

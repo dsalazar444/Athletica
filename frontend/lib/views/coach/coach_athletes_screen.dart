@@ -4,6 +4,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../routine/routine_detail_screen.dart';
 import '../group/groups_screen.dart';
+import 'athlete_stats_screen.dart';
 
 class CoachAthletesScreen extends StatefulWidget {
   const CoachAthletesScreen({super.key});
@@ -600,6 +601,17 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
                     context,
                     MaterialPageRoute(builder: (_) => const MyGroupsScreen()),
                   ).then((_) => refresh());
+                } else if (value == 'stats') {
+                  final name = item['name'] ?? item['username'] ?? 'Atleta';
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AthleteStatsScreen(
+                        athleteId: item['id'] as int,
+                        athleteName: name.toString(),
+                      ),
+                    ),
+                  );
                 }
               },
               itemBuilder: (_) => [
@@ -609,6 +621,15 @@ class CoachAthletesScreenState extends State<CoachAthletesScreen> {
                     child: ListTile(
                       leading: Icon(Icons.manage_accounts_rounded),
                       title: Text("Gestionar grupo"),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                if (!isGroup)
+                  const PopupMenuItem(
+                    value: 'stats',
+                    child: ListTile(
+                      leading: Icon(Icons.bar_chart_rounded),
+                      title: Text("Ver estadísticas"),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),

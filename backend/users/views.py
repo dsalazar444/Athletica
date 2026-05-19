@@ -17,7 +17,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from nutrition.models import MealRecord
-from routines.models import WorkoutSession
+from routines.models import SetLog, WorkoutSession
 
 from .models import (
     AthleteProfile,
@@ -835,6 +835,139 @@ def CheckBadgesView(request):
         {
             "detail": f"Se validaron las insignias. {len(new_badges)} nuevas insignias otorgadas.",
             "newly_awarded": BadgeSerializer(new_badges, many=True).data,
+        },
+        status=status.HTTP_200_OK,
+    )
+
+
+UPPER_KEYWORDS = {"chest", "shoulder", "back", "bicep", "tricep", "arm", "pectoral", "delt", "lat"}
+LOWER_KEYWORDS = {
+    "quad",
+    "hamstring",
+    "glute",
+    "calf",
+    "leg",
+    "thigh",
+    "hip",
+    "abductor",
+    "adductor",
+}
+
+
+def _classify_muscle(muscle: str) -> str:
+    m = muscle.lower()
+    if any(k in m for k in UPPER_KEYWORDS):
+        return "upper"
+    if any(k in m for k in LOWER_KEYWORDS):
+        return "lower"
+    return "other"
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def AthleteStatsView(request, athlete_id):
+    """Retorna estadísticas detalladas de un atleta para su entrenador."""
+    # Validar rol de entrenador
+    try:
+        request.user.coachprofile
+    except CoachProfile.DoesNotExist:
+        return Response(
+            {"detail": "Solo los entrenadores pueden ver estas estadísticas."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    # Obtener atleta
+    try:
+        athlete = User.objects.get(pk=athlete_id)
+        athlete_profile = athlete.athleteprofile
+    except (User.DoesNotExist, AthleteProfile.DoesNotExist):
+        return Response({"detail": "Atleta no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+    now = timezone.now()
+    current_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    prev_end = current_start - timedelta(seconds=1)
+    prev_start = prev_end.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    # Sesiones por período
+    current_sessions = WorkoutSession.objects.filter(user=athlete, date__gte=current_start).count()
+    prev_sessions = WorkoutSession.objects.filter(
+        user=athlete, date__gte=prev_start, date__lte=prev_end
+    ).count()
+    session_change = (
+        round(((current_sessions - prev_sessions) / prev_sessions) * 100)
+        if prev_sessions > 0
+        else None
+    )
+
+    # Volumen por grupo muscular (últimos 30 días)
+    thirty_days_ago = now - timedelta(days=30)
+    set_logs = SetLog.objects.filter(
+        session__user=athlete,
+        session__date__gte=thirty_days_ago,
+    ).select_related("exercise")
+
+    upper_volume = 0
+    lower_volume = 0
+    for sl in set_logs:
+        try:
+            muscle = sl.exercise.muscle or ""
+        except Exception:
+            muscle = ""
+        classification = _classify_muscle(muscle)
+        vol = float(sl.weight or 0) * float(sl.reps or 0)
+        if classification == "upper":
+            upper_volume += vol
+        elif classification == "lower":
+            lower_volume += vol
+
+    # Sesiones semanales (últimas 8 semanas)
+    weekly_sessions = []
+    for i in range(7, -1, -1):
+        week_start = (now - timedelta(weeks=i)).replace(hour=0, minute=0, second=0, microsecond=0)
+        week_start = week_start - timedelta(days=week_start.weekday())
+        week_end = week_start + timedelta(days=7)
+        count = WorkoutSession.objects.filter(
+            user=athlete, date__gte=week_start, date__lt=week_end
+        ).count()
+        weekly_sessions.append({"week_start": week_start.date().isoformat(), "count": count})
+
+    # Historial de peso (últimas 8 entradas)
+    weight_logs = WeightLog.objects.filter(athlete=athlete_profile).order_by("-date")[:8]
+    weight_history = [
+        {"date": wl.date.isoformat(), "weight": float(wl.weight)}
+        for wl in reversed(list(weight_logs))
+    ]
+
+    # Meta activa
+    active_goal = (
+        Goal.objects.filter(athlete=athlete_profile, is_active=True).order_by("-start_date").first()
+    )
+    goal_data = None
+    if active_goal:
+        goal_data = {
+            "id": active_goal.id,
+            "description": active_goal.description or active_goal.goal_type,
+            "target_date": active_goal.deadline.isoformat() if active_goal.deadline else None,
+        }
+
+    return Response(
+        {
+            "athlete": {
+                "id": athlete.id,
+                "username": athlete.username,
+                "full_name": f"{athlete.first_name} {athlete.last_name}".strip(),
+                "email": athlete.email,
+            },
+            "summary": {
+                "current_month_sessions": current_sessions,
+                "prev_month_sessions": prev_sessions,
+                "session_change_pct": session_change,
+                "upper_body_volume_kg": round(upper_volume, 1),
+                "lower_body_volume_kg": round(lower_volume, 1),
+            },
+            "weekly_sessions": weekly_sessions,
+            "weight_history": weight_history,
+            "active_goal": goal_data,
         },
         status=status.HTTP_200_OK,
     )

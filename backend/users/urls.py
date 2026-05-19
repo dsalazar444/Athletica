@@ -4,6 +4,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
     AthleteDashboardView,
     AthleteSearchView,
+    AthleteStatsView,
     BadgeDetailView,
     BadgesListView,
     CheckBadgesView,
@@ -64,4 +65,5 @@ urlpatterns = [
     path("api/badges/<int:badge_id>/", BadgeDetailView, name="badge_detail"),
     path("api/me/badges/", UserBadgesView, name="user_badges"),
     path("api/me/badges/check/", CheckBadgesView, name="check_badges"),
+    path("api/coach/athletes/<int:athlete_id>/stats/", AthleteStatsView, name="athlete_stats"),
 ]

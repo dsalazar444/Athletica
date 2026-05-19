@@ -270,6 +270,34 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_activeExercises.isEmpty) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.fitness_center_rounded,
+                size: 60,
+                color: AppColors.textHint,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                "Esta rutina no tiene ejercicios.",
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text("Volver"),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     final total = _activeExercises.length;
     final progress = (_currentExerciseIndex + 1) / total;
 

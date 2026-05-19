@@ -547,6 +547,11 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  // Índices fijos — la lista siempre tiene 6 elementos
+  static const int _athletesIndex = 3;
+  static const int _communityIndex = 4;
+  static const int _profileIndex = 5;
+
   List<Widget> get _screens => [
     HomeScreen(
       hasNotification: _notifications.any((n) => !n.isRead),
@@ -556,7 +561,8 @@ class _MainScreenState extends State<MainScreen> {
     ),
     RoutinesListScreen(key: _routinesKey),
     _buildNutritionScreen(),
-    _buildCommunityOrAthletesScreen(),
+    CoachAthletesScreen(key: _coachAthletesKey),
+    CommunityScreen(key: _communityKey, mineOnly: _userRole == 'coach'),
     ProfileScreen(
       onReminderSaved: _checkDueReminders,
       refreshTick: _profileRefreshTick,
@@ -574,14 +580,6 @@ class _MainScreenState extends State<MainScreen> {
     return const Center(
       child: CircularProgressIndicator(color: AppColors.primary),
     );
-  }
-
-  Widget _buildCommunityOrAthletesScreen() {
-    if (_userRole == 'coach') {
-      return CoachAthletesScreen(key: _coachAthletesKey);
-    }
-
-    return CommunityScreen(key: _communityKey);
   }
 
   @override
@@ -631,12 +629,10 @@ class _MainScreenState extends State<MainScreen> {
               _navItem(0, Icons.grid_view_rounded, 'Inicio'),
               _navItem(1, Icons.fitness_center_rounded, 'Rutinas'),
               _navItem(2, Icons.restaurant_rounded, 'Comida'),
-              _navItem(
-                3,
-                Icons.people_alt_rounded,
-                _userRole == 'coach' ? 'Atletas' : 'Comunidad',
-              ),
-              _navItem(4, Icons.person_rounded, 'Perfil'),
+              if (_userRole == 'coach')
+                _navItem(_athletesIndex, Icons.people_alt_rounded, 'Atletas'),
+              _navItem(_communityIndex, Icons.public_rounded, 'Comunidad'),
+              _navItem(_profileIndex, Icons.person_rounded, 'Perfil'),
             ],
           ),
         ),
@@ -654,15 +650,15 @@ class _MainScreenState extends State<MainScreen> {
             if (index == 0) {
               _homeRefreshTick++;
             }
-            if (index == 4) {
+            if (index == _profileIndex) {
               _profileRefreshTick++;
             }
           });
           if (index == 1) {
             _routinesKey.currentState?.refresh();
-          } else if (index == 3 && _userRole == 'coach') {
+          } else if (index == _athletesIndex) {
             _coachAthletesKey.currentState?.refresh();
-          } else if (index == 3 && _userRole == 'athlete') {
+          } else if (index == _communityIndex) {
             _communityKey.currentState?.refresh();
           }
         }

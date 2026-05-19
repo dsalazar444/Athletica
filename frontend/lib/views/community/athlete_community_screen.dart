@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/config/api_config.dart';
+import '../../core/token_storage.dart';
+import '../../models/routine/comment_model.dart';
 import '../../models/routine/routine_model.dart';
 import '../../repositories/routine/routine_repository.dart';
 import '../../theme/app_colors.dart';
@@ -10,7 +12,8 @@ import '../../theme/app_text_styles.dart';
 import '../../view_models/community/public_routines_view_model.dart';
 
 class CommunityScreen extends StatefulWidget {
-  const CommunityScreen({super.key});
+  final bool mineOnly;
+  const CommunityScreen({super.key, this.mineOnly = false});
 
   @override
   State<CommunityScreen> createState() => CommunityScreenState();
@@ -22,8 +25,23 @@ class CommunityScreenState extends State<CommunityScreen> {
   @override
   void initState() {
     super.initState();
+    _initViewModel(widget.mineOnly);
+  }
+
+  @override
+  void didUpdateWidget(covariant CommunityScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.mineOnly != widget.mineOnly) {
+      _initViewModel(widget.mineOnly);
+    }
+  }
+
+  void _initViewModel(bool mineOnly) {
     final repository = RoutineRepository(baseUrl: ApiConfig.baseUrl);
-    _viewModel = PublicRoutinesViewModel(routineRepository: repository);
+    _viewModel = PublicRoutinesViewModel(
+      routineRepository: repository,
+      mineOnly: mineOnly,
+    );
     _viewModel.loadPublicRoutines();
   }
 
@@ -47,7 +65,9 @@ class CommunityScreenState extends State<CommunityScreen> {
                 child: CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   slivers: [
-                    const SliverToBoxAdapter(child: _CommunityHeader()),
+                    SliverToBoxAdapter(
+                      child: _CommunityHeader(mineOnly: _viewModel.mineOnly),
+                    ),
                     SliverPadding(
                       padding: EdgeInsets.fromLTRB(
                         AppSpacing.lg,
@@ -250,7 +270,8 @@ class CommunityScreenState extends State<CommunityScreen> {
 }
 
 class _CommunityHeader extends StatelessWidget {
-  const _CommunityHeader();
+  final bool mineOnly;
+  const _CommunityHeader({this.mineOnly = false});
 
   @override
   Widget build(BuildContext context) {
@@ -266,18 +287,23 @@ class _CommunityHeader extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      'COMUNIDAD',
+                      mineOnly ? 'MIS RUTINAS' : 'COMUNIDAD',
                       style: AppTextStyles.fitnessDisplay.copyWith(
                         color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Text('🏆', style: TextStyle(fontSize: 22)),
+                    Text(
+                      mineOnly ? '📋' : '🏆',
+                      style: const TextStyle(fontSize: 22),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'EXPLORA RUTINAS PÚBLICAS COMPARTIDAS POR OTROS USUARIOS',
+                  mineOnly
+                      ? 'VE LOS LIKES Y COMENTARIOS DE TUS RUTINAS PÚBLICAS'
+                      : 'EXPLORA RUTINAS PÚBLICAS COMPARTIDAS POR OTROS USUARIOS',
                   style: AppTextStyles.fitnessCaption.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -304,7 +330,9 @@ class _PublicRoutineCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final creatorName = routine.creatorName ?? 'Usuario';
+    final creatorName = (routine.creatorName?.isNotEmpty ?? false)
+        ? routine.creatorName!
+        : 'Usuario';
     final initials = PublicRoutinesViewModel.getInitials(creatorName);
     final isOwnPost = viewModel.isOwnRoutine(routine);
 
@@ -419,6 +447,8 @@ class _PublicRoutineCard extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(height: AppSpacing.md),
+          _SocialBar(routine: routine, viewModel: viewModel),
         ],
       ),
     );
@@ -560,6 +590,507 @@ class _ExerciseDetailTile extends StatelessWidget {
           Expanded(
             child: Text(exercise.exercise.name, style: AppTextStyles.bodyText1),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+//  SOCIAL BAR (likes + comments)
+// ─────────────────────────────────────────────
+class _SocialBar extends StatelessWidget {
+  final RoutineModel routine;
+  final PublicRoutinesViewModel viewModel;
+
+  const _SocialBar({required this.routine, required this.viewModel});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _LikeButton(routine: routine, viewModel: viewModel),
+        const SizedBox(width: AppSpacing.md),
+        _CommentButton(routine: routine, viewModel: viewModel),
+      ],
+    );
+  }
+}
+
+class _LikeButton extends StatelessWidget {
+  final RoutineModel routine;
+  final PublicRoutinesViewModel viewModel;
+
+  const _LikeButton({required this.routine, required this.viewModel});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => viewModel.toggleRoutineReaction(routine.id!),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            routine.userLiked
+                ? Icons.favorite_rounded
+                : Icons.favorite_border_rounded,
+            color: routine.userLiked
+                ? Colors.redAccent
+                : AppColors.textSecondary,
+            size: 22,
+          ),
+          const SizedBox(width: 5),
+          Text(
+            '${routine.likesCount}',
+            style: AppTextStyles.bentoUnit.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CommentButton extends StatelessWidget {
+  final RoutineModel routine;
+  final PublicRoutinesViewModel viewModel;
+
+  const _CommentButton({required this.routine, required this.viewModel});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        viewModel.loadComments(routine.id!);
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (_) => ChangeNotifierProvider.value(
+            value: viewModel,
+            child: _CommentsSheet(routine: routine),
+          ),
+        );
+      },
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.chat_bubble_outline_rounded,
+            color: AppColors.textSecondary,
+            size: 20,
+          ),
+          const SizedBox(width: 5),
+          Text(
+            '${routine.commentsCount}',
+            style: AppTextStyles.bentoUnit.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+//  COMMENTS SHEET
+// ─────────────────────────────────────────────
+class _CommentsSheet extends StatefulWidget {
+  final RoutineModel routine;
+  const _CommentsSheet({required this.routine});
+
+  @override
+  State<_CommentsSheet> createState() => _CommentsSheetState();
+}
+
+class _CommentsSheetState extends State<_CommentsSheet> {
+  final _controller = TextEditingController();
+  int? _replyToId;
+  String? _replyToUsername;
+  int? _currentUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    TokenStorage.getUserId().then((id) {
+      if (mounted) setState(() => _currentUserId = id);
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _setReply(int commentId, String username) {
+    setState(() {
+      _replyToId = commentId;
+      _replyToUsername = username;
+    });
+  }
+
+  void _clearReply() {
+    setState(() {
+      _replyToId = null;
+      _replyToUsername = null;
+    });
+  }
+
+  Future<void> _send(PublicRoutinesViewModel vm) async {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
+    _controller.clear();
+    final parentId = _replyToId;
+    _clearReply();
+    try {
+      await vm.postComment(widget.routine.id!, text, parentId: parentId);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error al comentar: $e')));
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<PublicRoutinesViewModel>(
+      builder: (context, vm, _) {
+        final routineId = widget.routine.id!;
+        final isLoading = vm.commentsLoadingMap[routineId] ?? false;
+        final comments = vm.commentsMap[routineId] ?? [];
+
+        return DraggableScrollableSheet(
+          initialChildSize: 0.65,
+          minChildSize: 0.4,
+          maxChildSize: 0.92,
+          expand: false,
+          builder: (_, scrollController) => Container(
+            decoration: const BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: AppSpacing.sm),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                    vertical: AppSpacing.md,
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Comentarios',
+                        style: AppTextStyles.bodyText1.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        '${comments.length}',
+                        style: AppTextStyles.bentoUnit.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+                Expanded(
+                  child: isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                          ),
+                        )
+                      : comments.isEmpty
+                      ? Center(
+                          child: Text(
+                            'Sé el primero en comentar.',
+                            style: AppTextStyles.bentoUnit.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        )
+                      : ListView.builder(
+                          controller: scrollController,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.lg,
+                            vertical: AppSpacing.md,
+                          ),
+                          itemCount: comments.length,
+                          itemBuilder: (_, i) => _CommentTile(
+                            comment: comments[i],
+                            routineId: routineId,
+                            currentUserId: _currentUserId,
+                            viewModel: vm,
+                            onReply: _setReply,
+                            isReply: false,
+                          ),
+                        ),
+                ),
+                const Divider(height: 1),
+                if (_replyToUsername != null)
+                  Container(
+                    color: AppColors.tagBackground,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                      vertical: AppSpacing.xs,
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Respondiendo a @$_replyToUsername',
+                          style: AppTextStyles.bentoUnit.copyWith(
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: _clearReply,
+                          child: const Icon(
+                            Icons.close,
+                            size: 16,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: AppSpacing.lg,
+                    right: AppSpacing.md,
+                    top: AppSpacing.sm,
+                    bottom:
+                        MediaQuery.of(context).viewInsets.bottom +
+                        AppSpacing.md,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _controller,
+                          textCapitalization: TextCapitalization.sentences,
+                          decoration: InputDecoration(
+                            hintText: 'Escribe un comentario...',
+                            hintStyle: AppTextStyles.bentoUnit.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                            filled: true,
+                            fillColor: AppColors.surface,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.md,
+                              vertical: AppSpacing.sm,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide(color: AppColors.border),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide(color: AppColors.border),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: const BorderSide(
+                                color: AppColors.primary,
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      GestureDetector(
+                        onTap: () => _send(vm),
+                        child: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.send_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _CommentTile extends StatelessWidget {
+  final CommentModel comment;
+  final int routineId;
+  final int? currentUserId;
+  final PublicRoutinesViewModel viewModel;
+  final void Function(int commentId, String username) onReply;
+  final bool isReply;
+
+  const _CommentTile({
+    required this.comment,
+    required this.routineId,
+    required this.currentUserId,
+    required this.viewModel,
+    required this.onReply,
+    required this.isReply,
+  });
+
+  String _timeAgo(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 1) return 'Ahora';
+    if (diff.inMinutes < 60) return 'hace ${diff.inMinutes}m';
+    if (diff.inHours < 24) return 'hace ${diff.inHours}h';
+    return 'hace ${diff.inDays}d';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(left: isReply ? 32.0 : 0, bottom: AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: isReply ? 14 : 18,
+                backgroundColor: AppColors.tagBackground,
+                child: Text(
+                  comment.username.isNotEmpty
+                      ? comment.username[0].toUpperCase()
+                      : '?',
+                  style: TextStyle(
+                    fontSize: isReply ? 12 : 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          comment.username,
+                          style: AppTextStyles.bentoUnit.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          _timeAgo(comment.createdAt),
+                          style: AppTextStyles.bentoUnit.copyWith(
+                            color: AppColors.textSecondary,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Text(comment.text, style: AppTextStyles.bodyText1),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () => viewModel.toggleCommentReaction(
+                            comment.id,
+                            routineId,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                comment.userLiked
+                                    ? Icons.favorite_rounded
+                                    : Icons.favorite_border_rounded,
+                                size: 16,
+                                color: comment.userLiked
+                                    ? Colors.redAccent
+                                    : AppColors.textSecondary,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${comment.likesCount}',
+                                style: AppTextStyles.bentoUnit.copyWith(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (!isReply) ...[
+                          const SizedBox(width: AppSpacing.md),
+                          GestureDetector(
+                            onTap: () => onReply(comment.id, comment.username),
+                            child: Text(
+                              'Responder',
+                              style: AppTextStyles.bentoUnit.copyWith(
+                                color: AppColors.primary,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                        const Spacer(),
+                        if (comment.userId == currentUserId)
+                          GestureDetector(
+                            onTap: () =>
+                                viewModel.deleteComment(comment.id, routineId),
+                            child: const Icon(
+                              Icons.delete_outline_rounded,
+                              size: 16,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (comment.replies.isNotEmpty)
+            ...comment.replies.map(
+              (reply) => _CommentTile(
+                comment: reply,
+                routineId: routineId,
+                currentUserId: currentUserId,
+                viewModel: viewModel,
+                onReply: onReply,
+                isReply: true,
+              ),
+            ),
         ],
       ),
     );

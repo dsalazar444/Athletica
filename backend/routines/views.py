@@ -14,7 +14,10 @@ from users.models import AthleteProfile, Follow, Goal, User, WeightLog
 
 from .ai_service import generate_exercise_recommendations
 from .models import (
+    Comment,
+    CommentReaction,
     Exercise,
+    Reaction,
     Routine,
     RoutineExercise,
     SetLog,
@@ -27,6 +30,7 @@ from .serializers.serializer_routine import (
     RoutineDetailSerializer,
     RoutineExerciseInputSerializer,
 )
+from .serializers.serializer_social import CommentSerializer
 from .serializers.serializer_workout import (
     SetLogSerializer,
     WorkoutHistorySerializer,
@@ -105,6 +109,9 @@ class RoutineViewSet(viewsets.ModelViewSet):  # NOSONAR
             .select_related("created_by")
             .prefetch_related("assigned_athletes")
         )
+
+        if request.query_params.get("mine") == "true" and request.user.is_authenticated:
+            routines = routines.filter(created_by=request.user)
 
         if request.user.is_authenticated:
             follow_subquery = Follow.objects.filter(
@@ -213,6 +220,44 @@ class RoutineViewSet(viewsets.ModelViewSet):  # NOSONAR
         if deleted:
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response({"detail": "No encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+    @decorators.action(detail=True, methods=["get", "post"], permission_classes=[IsAuthenticated])
+    def comments(self, request, pk=None):
+        """Lista o crea comentarios en una rutina. GET /api/routines/<id>/comments/"""
+        routine = self.get_object()
+
+        if request.method == "GET":
+            qs = routine.comments.filter(parent=None).prefetch_related(
+                "replies__reactions", "reactions"
+            )
+            serializer = CommentSerializer(qs, many=True, context={"request": request})
+            return Response(serializer.data)
+
+        serializer = CommentSerializer(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            parent_id = request.data.get("parent")
+            parent = None
+            if parent_id:
+                parent = get_object_or_404(Comment, id=parent_id, routine=routine)
+            serializer.save(user=request.user, routine=routine, parent=parent)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @decorators.action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def react(self, request, pk=None):
+        """Alterna la reacción (like) del usuario en una rutina. POST /api/routines/<id>/react/"""
+        routine = self.get_object()
+        reaction_type = request.data.get("reaction_type", Reaction.ReactionType.LIKE)
+        reaction, created = Reaction.objects.get_or_create(
+            user=request.user, routine=routine, reaction_type=reaction_type
+        )
+        if not created:
+            reaction.delete()
+            return Response({"reacted": False, "likes_count": routine.reactions.count()})
+        return Response(
+            {"reacted": True, "likes_count": routine.reactions.count()},
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class WorkoutSessionViewSet(viewsets.ModelViewSet):  # NOSONAR
@@ -488,3 +533,29 @@ class ExerciseRecommendationView(APIView):
         # Usamos el serializador para formatear la salida correctamente
         serializer = RecommendationResponseSerializer(response_data)
         return Response(serializer.data)
+
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def delete_comment(request, comment_id):
+    """Elimina un comentario propio. DELETE /api/comments/<id>/"""
+    comment = get_object_or_404(Comment, id=comment_id)
+    if comment.user != request.user:
+        return Response({"detail": "No tienes permiso."}, status=status.HTTP_403_FORBIDDEN)
+    comment.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def comment_react(request, comment_id):
+    """Alterna la reacción (like) del usuario en un comentario. POST /api/comments/<id>/react/"""
+    comment = get_object_or_404(Comment, id=comment_id)
+    reaction, created = CommentReaction.objects.get_or_create(user=request.user, comment=comment)
+    if not created:
+        reaction.delete()
+        return Response({"reacted": False, "likes_count": comment.reactions.count()})
+    return Response(
+        {"reacted": True, "likes_count": comment.reactions.count()},
+        status=status.HTTP_201_CREATED,
+    )

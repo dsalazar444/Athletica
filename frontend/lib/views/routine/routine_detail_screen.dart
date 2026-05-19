@@ -9,6 +9,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_radius.dart';
 import '../../theme/app_text_styles.dart';
 import '../../core/token_storage.dart';
+import 'active_workout_screen.dart';
 import 'exercise_detail_screen.dart';
 import 'widgets/routine_header.dart';
 import 'widgets/exercise_list_item.dart';
@@ -37,6 +38,27 @@ class RoutineDetailScreen extends StatelessWidget {
         builder: (context, viewModel, child) {
           return Scaffold(
             backgroundColor: AppColors.background,
+            floatingActionButton:
+                (!isOwner && viewModel.routine.exercises.isNotEmpty)
+                ? FloatingActionButton.extended(
+                    heroTag: 'start_workout_fab',
+                    onPressed: () => _startTraining(context, viewModel.routine),
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    icon: const Icon(Icons.play_arrow_rounded),
+                    label: const Text(
+                      'Iniciar Rutina',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  )
+                : null,
             appBar: AppBar(
               title: const Text(
                 'Detalle de Rutina',
@@ -89,6 +111,26 @@ class RoutineDetailScreen extends StatelessWidget {
         },
       ),
     );
+  }
+
+  void _startTraining(BuildContext context, RoutineModel routine) {
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (_) => ActiveWorkoutScreen(
+              routineId: routine.id!,
+              routineName: routine.title,
+              exercises: routine.exercises,
+            ),
+          ),
+        )
+        .then((saved) {
+          if (saved == true && context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Entrenamiento guardado con éxito')),
+            );
+          }
+        });
   }
 
   Widget _buildCoachSection(RoutineDetailViewModel viewModel) {

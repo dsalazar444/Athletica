@@ -41,12 +41,12 @@ class RoutineCreateSerializer(serializers.ModelSerializer):
             )
         return exercises
 
-    # hay que nombrar metodo asi, porque con base a nombre, data toma un valor, y como data no puede ser un campo del modelo por la lógica de func, toca así
-    def validate(self, data):
+    # hay que nombrar metodo asi, porque con base a nombre, attrs toma un valor, y como attrs no puede ser un campo del modelo por la lógica de func, toca así
+    def validate(self, attrs):
         """Valida que el usuario autenticado no tenga otra rutina con el mismo título."""
         request = self.context.get("request")
         user = getattr(request, "user", None)
-        title = data.get("title")
+        title = attrs.get("title")
         if user and title:
             qs = Routine.objects.filter(title=title, created_by=user)
             if self.instance:
@@ -55,7 +55,7 @@ class RoutineCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     f"Ya tienes una rutina con el titulo '{title}'. Ponle otro"
                 )
-        return data
+        return attrs
 
     def validate_assigned_athletes(self, value):
         """Validate that all assigned users are athletes"""
@@ -107,6 +107,9 @@ class RoutineDetailSerializer(serializers.ModelSerializer):
     assigned_athletes_info = serializers.SerializerMethodField()
     creator_name = serializers.CharField(source="created_by.first_name", read_only=True)
     creator_is_following = serializers.SerializerMethodField()
+    likes_count = serializers.SerializerMethodField()
+    user_liked = serializers.SerializerMethodField()
+    comments_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Routine
@@ -123,6 +126,9 @@ class RoutineDetailSerializer(serializers.ModelSerializer):
             "exercises",
             "assigned_athletes_count",
             "assigned_athletes_info",
+            "likes_count",
+            "user_liked",
+            "comments_count",
         ]
 
     def get_exercises(self, routine):
@@ -160,3 +166,15 @@ class RoutineDetailSerializer(serializers.ModelSerializer):
             follower=request.user,
             following_id=routine.created_by_id,
         ).exists()
+
+    def get_likes_count(self, routine):
+        return routine.reactions.filter(reaction_type="like").count()
+
+    def get_user_liked(self, routine):
+        request = self.context.get("request")
+        if not request or not request.user.is_authenticated:
+            return False
+        return routine.reactions.filter(user=request.user, reaction_type="like").exists()
+
+    def get_comments_count(self, routine):
+        return routine.comments.filter(parent=None).count()
