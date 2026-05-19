@@ -19,6 +19,7 @@ class RoutineViewModel {
     required String category,
     required String difficulty,
     required List<SelectedExercise> selectedExercises,
+    required bool isPublic,
   }) async {
     // Transformamos los SelectedExercise (que son temporales de la UI)
     // a RoutineExerciseModel (que incluyen el orden y el objeto de ejercicio).
@@ -32,6 +33,7 @@ class RoutineViewModel {
       description: description,
       category: category,
       difficulty: difficulty,
+      isPublic: isPublic,
       exercises: exercises,
     );
 

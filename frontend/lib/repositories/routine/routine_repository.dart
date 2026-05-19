@@ -102,6 +102,41 @@ class RoutineRepository {
     }
   }
 
+  /// Obtiene el listado de rutinas públicas disponibles para la comunidad.
+  Future<List<RoutineModel>> fetchPublicRoutines({
+    bool mineOnly = false,
+  }) async {
+    try {
+      final response = await _dio.get(
+        'routines/public/',
+        queryParameters: mineOnly ? {'mine': 'true'} : null,
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        final routines = data.map((e) => RoutineModel.fromJson(e)).toList();
+
+        for (var routine in routines) {
+          await _translateExercises(
+            routine.exercises.map((re) => re.exercise).toList(),
+          );
+        }
+
+        return routines;
+      }
+
+      throw Exception(
+        'Fallo al recuperar las rutinas públicas. Status Code: ${response.statusCode}',
+      );
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        throw Exception(
+          'No tienes permiso para ver las rutinas públicas. Por favor, inicia sesión de nuevo.',
+        );
+      }
+      throw Exception('Error al conectar con el servidor: ${e.message}');
+    }
+  }
+
   /// Helper para traducir una lista de ejercicios.
   Future<void> _translateExercises(List<ExerciseModel> exercises) async {
     await Future.wait(
@@ -206,6 +241,38 @@ class RoutineRepository {
       }
     } on DioException catch (e) {
       throw Exception('Error al asignar rutina: ${e.message}');
+    }
+  }
+
+  /// Sigue a un usuario (creador de rutina).
+  Future<void> followUser(int userId) async {
+    try {
+      final response = await _dio.post('users/$userId/follow/');
+      if (response.statusCode != 201) {
+        throw Exception('Fallo al seguir al usuario.');
+      }
+    } on DioException catch (e) {
+      final responseData = e.response?.data;
+      final errorMsg = responseData is Map<String, dynamic>
+          ? (responseData['detail']?.toString() ?? 'Error al seguir usuario')
+          : (responseData?.toString() ?? 'Error al seguir usuario');
+      throw Exception(errorMsg);
+    }
+  }
+
+  /// Deja de seguir a un usuario (creador de rutina).
+  Future<void> unfollowUser(int userId) async {
+    try {
+      final response = await _dio.delete('users/$userId/unfollow/');
+      if (response.statusCode != 204) {
+        throw Exception('Fallo al dejar de seguir al usuario.');
+      }
+    } on DioException catch (e) {
+      final responseData = e.response?.data;
+      final errorMsg = responseData is Map<String, dynamic>
+          ? (responseData['detail']?.toString() ?? 'Error al dejar de seguir')
+          : (responseData?.toString() ?? 'Error al dejar de seguir');
+      throw Exception(errorMsg);
     }
   }
 }

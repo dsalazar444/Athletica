@@ -31,6 +31,9 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
   CategoryType _selectedCategory = CategoryType.hybrid;
   DifficultyLevel _selectedDifficulty = DifficultyLevel.advanced;
 
+  // Visibilidad por defecto
+  bool _isPublic = true;
+
   /// Lista local de ejercicios seleccionados por el usuario para la nueva rutina.
   final List<SelectedExercise> _selectedExercises = [];
 
@@ -108,6 +111,7 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
         category: _selectedCategory.name,
         difficulty: _selectedDifficulty.name,
         selectedExercises: _selectedExercises,
+        isPublic: _isPublic,
       );
 
       if (!mounted) return;
@@ -147,6 +151,8 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
                     descriptionController: _descriptionController,
                     selectedCategory: _selectedCategory,
                     selectedDifficulty: _selectedDifficulty,
+                    isPublic: _isPublic,
+                    onIsPublicChanged: (v) => setState(() => _isPublic = v),
                     onCategoryChanged: (value) =>
                         setState(() => _selectedCategory = value),
                     onDifficultyChanged: (value) =>
@@ -248,6 +254,8 @@ class _BasicInfoCard extends StatelessWidget {
   final TextEditingController descriptionController;
   final CategoryType selectedCategory;
   final DifficultyLevel selectedDifficulty;
+  final bool isPublic;
+  final ValueChanged<bool> onIsPublicChanged;
   final ValueChanged<CategoryType> onCategoryChanged;
   final ValueChanged<DifficultyLevel> onDifficultyChanged;
 
@@ -256,6 +264,8 @@ class _BasicInfoCard extends StatelessWidget {
     required this.descriptionController,
     required this.selectedCategory,
     required this.selectedDifficulty,
+    required this.isPublic,
+    required this.onIsPublicChanged,
     required this.onCategoryChanged,
     required this.onDifficultyChanged,
   });
@@ -349,6 +359,17 @@ class _BasicInfoCard extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              // Toggle para visibilidad pública/privada
+              SwitchListTile.adaptive(
+                value: isPublic,
+                onChanged: onIsPublicChanged,
+                title: const Text('Pública'),
+                subtitle: const Text('Permitir que otros vean esta rutina'),
+                activeThumbColor: AppColors.primary,
+                activeTrackColor: AppColors.primary.withValues(alpha: 0.35),
+                contentPadding: EdgeInsets.zero,
               ),
             ],
           ),

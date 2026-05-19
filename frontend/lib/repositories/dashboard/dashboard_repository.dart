@@ -22,10 +22,14 @@ class DashboardRepository {
         .toList();
   }
 
-  Future<WeightLogModel> addWeightLog(double weight, {double? bodyFat}) async {
+  Future<WeightLogModel> addWeightLog(
+    double weight, {
+    double? bodyFat,
+    String? date,
+  }) async {
     final response = await _dio.post(
       'athlete/weight-logs/',
-      data: {'weight': weight, 'body_fat': bodyFat},
+      data: {'weight': weight, 'body_fat': bodyFat, 'date': date},
     );
     return WeightLogModel.fromJson(response.data);
   }
@@ -36,5 +40,57 @@ class DashboardRepository {
     if (response.statusCode != 201 && response.statusCode != 200) {
       throw Exception('Error creando grupo');
     }
+  }
+
+  Future<List<GoalModel>> getGoals() async {
+    final response = await _dio.get('athlete/goals/');
+    return (response.data as List).map((g) => GoalModel.fromJson(g)).toList();
+  }
+
+  Future<GoalModel> createGoal({
+    required String goalType,
+    String? description,
+    double? targetValue,
+    double? currentValue,
+    String? deadline,
+  }) async {
+    final response = await _dio.post(
+      'athlete/goals/',
+      data: {
+        'goal_type': goalType,
+        'description': description ?? '',
+        'target_value': targetValue,
+        'current_value': currentValue,
+        'deadline': deadline,
+      },
+    );
+    return GoalModel.fromJson(response.data);
+  }
+
+  Future<GoalModel> updateGoal(
+    int id, {
+    String? goalType,
+    String? description,
+    double? targetValue,
+    double? currentValue,
+    String? deadline,
+    bool? isActive,
+  }) async {
+    final response = await _dio.put(
+      'athlete/goals/$id/',
+      data: {
+        'goal_type': goalType,
+        'description': description,
+        'target_value': targetValue,
+        'current_value': currentValue,
+        'deadline': deadline,
+        'is_active': isActive,
+      },
+    );
+    return GoalModel.fromJson(response.data);
+  }
+
+  Future<void> deleteGoal(int id) async {
+    await _dio.delete('athlete/goals/$id/');
   }
 }

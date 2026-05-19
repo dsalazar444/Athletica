@@ -18,3 +18,6 @@ ignore = []
 DJANGO_SETTINGS_MODULE = "backend.settings"
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
 addopts = "--cov=. --cov-report=xml:coverage.xml"
+
+[tool.pyright]
+extraPaths = ["backend"]

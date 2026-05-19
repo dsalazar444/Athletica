@@ -111,11 +111,17 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  _misRutinasText,
-                  style: AppTextStyles.fitnessDisplay.copyWith(
-                    color: AppColors.textPrimary,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      _misRutinasText,
+                      style: AppTextStyles.fitnessDisplay.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text('🏋️', style: TextStyle(fontSize: 22)),
+                  ],
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -127,6 +133,7 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
               ],
             ),
           ),
+
           _buildActionCircle(Icons.history_rounded, () {
             Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const WorkoutHistoryScreen()),
@@ -332,7 +339,7 @@ class RoutinesListScreenState extends State<RoutinesListScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "RECIENTES",
+              "⚡ RECIENTES",
               style: AppTextStyles.fitnessBold.copyWith(
                 fontSize: 14,
                 color: AppColors.textSecondary,

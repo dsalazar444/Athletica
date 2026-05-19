@@ -11,6 +11,7 @@ import 'step_2_personal.dart';
 import 'step_2_coach.dart';
 import 'step_3_goals.dart';
 import 'step_4_experience.dart';
+import 'login_screen.dart';
 
 // Pantalla principal del flujo de registro.
 // Coordina los pasos del formulario y muestra el contenido correspondiente a cada paso.
@@ -37,26 +38,8 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Solid Background
+          // Background Image
           Positioned.fill(child: Container(color: AppColors.primary)),
-
-          // Gradient Overlay
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    AppColors.primary.withValues(alpha: 0.3),
-                    AppColors.primary.withValues(alpha: 0.7),
-                    AppColors.background,
-                  ],
-                  stops: const [0.0, 0.5, 0.7],
-                ),
-              ),
-            ),
-          ),
 
           Column(
             children: [
@@ -67,11 +50,31 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'ATHLETICA',
-                      style: AppTextStyles.fitnessHero.copyWith(
-                        color: Colors.white,
-                      ),
+                    Row(
+                      children: [
+                        IconButton(
+                          padding: EdgeInsets.zero,
+                          alignment: Alignment.centerLeft,
+                          icon: const Icon(
+                            Icons.arrow_back_ios_new_rounded,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const LoginScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        Text(
+                          'ATHLETICA',
+                          style: AppTextStyles.fitnessHero.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 8),
                     Container(
@@ -84,7 +87,7 @@ class _RegisterFlowScreenState extends State<RegisterFlowScreen> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        'CONFIGURA TU PERFIL',
+                        '⚡ CONFIGURA TU PERFIL',
                         style: AppTextStyles.fitnessCaption.copyWith(
                           color: Colors.white,
                           fontSize: 10,

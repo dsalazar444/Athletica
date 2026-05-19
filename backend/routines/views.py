@@ -1,19 +1,36 @@
 from django.db import models
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 from rest_framework import decorators, status, viewsets
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from users.models import User
+from users.models import AthleteProfile, Follow, Goal, User, WeightLog
 
-from .models import Exercise, Routine, RoutineExercise, SetLog, TrainingGroup, WorkoutSession
+from .ai_service import generate_exercise_recommendations
+from .models import (
+    Comment,
+    CommentReaction,
+    Exercise,
+    Reaction,
+    Routine,
+    RoutineExercise,
+    SetLog,
+    TrainingGroup,
+    WorkoutSession,
+)
+from .serializers.serializer_recommendation import RecommendationResponseSerializer
 from .serializers.serializer_routine import (
     RoutineCreateSerializer,
     RoutineDetailSerializer,
     RoutineExerciseInputSerializer,
 )
+from .serializers.serializer_social import CommentSerializer
 from .serializers.serializer_workout import (
     SetLogSerializer,
     WorkoutHistorySerializer,
@@ -42,7 +59,8 @@ class ExerciseViewSet(viewsets.ViewSet):  # NOSONAR
             serializer.save()
             return Response({"created": True}, status=status.HTTP_201_CREATED)
         return Response(
-            {"created": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+            {"created": False, "errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
 
@@ -77,6 +95,37 @@ class RoutineViewSet(viewsets.ModelViewSet):  # NOSONAR
             )
         return super().destroy(request, *args, **kwargs)
 
+    @decorators.action(
+        detail=False, methods=["get"], url_path="public", permission_classes=[AllowAny]
+    )
+    def get_public_routines(self, request):
+        """Lista todas las rutinas públicas.
+
+        Ruta: GET /api/routines/public/
+        Devuelve la lista de rutinas cuyo campo `is_public` es True.
+        """
+        routines = (
+            self.queryset.filter(is_public=True)
+            .select_related("created_by")
+            .prefetch_related("assigned_athletes")
+        )
+
+        if request.query_params.get("mine") == "true" and request.user.is_authenticated:
+            routines = routines.filter(created_by=request.user)
+
+        if request.user.is_authenticated:
+            follow_subquery = Follow.objects.filter(
+                follower_id=request.user.id, following_id=models.OuterRef("created_by_id")
+            )
+            routines = routines.annotate(is_followed_by_request_user=models.Exists(follow_subquery))
+        else:
+            routines = routines.annotate(
+                is_followed_by_request_user=models.Value(False, output_field=models.BooleanField())
+            )
+
+        serializer = self.get_serializer(routines, many=True)
+        return Response(serializer.data)
+
     @decorators.action(detail=True, methods=["patch"])
     def add_exercises(self, request, pk=None):
         """Action personalizada para añadir ejercicios a una rutina existente."""
@@ -94,19 +143,22 @@ class RoutineViewSet(viewsets.ModelViewSet):  # NOSONAR
         )
         new_exercises = [
             RoutineExercise(
-                routine=routine, exercise=item["external_id"], order=current_max_order + i + 1
+                routine=routine,
+                exercise=item["external_id"],
+                order=current_max_order + i + 1,
             )
             for i, item in enumerate(serializer.validated_data)
         ]
         RoutineExercise.objects.bulk_create(new_exercises)
-        return Response(RoutineDetailSerializer(routine).data)
+        return Response(self.get_serializer(routine).data)
 
     @decorators.action(detail=True, methods=["post"], url_path="assign")
     def assign_to_athletes(self, request, pk=None):
         """Asigna la rutina a varios atletas."""
         if request.user.role != "coach":
             return Response(
-                {"detail": "Solo coaches pueden asignar."}, status=status.HTTP_403_FORBIDDEN
+                {"detail": "Solo coaches pueden asignar."},
+                status=status.HTTP_403_FORBIDDEN,
             )
 
         routine = self.get_object()
@@ -154,7 +206,7 @@ class RoutineViewSet(viewsets.ModelViewSet):  # NOSONAR
         routine = Routine.objects.filter(assigned_athletes__id=athlete_id).first()
         if not routine:
             return Response({"detail": "Sin rutina asignada."}, status=status.HTTP_404_NOT_FOUND)
-        return Response(RoutineDetailSerializer(routine).data)
+        return Response(self.get_serializer(routine).data)
 
     @decorators.action(
         detail=True, methods=["delete"], url_path="exercises/(?P<exercise_id>[^/.]+)"
@@ -168,6 +220,44 @@ class RoutineViewSet(viewsets.ModelViewSet):  # NOSONAR
         if deleted:
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response({"detail": "No encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+    @decorators.action(detail=True, methods=["get", "post"], permission_classes=[IsAuthenticated])
+    def comments(self, request, pk=None):
+        """Lista o crea comentarios en una rutina. GET /api/routines/<id>/comments/"""
+        routine = self.get_object()
+
+        if request.method == "GET":
+            qs = routine.comments.filter(parent=None).prefetch_related(
+                "replies__reactions", "reactions"
+            )
+            serializer = CommentSerializer(qs, many=True, context={"request": request})
+            return Response(serializer.data)
+
+        serializer = CommentSerializer(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            parent_id = request.data.get("parent")
+            parent = None
+            if parent_id:
+                parent = get_object_or_404(Comment, id=parent_id, routine=routine)
+            serializer.save(user=request.user, routine=routine, parent=parent)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @decorators.action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def react(self, request, pk=None):
+        """Alterna la reacción (like) del usuario en una rutina. POST /api/routines/<id>/react/"""
+        routine = self.get_object()
+        reaction_type = request.data.get("reaction_type", Reaction.ReactionType.LIKE)
+        reaction, created = Reaction.objects.get_or_create(
+            user=request.user, routine=routine, reaction_type=reaction_type
+        )
+        if not created:
+            reaction.delete()
+            return Response({"reacted": False, "likes_count": routine.reactions.count()})
+        return Response(
+            {"reacted": True, "likes_count": routine.reactions.count()},
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class WorkoutSessionViewSet(viewsets.ModelViewSet):  # NOSONAR
@@ -219,8 +309,6 @@ class WorkoutSessionViewSet(viewsets.ModelViewSet):  # NOSONAR
             .select_related("routine")
         )
 
-        from rest_framework.pagination import PageNumberPagination
-
         class CustomPagination(PageNumberPagination):
             page_size_query_param = "page_size"
 
@@ -249,7 +337,9 @@ class SetLogViewSet(viewsets.ModelViewSet):  # NOSONAR
         return Response(SetLogSerializer(sets, many=True).data)
 
     @decorators.action(
-        detail=False, methods=["get"], url_path="exercise/(?P<exercise_id>[^/.]+)/history"
+        detail=False,
+        methods=["get"],
+        url_path="exercise/(?P<exercise_id>[^/.]+)/history",
     )
     def exercise_history(self, request, exercise_id=None):
         logs = (
@@ -283,3 +373,189 @@ class TrainingGroupViewSet(viewsets.ModelViewSet):  # NOSONAR
         super().initial(request, *args, **kwargs)
         if request.user.role != "coach":
             raise PermissionDenied("Solo los coaches pueden gestionar grupos.")
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def GroupDashboardView(request, group_id):
+    """Tablero de métricas de los atletas de un grupo."""
+    if request.user.role != "coach":
+        return Response(
+            {"detail": "Solo los entrenadores pueden ver este tablero."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    group = get_object_or_404(TrainingGroup, id=group_id, coach=request.user)
+    print(f">>> group_id={group_id}, grupo={group.name}, miembros={group.members.count()}")
+
+    athletes_data = []
+    for member in group.members.all():
+        print(f"Procesando: {member.username}")
+        try:
+            profile = AthleteProfile.objects.get(user=member)
+            print(f"  Profile encontrado: {profile}")
+        except AthleteProfile.DoesNotExist:
+            print(f"  SIN PROFILE - saltando {member.username}")
+            continue
+        except Exception as e:
+            print(f"  ERROR inesperado: {e} para {member.username}")
+            continue
+
+        # Último peso y tendencia
+        weight_logs = WeightLog.objects.filter(athlete=profile).order_by("-id")[:2]
+        latest_weight = None
+        weight_trend = "no_data"
+
+        if weight_logs:
+            latest_weight = {
+                "weight": weight_logs[0].weight,
+                "date": weight_logs[0].date,
+                "body_fat": weight_logs[0].body_fat,
+            }
+            if len(weight_logs) == 2:
+                diff = weight_logs[0].weight - weight_logs[1].weight
+                if diff > 0:
+                    weight_trend = "up"
+                elif diff < 0:
+                    weight_trend = "down"
+                else:
+                    weight_trend = "stable"
+
+        # Meta activa
+        active_goal = (
+            Goal.objects.filter(athlete=profile, is_active=True).order_by("-start_date").first()
+        )
+        goal_data = None
+        if active_goal:
+            goal_data = {
+                "id": active_goal.id,
+                "goal_type": active_goal.goal_type,
+                "target_value": active_goal.target_value,
+                "current_value": active_goal.current_value,
+                "deadline": active_goal.deadline,
+            }
+
+        athletes_data.append(
+            {
+                "id": member.id,
+                "username": member.username,
+                "first_name": member.first_name,
+                "email": member.email,
+                "age": profile.age,
+                "gender": profile.gender,
+                "activity_level": profile.activity_level,
+                "latest_weight": latest_weight,
+                "weight_trend": weight_trend,
+                "active_goal": goal_data,
+            }
+        )
+
+    total_with_goal = sum(1 for a in athletes_data if a["active_goal"] is not None)
+    total_with_weight = sum(1 for a in athletes_data if a["latest_weight"] is not None)
+    weights = [
+        a["latest_weight"]["weight"] for a in athletes_data if a["latest_weight"] is not None
+    ]
+    avg_weight = round(sum(weights) / len(weights), 1) if weights else None
+    total_with_routine = (
+        Routine.objects.filter(assigned_athletes__in=group.members.all())
+        .values("assigned_athletes")
+        .distinct()
+        .count()
+    )
+
+    return Response(
+        {
+            "group_id": group.id,
+            "group_name": group.name,
+            "total_members": len(athletes_data),
+            "group_metrics": {
+                "total_with_goal": total_with_goal,
+                "total_with_routine": total_with_routine,
+                "total_with_weight_data": total_with_weight,
+                "avg_weight": avg_weight,
+            },
+            "athletes": athletes_data,
+        }
+    )
+
+
+class ExerciseRecommendationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        try:
+            profile = user.athleteprofile
+        except AthleteProfile.DoesNotExist:
+            return Response(
+                {"detail": "User must be an athlete with a profile to get recommendations."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Get history
+        history = WorkoutSession.objects.filter(user=user).order_by("-date")[:5]
+
+        # Get all exercises to choose from
+        available_exercises = Exercise.objects.all()
+        if not available_exercises.exists():
+            return Response(
+                {"detail": "No exercises available in database."}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Call AI Service
+        ai_recommendations = generate_exercise_recommendations(
+            profile, history, available_exercises
+        )
+        print(f"DEBUG: AI recommendations raw: {ai_recommendations}")
+
+        # Enrich with DB data (IDs, URLs)
+        enriched_data = []
+        for item in ai_recommendations:
+            exercise_name = item.get("exercise_name")
+            db_ex = Exercise.objects.filter(name__icontains=exercise_name).first()
+            enriched_data.append(
+                {
+                    "exercise_name": exercise_name,
+                    "reason": item.get("reason"),
+                    "image_url": db_ex.image_url if db_ex else "",
+                    "exercise_id": db_ex.id if db_ex else None,
+                    "muscle": db_ex.muscle if db_ex else "General",
+                    "sets": item.get("sets", 3),
+                    "reps": item.get("reps", "12"),
+                    "rest": item.get("rest", 60),
+                    "instructions": item.get("instructions", ""),
+                    "youtube_id": item.get("youtube_id", ""),
+                }
+            )
+
+        response_data = {"recommendations": enriched_data, "generated_at": timezone.now()}
+
+        # Usamos el serializador para formatear la salida correctamente
+        serializer = RecommendationResponseSerializer(response_data)
+        return Response(serializer.data)
+
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def delete_comment(request, comment_id):
+    """Elimina un comentario propio. DELETE /api/comments/<id>/"""
+    comment = get_object_or_404(Comment, id=comment_id)
+    if comment.user != request.user:
+        return Response({"detail": "No tienes permiso."}, status=status.HTTP_403_FORBIDDEN)
+    comment.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def comment_react(request, comment_id):
+    """Alterna la reacción (like) del usuario en un comentario. POST /api/comments/<id>/react/"""
+    comment = get_object_or_404(Comment, id=comment_id)
+    reaction, created = CommentReaction.objects.get_or_create(user=request.user, comment=comment)
+    if not created:
+        reaction.delete()
+        return Response({"reacted": False, "likes_count": comment.reactions.count()})
+    return Response(
+        {"reacted": True, "likes_count": comment.reactions.count()},
+        status=status.HTTP_201_CREATED,
+    )

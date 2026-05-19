@@ -1,12 +1,30 @@
 import logging
 
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .models import AthleteProfile, CoachProfile, Goal, User, WeightLog
+from .models import (
+    AthleteProfile,
+    Badge,
+    CoachProfile,
+    Follow,
+    Goal,
+    Reminder,
+    User,
+    UserBadge,
+    WeightLog,
+)
 
 logger = logging.getLogger(__name__)
+
+
+class IsoDateTimeField(serializers.DateTimeField):
+    def to_representation(self, value):
+        if value is None:
+            return None
+        return value.isoformat()
 
 
 # Serializer para las metas de un atleta.
@@ -36,7 +54,6 @@ class WeightLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = WeightLog
         fields = ["id", "weight", "body_fat", "date"]
-        read_only_fields = ["date"]
 
 
 # Serializer para el perfil del atleta.
@@ -47,7 +64,15 @@ class AthleteProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AthleteProfile
-        fields = ["id", "height", "age", "gender", "activity_level", "goals", "weight_logs"]
+        fields = [
+            "id",
+            "height",
+            "age",
+            "gender",
+            "activity_level",
+            "goals",
+            "weight_logs",
+        ]
 
 
 # Serializer para el perfil del coach.
@@ -61,6 +86,7 @@ class CoachProfileSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     athlete_profile = AthleteProfileSerializer(read_only=True)
     coach_profile = CoachProfileSerializer(read_only=True)
+    is_following = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -74,9 +100,22 @@ class UserSerializer(serializers.ModelSerializer):
             "height",
             "weight",
             "training_goal",
+            "timezone",
             "athlete_profile",
             "coach_profile",
+            "is_following",
         ]
+
+    def get_is_following(self, obj):
+        """Verifica si el usuario logueado sigue a este usuario"""
+        request = self.context.get("request")
+        if not request or not request.user.is_authenticated:
+            return False
+
+        if request.user.id == obj.id:
+            return None  # No puede seguirse a sí mismo
+
+        return Follow.objects.filter(follower=request.user, following=obj).exists()
 
 
 class ProfileSettingsSerializer(serializers.Serializer):
@@ -85,6 +124,46 @@ class ProfileSettingsSerializer(serializers.Serializer):
     weight = serializers.FloatField(required=False, min_value=1)
     height = serializers.FloatField(required=False, min_value=1)
     training_goal = serializers.ChoiceField(required=False, choices=Goal.GOAL_CHOICES)
+    timezone = serializers.CharField(required=False, max_length=50)
+
+
+class ReminderSerializer(serializers.ModelSerializer):
+    remind_at = IsoDateTimeField()
+    notified_at = IsoDateTimeField(required=False, allow_null=True)
+    created_at = IsoDateTimeField(read_only=True)
+    updated_at = IsoDateTimeField(read_only=True)
+
+    class Meta:
+        model = Reminder
+        fields = [
+            "id",
+            "activity_type",
+            "remind_at",
+            "recurrence",
+            "timezone",
+            "is_active",
+            "notified_at",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "notified_at", "created_at", "updated_at"]
+
+    def validate(self, attrs):
+        remind_at = attrs.get("remind_at")
+        if remind_at is None and self.instance is not None:
+            remind_at = self.instance.remind_at
+
+        if remind_at is None:
+            raise serializers.ValidationError(
+                {"remind_at": "Debes seleccionar una fecha y hora para el recordatorio."}
+            )
+
+        if remind_at <= timezone.now():
+            raise serializers.ValidationError(
+                {"remind_at": "El horario seleccionado es inválido. Debe ser futuro."}
+            )
+
+        return attrs
 
 
 # Serializer para el registro de nuevos usuarios.
@@ -210,3 +289,70 @@ class AthleteSearchSerializer(serializers.ModelSerializer):
 
         routine = Routine.objects.filter(assigned_athletes=obj).first()
         return routine.title if routine else None
+
+
+# Serializer para gestionar los seguimientos de usuarios
+class FollowSerializer(serializers.ModelSerializer):
+    follower_username = serializers.CharField(source="follower.username", read_only=True)
+    following_username = serializers.CharField(source="following.username", read_only=True)
+
+    class Meta:
+        model = Follow
+        fields = [
+            "id",
+            "follower",
+            "following",
+            "follower_username",
+            "following_username",
+            "created_at",
+        ]
+        read_only_fields = ["created_at"]
+
+
+# ============= BADGE SERIALIZERS =============
+
+
+class BadgeSerializer(serializers.ModelSerializer):
+    """Serializer para mostrar información de una insignia"""
+
+    badge_type_display = serializers.CharField(source="get_badge_type_display", read_only=True)
+
+    class Meta:
+        model = Badge
+        fields = [
+            "id",
+            "badge_type",
+            "badge_type_display",
+            "level",
+            "name",
+            "description",
+            "svg_filename",
+            "unlock_condition",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class UserBadgeSerializer(serializers.ModelSerializer):
+    """Serializer para mostrar badges desbloqueados por un usuario"""
+
+    badge = BadgeSerializer(read_only=True)
+    badge_id = serializers.IntegerField(write_only=True, required=False)
+
+    class Meta:
+        model = UserBadge
+        fields = [
+            "id",
+            "badge",
+            "badge_id",
+            "unlocked_at",
+        ]
+        read_only_fields = ["id", "unlocked_at"]
+
+
+class UserBadgesSummarySerializer(serializers.Serializer):
+    """Serializer para el resumen completo de badges de un usuario"""
+
+    total_badges = serializers.IntegerField()
+    unlocked_badges = UserBadgeSerializer(many=True)
+    stats = serializers.DictField()

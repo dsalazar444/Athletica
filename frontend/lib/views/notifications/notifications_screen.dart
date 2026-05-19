@@ -8,11 +8,13 @@ import '../routine/routine_detail_screen.dart';
 class NotificationsScreen extends StatelessWidget {
   final List<NotificationModel> notifications;
   final VoidCallback onClearAll;
+  final ValueChanged<String> onDeleteNotification;
 
   const NotificationsScreen({
     super.key,
     required this.notifications,
     required this.onClearAll,
+    required this.onDeleteNotification,
   });
 
   @override
@@ -81,74 +83,97 @@ class NotificationsScreen extends StatelessWidget {
     BuildContext context,
     NotificationModel notification,
   ) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: AppRadius.card,
-        boxShadow: AppColors.softShadow,
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _handleNotificationTap(context, notification),
+    return Dismissible(
+      key: ValueKey(notification.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+          color: Colors.redAccent,
           borderRadius: AppRadius.card,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: notification.color.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.delete_rounded, color: Colors.white),
+      ),
+      confirmDismiss: (_) async {
+        return true;
+      },
+      onDismissed: (_) => onDeleteNotification(notification.id),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: AppRadius.card,
+          boxShadow: AppColors.softShadow,
+          border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => _handleNotificationTap(context, notification),
+            borderRadius: AppRadius.card,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: notification.color.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      notification.icon,
+                      color: notification.color,
+                      size: 24,
+                    ),
                   ),
-                  child: Icon(
-                    notification.icon,
-                    color: notification.color,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            notification.title.toUpperCase(),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 13,
-                              letterSpacing: 0.5,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              notification.title.toUpperCase(),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 13,
+                                letterSpacing: 0.5,
+                              ),
                             ),
-                          ),
-                          Text(
-                            _formatTime(notification.date),
-                            style: TextStyle(
-                              color: AppColors.textHint,
-                              fontSize: 10,
+                            Text(
+                              _formatTime(notification.date),
+                              style: TextStyle(
+                                color: AppColors.textHint,
+                                fontSize: 10,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        notification.message,
-                        style: TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 13,
-                          height: 1.4,
+                          ],
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 6),
+                        if (notification.message.isNotEmpty)
+                          Text(
+                            notification.message,
+                            style: TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 13,
+                              height: 1.4,
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                  IconButton(
+                    onPressed: () => onDeleteNotification(notification.id),
+                    icon: Icon(Icons.close_rounded, color: AppColors.textHint),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

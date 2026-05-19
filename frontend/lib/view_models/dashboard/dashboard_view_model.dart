@@ -7,9 +7,10 @@ class DashboardViewModel {
   AthleteDashboardModel? athleteDashboard;
   CoachDashboardModel? coachDashboard;
   List<WeightLogModel> weightLogs = [];
-
   bool isLoading = false;
   String? errorMessage;
+
+  DashboardRepository get repository => _repository;
 
   Future<void> loadAthleteDashboard() async {
     isLoading = true;

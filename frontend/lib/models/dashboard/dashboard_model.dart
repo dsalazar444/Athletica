@@ -5,6 +5,8 @@ class AthleteDashboardModel {
   final String activityLevel;
   final WeightLogModel? latestWeight;
   final GoalModel? goal;
+  final int? followersCount;
+  final int? followingCount;
 
   AthleteDashboardModel({
     required this.height,
@@ -13,6 +15,8 @@ class AthleteDashboardModel {
     required this.activityLevel,
     this.latestWeight,
     this.goal,
+    this.followersCount,
+    this.followingCount,
   });
 
   factory AthleteDashboardModel.fromJson(Map<String, dynamic> json) {
@@ -25,6 +29,8 @@ class AthleteDashboardModel {
           ? WeightLogModel.fromJson(json['latest_weight'])
           : null,
       goal: json['goal'] != null ? GoalModel.fromJson(json['goal']) : null,
+      followersCount: json['followers_count'] ?? 0,
+      followingCount: json['following_count'] ?? 0,
     );
   }
 }
@@ -98,12 +104,16 @@ class CoachDashboardModel {
   final String speciality;
   final int yearsExperience;
   final List<TrainingGroupSummary> groups;
+  final int? followersCount;
+  final int? followingCount;
 
   CoachDashboardModel({
     required this.name,
     required this.speciality,
     required this.yearsExperience,
     required this.groups,
+    this.followersCount,
+    this.followingCount,
   });
 
   factory CoachDashboardModel.fromJson(Map<String, dynamic> json) {
@@ -114,6 +124,8 @@ class CoachDashboardModel {
       groups: (json['groups'] as List)
           .map((g) => TrainingGroupSummary.fromJson(g))
           .toList(),
+      followersCount: json['followers_count'] ?? 0,
+      followingCount: json['following_count'] ?? 0,
     );
   }
 }

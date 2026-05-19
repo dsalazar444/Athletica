@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../../core/api_client.dart';
 import '../../models/group/group_model.dart';
 import '../../models/group/member_model.dart';
+import '../../models/group/group_dashboard_model.dart';
 
 class GroupRepository {
   final Dio _dio = ApiClient.dio;
@@ -67,6 +68,15 @@ class GroupRepository {
       return data.map((e) => MemberModel.fromJson(e)).toList();
     } else {
       throw Exception('Error buscando atletas');
+    }
+  }
+
+  Future<GroupDashboardModel> getGroupDashboard(int groupId) async {
+    final response = await _dio.get('groups/$groupId/dashboard/');
+    if (response.statusCode == 200) {
+      return GroupDashboardModel.fromJson(response.data);
+    } else {
+      throw Exception('Error al obtener tablero del grupo');
     }
   }
 }

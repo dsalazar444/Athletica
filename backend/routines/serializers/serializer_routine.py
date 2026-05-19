@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from routines.models import Exercise, Routine, RoutineExercise
 from routines.serializers.serializers_exercise import ExerciseSerializer
+from users.models import Follow
 
 
 # exercise_id: Debe ser el id de un Exercise existente.
@@ -29,7 +30,7 @@ class RoutineCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Routine
-        fields = ["id", "title", "description", "category", "difficulty", "exercises"]
+        fields = ["id", "title", "description", "category", "difficulty", "is_public", "exercises"]
 
     def validate_exercises(self, exercises):
         """Verifica que no vengan dos ejercicios con el mismo orden."""
@@ -40,12 +41,12 @@ class RoutineCreateSerializer(serializers.ModelSerializer):
             )
         return exercises
 
-    # hay que nombrar metodo asi, porque con base a nombre, data toma un valor, y como data no puede ser un campo del modelo por la lógica de func, toca así
-    def validate(self, data):
+    # hay que nombrar metodo asi, porque con base a nombre, attrs toma un valor, y como attrs no puede ser un campo del modelo por la lógica de func, toca así
+    def validate(self, attrs):
         """Valida que el usuario autenticado no tenga otra rutina con el mismo título."""
         request = self.context.get("request")
         user = getattr(request, "user", None)
-        title = data.get("title")
+        title = attrs.get("title")
         if user and title:
             qs = Routine.objects.filter(title=title, created_by=user)
             if self.instance:
@@ -54,7 +55,7 @@ class RoutineCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     f"Ya tienes una rutina con el titulo '{title}'. Ponle otro"
                 )
-        return data
+        return attrs
 
     def validate_assigned_athletes(self, value):
         """Validate that all assigned users are athletes"""
@@ -72,7 +73,7 @@ class RoutineCreateSerializer(serializers.ModelSerializer):
         user = getattr(request, "user", None)
 
         if not user:
-            raise serializers.ValidationError("Authentication required to create a routine.")
+            raise serializers.ValidationError("Autenticación requerida para crear una rutina.")
 
         # Pop created_by if it was passed from perform_create to avoid duplicate argument error
         created_by = validated_data.pop("created_by", user)
@@ -105,6 +106,10 @@ class RoutineDetailSerializer(serializers.ModelSerializer):
     )
     assigned_athletes_info = serializers.SerializerMethodField()
     creator_name = serializers.CharField(source="created_by.first_name", read_only=True)
+    creator_is_following = serializers.SerializerMethodField()
+    likes_count = serializers.SerializerMethodField()
+    user_liked = serializers.SerializerMethodField()
+    comments_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Routine
@@ -114,11 +119,16 @@ class RoutineDetailSerializer(serializers.ModelSerializer):
             "description",
             "category",
             "difficulty",
+            "is_public",
             "created_by",
             "creator_name",
+            "creator_is_following",
             "exercises",
             "assigned_athletes_count",
             "assigned_athletes_info",
+            "likes_count",
+            "user_liked",
+            "comments_count",
         ]
 
     def get_exercises(self, routine):
@@ -137,3 +147,34 @@ class RoutineDetailSerializer(serializers.ModelSerializer):
             {"id": athlete.id, "first_name": athlete.first_name or athlete.username}
             for athlete in routine.assigned_athletes.all()
         ]
+
+    def get_creator_is_following(self, routine):
+        """Verifica si el usuario logueado sigue al creador de la rutina."""
+
+        request = self.context.get("request")
+        if not request or not request.user.is_authenticated:
+            return False
+
+        if request.user.id == routine.created_by_id:
+            return None  # El creador no puede seguirse a sí mismo
+
+        annotated_value = getattr(routine, "is_followed_by_request_user", None)
+        if annotated_value is not None:
+            return bool(annotated_value)
+
+        return Follow.objects.filter(
+            follower=request.user,
+            following_id=routine.created_by_id,
+        ).exists()
+
+    def get_likes_count(self, routine):
+        return routine.reactions.filter(reaction_type="like").count()
+
+    def get_user_liked(self, routine):
+        request = self.context.get("request")
+        if not request or not request.user.is_authenticated:
+            return False
+        return routine.reactions.filter(user=request.user, reaction_type="like").exists()
+
+    def get_comments_count(self, routine):
+        return routine.comments.filter(parent=None).count()
