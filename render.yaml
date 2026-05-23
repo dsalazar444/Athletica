@@ -37,6 +37,8 @@ services:
           property: port
       - key: GEMINI_API_KEY
         sync: false
+      - key: YOUTUBE_API_KEY
+        sync: false
       - key: EMAIL_BACKEND
         value: django.core.mail.backends.smtp.EmailBackend
       - key: EMAIL_HOST
@@ -57,3 +59,4 @@ databases:
     plan: free
     databaseName: users_db
     user: users_django
+
