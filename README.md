@@ -34,6 +34,16 @@ El objetivo es facilitar a los usuarios el registro de rutinas, ejercicios y ali
 
 ---
 
+## Despliegue
+
+### Front
+
+https://athletica-flutter.vercel.app/
+
+### Back 
+
+https://athletica-backend.onrender.com
+
 ## 🚀 Objetivo del Proyecto
 
 Desarrollar una aplicación móvil que permita:

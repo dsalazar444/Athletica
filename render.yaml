@@ -59,4 +59,3 @@ databases:
     plan: free
     databaseName: users_db
     user: users_django
-
