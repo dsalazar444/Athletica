@@ -27,14 +27,12 @@ class NotificationsScreen extends StatelessWidget {
         elevation: 0,
         actions: [
           if (notifications.isNotEmpty)
-            TextButton(
+            IconButton(
               onPressed: onClearAll,
-              child: const Text(
-                'Limpiar Todo',
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
+              tooltip: 'Limpiar todo',
+              icon: const Icon(
+                Icons.delete_sweep_outlined,
+                color: AppColors.primary,
               ),
             ),
         ],
@@ -130,22 +128,26 @@ class NotificationsScreen extends StatelessWidget {
                       size: 24,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              notification.title.toUpperCase(),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w900,
-                                fontSize: 13,
-                                letterSpacing: 0.5,
+                            Expanded(
+                              child: Text(
+                                notification.title.toUpperCase(),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 13,
+                                  letterSpacing: 0.5,
+                                ),
                               ),
                             ),
+                            const SizedBox(width: 8),
                             Text(
                               _formatTime(notification.date),
                               style: TextStyle(
@@ -159,6 +161,8 @@ class NotificationsScreen extends StatelessWidget {
                         if (notification.message.isNotEmpty)
                           Text(
                             notification.message,
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 13,
@@ -170,6 +174,12 @@ class NotificationsScreen extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: () => onDeleteNotification(notification.id),
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 32,
+                      minHeight: 32,
+                    ),
                     icon: Icon(Icons.close_rounded, color: AppColors.textHint),
                   ),
                 ],

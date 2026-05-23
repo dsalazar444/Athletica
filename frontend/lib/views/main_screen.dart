@@ -338,18 +338,27 @@ class _MainScreenState extends State<MainScreen> {
                   const Icon(
                     Icons.notifications_active_rounded,
                     color: Colors.white,
+                    size: 22,
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       message,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
+                        fontSize: 13,
                       ),
                     ),
                   ),
                   TextButton(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
                     onPressed: () {
                       entry.remove();
                       _activeBannerEntry = null;
@@ -364,11 +373,21 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   ),
                   IconButton(
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 32,
+                      minHeight: 32,
+                    ),
                     onPressed: () {
                       entry.remove();
                       _activeBannerEntry = null;
                     },
-                    icon: const Icon(Icons.close, color: Colors.white),
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
                 ],
               ),

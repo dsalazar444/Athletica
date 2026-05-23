@@ -174,24 +174,44 @@ class _RemindersScreenState extends State<RemindersScreen> {
                     title: Text(
                       _activityLabel(reminder.activityType),
                       style: const TextStyle(fontWeight: FontWeight.w700),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: Text(
                       '${_formatDate(reminder.remindAt)} • ${_recurrenceLabel(reminder.recurrence)}',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit_outlined),
-                          onPressed: () =>
-                              _openReminderForm(reminder: reminder),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline),
-                          onPressed: () => _deleteReminder(reminder),
-                        ),
-                      ],
+                    trailing: SizedBox(
+                      width: 88,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            visualDensity: VisualDensity.compact,
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(
+                              minWidth: 36,
+                              minHeight: 36,
+                            ),
+                            icon: const Icon(Icons.edit_outlined, size: 20),
+                            onPressed: () =>
+                                _openReminderForm(reminder: reminder),
+                          ),
+                          IconButton(
+                            visualDensity: VisualDensity.compact,
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(
+                              minWidth: 36,
+                              minHeight: 36,
+                            ),
+                            icon: const Icon(Icons.delete_outline, size: 20),
+                            onPressed: () => _deleteReminder(reminder),
+                          ),
+                        ],
+                      ),
                     ),
+                    isThreeLine: true,
                   ),
                 );
               },
